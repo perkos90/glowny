@@ -18,30 +18,33 @@
 ;;;            1. Kontrola zestawu: tyle samo stringow kazdego rodzaju
 ;;;               (G24, G25, D24, D25 ...) co w oryginale - inaczej nic nie
 ;;;               jest zmieniane.
-;;;            2. Grupy inwerterow - pytanie [Skupiska/Pasy]:
-;;;               Skupiska (domyslnie, jak INWERTERY w ZLICZ-PANELE): obszar
-;;;               dzielony na pol rekurencyjnie - polowa inwerterow (od
-;;;               pierwszego numeru) dostaje czesc obszaru przy narozniku
-;;;               startu, z kazdego rodzaju tyle stringow, ile maja te
-;;;               inwertery w oryginale. Ciecie miedzy rzedami stolow (rzad
-;;;               na granicy dzielony) albo w poprzek rzedow - wybierane to,
-;;;               ktore daje zwartsze czesci (ksztalt *SC-ASPECT*). Kazda
-;;;               grupa jest jednym zwartym skupiskiem.
-;;;               Pasy: rzedy stolow dzielone na pasy po N rzedow,
-;;;               pasy przegladane kolumnami od wybranej strony (kolejny pas
-;;;               w przeciwna strone); kazdy inwerter bierze kolejne stringi
-;;;               takiego rodzaju, jakiego mu jeszcze brakuje. Skrypt uklada
-;;;               grupy dla kazdego N (1..liczba rzedow) i proponuje N, przy
-;;;               ktorym grupy sa najmniej porozrywane (przy remisie N
-;;;               z oryginalu).
-;;;               W obu trybach potem porzadkowanie: zamiana stringow tego
-;;;               samego rodzaju miedzy inwerterami, gdy grupy staja sie
-;;;               zwartsze (nigdy, gdy zamiana rozrywa grupe).
+;;;            2. Grupy inwerterow w SKUPISKACH (jak INWERTERY w ZLICZ-PANELE):
+;;;               kazda grupa MUSI byc jednym skupiskiem (stringi polaczone
+;;;               sasiedztwem, bez oderwanych kawalkow). Obszar dzielony na
+;;;               pol rekurencyjnie - pierwsze inwertery (od pierwszego
+;;;               numeru) dostaja czesc przy narozniku startu, z kazdego
+;;;               rodzaju tyle stringow, ile maja w oryginale. Ciecie miedzy
+;;;               rzedami stolow (rzad na granicy dzielony) albo w poprzek
+;;;               rzedow - obie czesci w jednym kawalku, z nich najzwartsze
+;;;               (ksztalt *SC-ASPECT*). Potem naprawa i porzadkowanie:
+;;;               zamiany stringow TEGO SAMEGO rodzaju miedzy inwerterami
+;;;               (sklad inwerterow bez zmian).
+;;;               Gdy przy skladzie z oryginalu nie da sie ulozyc grup bez
+;;;               rozbijania - skrypt pokazuje, ktore grupy sa rozbite, i PYTA,
+;;;               czy zamienic stringi miedzy inwerterami: inwerter dostaje
+;;;               wtedy tyle samo stringow co w oryginale, ale czesc z nich
+;;;               innego rodzaju (np. G24 zamiast G25) - lista zamian przed
+;;;               pytaniem, w raporcie (ZAMIANY STRINGOW, zolte kolka)
+;;;               i w pliku planu.
 ;;;            3. Numery w grupie: rzad po rzedzie od wybranego naroznika,
-;;;               kazdy rodzaj dostaje numery STR swojego rodzaju rosnaco.
+;;;               kazdy rodzaj dostaje numery STR swojego rodzaju rosnaco
+;;;               (po zamianie: string innego rodzaju dostaje wolny numer).
 ;;;            4. Zapis (po potwierdzeniu, jedno UNDO): w napisach zmieniane
 ;;;               sa tylko czlony ST / INV / STR, kreskowania dostaja kolor
 ;;;               inwertera (jawny, warstwa bez zmian); kontrola po zapisie.
+;;;            5. Na koniec CO ZMIENIONO (linia polecen) i raport zmian
+;;;               <rysunek>_strzmiany.csv: kazdy zmieniony napis i kolor
+;;;               kreskowania (przed -> po) oraz zamiany stringow.
 ;;; Kolka na niedrukowalnej warstwie STRCOPY_TEST: CZERWONE = blad,
 ;;; ZOLTE = do sprawdzenia.
 ;;; ==========================================================================
@@ -70,7 +73,8 @@
 (setq *SC-MAXLST*    40)   ; najwiecej wpisow jednej listy w raporcie
 (setq *SC-ASPECT*    3.0)  ; skupiska: ksztalt grupy - wymiar wzdluz rzedow / w poprzek
 (setq *SC-MIXW*      0.3)  ; skupiska: kara za czesci zachodzace na siebie (na string)
-(if (null *SC-MODE*) (setq *SC-MODE* "Skupiska"))
+(setq *SC-KCH*      20.0)  ; zamiana stringow: kara za string innego rodzaju niz w oryginale
+(setq *SC-FIXMAX*    300)  ; naprawa grup: najwiecej zamian
 (if (null *SC-HFROM*) (setq *SC-HFROM* "Lewa"))
 (if (null *SC-VFROM*) (setq *SC-VFROM* "Gory"))
 
@@ -119,7 +123,7 @@
 (defun sc:reset ()
   (setq *SC-ERRS* nil *SC-CHKS* nil *SC-INFOS* nil *SC-CIRCS* nil
         *SC-BLKBOX* nil *SC-LOCKS* nil *SC-UNDO* nil *SC-NSOFT* 0 *SC-UNL* nil
-        *SC-BIL* nil *SC-BILROWS* nil))
+        *SC-BIL* nil *SC-BILROWS* nil *SC-ZAM* nil))
 
 ;; blad "miekki": przy wyborze Dopasuj w STRPASTE nie blokuje zapisu
 ;; (zestaw sie nie zgadza, kreskowanie bez napisu)
@@ -166,6 +170,12 @@
   (sc:print "BLEDY" *SC-ERRS*)
   (sc:print "DO SPRAWDZENIA" *SC-CHKS*)
   (sc:print "INFORMACJE" *SC-INFOS*)
+  ;; zamiany stringow miedzy inwerterami - zawsze w calosci
+  (if *SC-ZAM*
+    (progn
+      (princ (strcat "\n--- ZAMIANY STRINGOW MIEDZY INWERTERAMI (string z numerem innego rodzaju niz"
+                     " w oryginale) ---"))
+      (foreach itm (reverse *SC-ZAM*) (princ (strcat "\n  " itm)))))
   ;; bilans miejsc - zawsze w calosci
   (if *SC-BIL*
     (progn
@@ -2065,24 +2075,6 @@
     (if (and (= (nth 1 orec) inv) (= (nth 4 orec) kd)) (setq nn (1+ nn))))
   nn)
 
-;; przydzial do inwerterow: dla kazdego rodzaju stringi w kolejnosci
-;; przegladu po kolei do inwerterow wg liczby ich stringow tego rodzaju
-;; -> ((klucz . inwerter) ...)
-(defun sc:greedy (sw invorder ostrs / kinds sx kd lst inv need gmap)
-  (foreach sx sw
-    (if (not (member (sc:g sx "KIND") kinds)) (setq kinds (cons (sc:g sx "KIND") kinds))))
-  (foreach kd kinds
-    (setq lst nil)
-    (foreach sx sw (if (= (sc:g sx "KIND") kd) (setq lst (cons sx lst))))
-    (setq lst (reverse lst))
-    (foreach inv invorder
-      (setq need (sc:quota ostrs inv kd))
-      (repeat need
-        (if lst
-          (setq gmap (cons (cons (sc:g (car lst) "KEY") inv) gmap)
-                lst  (cdr lst))))))
-  gmap)
-
 ;; blizniaki: string gorny i dolny na DOKLADNIE tych samych stolach, z ta
 ;; sama liczba paneli -> ((klucz . kluczBlizniaka) ...)
 (defun sc:twins (strs / sig str mp cur out sta stb)
@@ -2142,14 +2134,20 @@
 (defun sc:d2 (ux uy cen)
   (+ (* (- ux (cadr cen)) (- ux (cadr cen))) (* (- uy (caddr cen)) (- uy (caddr cen)))))
 
+;; kwadrat odleglosci od srodka grupy wg ksztaltu grupy: X (wzdluz rzedow)
+;; dzielone przez *SC-ASPECT* - jak przy podziale obszaru na skupiska
+(defun sc:d2s (ux uy cen / dx)
+  (setq dx (/ (- ux (cadr cen)) *SC-ASPECT*))
+  (+ (* dx dx) (* (- uy (caddr cen)) (- uy (caddr cen)))))
+
 ;; zysk zamiany jednostek ua (grupa A) i ub (grupa B): suma kwadratow
-;; odleglosci od srodkow grup przed - po
+;; odleglosci od srodkow grup (sc:d2s) przed - po
 (defun sc:swapgain (ua ub cents / ca cb)
   (setq ca (assoc (cadr ua) cents) cb (assoc (cadr ub) cents))
-  (- (+ (* (nth 4 ua) (sc:d2 (nth 2 ua) (nth 3 ua) ca))
-        (* (nth 4 ub) (sc:d2 (nth 2 ub) (nth 3 ub) cb)))
-     (+ (* (nth 4 ua) (sc:d2 (nth 2 ua) (nth 3 ua) cb))
-        (* (nth 4 ub) (sc:d2 (nth 2 ub) (nth 3 ub) ca)))))
+  (- (+ (* (nth 4 ua) (sc:d2s (nth 2 ua) (nth 3 ua) ca))
+        (* (nth 4 ub) (sc:d2s (nth 2 ub) (nth 3 ub) cb)))
+     (+ (* (nth 4 ua) (sc:d2s (nth 2 ua) (nth 3 ua) cb))
+        (* (nth 4 ub) (sc:d2s (nth 2 ub) (nth 3 ub) ca)))))
 
 (defun sc:doswap (gmap ua ub / out pr)
   (foreach pr gmap
@@ -2222,54 +2220,93 @@
           tot (+ tot (sqrt (sc:d2 (sc:g str "CX") (sc:g str "CY") cen)))))
   tot)
 
+;; klucze grupy inwertera inv
+(defun sc:gkeys (gmap inv / pr out)
+  (foreach pr gmap (if (= (cdr pr) inv) (setq out (cons (car pr) out))))
+  out)
+
+;; zamiana jednostek ua (grupa A) i ub (grupa B) nie zwieksza liczby
+;; kawalkow grup A i B (inne grupy sie nie zmieniaja)
+(defun sc:tidyok (gmap adj ua ub / ka kb sadj)
+  (setq ka   (sc:gkeys gmap (cadr ua))
+        kb   (sc:gkeys gmap (cadr ub))
+        sadj (sc:subadj (append ka kb) adj))
+  (<= (+ (sc:ncomp (append (nth 5 ub) (vl-remove-if (function (lambda (kx) (member kx (nth 5 ua)))) ka))
+                   sadj)
+         (sc:ncomp (append (nth 5 ua) (vl-remove-if (function (lambda (kx) (member kx (nth 5 ub)))) kb))
+                   sadj))
+      (+ (sc:ncomp ka sadj) (sc:ncomp kb sadj))))
+
 ;; porzadkowanie: zamiana jednostek tego samego rodzaju miedzy grupami,
 ;; od najwiekszego zysku (> *SC-SWAPMIN*); zamiana, ktora rozrywa grupe na
-;; wiecej kawalkow, jest odrzucana -> (gmap . liczba zamian)
-(defun sc:tidy (strs gmap tw adj / keys nsw go cents units cands ua ub gain cand pc0 gm2 done ntry)
-  (setq keys (mapcar (function (lambda (sx) (sc:g sx "KEY"))) strs)
-        nsw 0 go T)
+;; wiecej kawalkow, jest odrzucana -> (gmap . liczba zamian).
+;; Zysk > 0 tylko wtedy, gdy ktoras z jednostek lezy blizej srodka drugiej
+;; grupy niz swojej - pary szukane od takich jednostek (duze obszary szybko).
+(defun sc:tidy (strs gmap tw adj / nsw go cents units byg cur ua ub ca cb da gain cands cand
+                   done ntry)
+  (setq nsw 0 go T)
   (while (and go (< nsw *SC-SWAPMAX*))
     (setq cents (sc:centers strs gmap)
           units (sc:units strs gmap tw)
           cands nil
-          ua    units)
-    (while ua
-      (setq ub (cdr ua))
-      (while ub
-        (if (and (= (car (car ua)) (car (car ub)))
-                 (/= (cadr (car ua)) (cadr (car ub))))
-          (progn
-            (setq gain (sc:swapgain (car ua) (car ub) cents))
-            (if (> gain *SC-SWAPMIN*) (setq cands (cons (list gain (car ua) (car ub)) cands)))))
-        (setq ub (cdr ub)))
-      (setq ua (cdr ua)))
-    (setq cands (sc:msort cands (function (lambda (ca cb) (> (car ca) (car cb)))))
-          pc0   (length (sc:comps keys gmap adj))
+          byg   nil)
+    ;; jednostki wg grup: ((inwerter jednostka ...) ...)
+    (foreach ua units
+      (if (setq cur (assoc (cadr ua) byg))
+        (setq byg (subst (cons (car cur) (cons ua (cdr cur))) cur byg))
+        (setq byg (cons (list (cadr ua) ua) byg))))
+    (foreach ua units
+      (setq ca (assoc (cadr ua) cents)
+            da (sc:d2s (nth 2 ua) (nth 3 ua) ca))
+      (foreach cb cents
+        ;; ua blizej srodka grupy B niz swojej
+        (if (and (/= (car cb) (cadr ua)) (< (sc:d2s (nth 2 ua) (nth 3 ua) cb) da))
+          (foreach ub (cdr (assoc (car cb) byg))
+            (if (and (= (car ua) (car ub))
+                     ;; para, w ktorej obie jednostki leza blizej drugiej grupy - raz
+                     (or (>= (sc:d2s (nth 2 ub) (nth 3 ub) ca) (sc:d2s (nth 2 ub) (nth 3 ub) cb))
+                         (< (car (nth 5 ua)) (car (nth 5 ub)))))
+              (progn
+                (setq gain (sc:swapgain ua ub cents))
+                (if (> gain *SC-SWAPMIN*) (setq cands (cons (list gain ua ub) cands)))))))))
+    (setq cands (sc:msort cands (function (lambda (cx cy) (> (car cx) (car cy)))))
           done  nil
           ntry  0)
     (while (and cands (not done) (< ntry 20))
       (setq cand  (car cands)
             cands (cdr cands)
-            ntry  (1+ ntry)
-            gm2   (sc:doswap gmap (cadr cand) (caddr cand)))
-      (if (<= (length (sc:comps keys gm2 adj)) pc0)
-        (setq gmap gm2 nsw (1+ nsw) done T)))
+            ntry  (1+ ntry))
+      (if (sc:tidyok gmap adj (cadr cand) (caddr cand))
+        (setq gmap (sc:doswap gmap (cadr cand) (caddr cand)) nsw (1+ nsw) done T)))
     (if (not done) (setq go nil)))
   (cons gmap nsw))
 
 ;; numery w grupach: dla kazdego inwertera i rodzaju stringi w kolejnosci
-;; czytania dostaja numery STR tego inwertera i rodzaju rosnaco
+;; czytania dostaja numery STR tego inwertera i rodzaju rosnaco. Po zamianie
+;; stringow miedzy inwerterami reszta stringow (rodzaju, ktorego inwerter ma
+;; wiecej niz w oryginale) w kolejnosci czytania dostaje reszte numerow:
+;; najpierw z tego samego rzedu stolu, potem rosnaco
 ;; -> ((klucz . rekordZOryginalu) ...)
-(defun sc:number (strs gmap ostrs invorder / nmap inv kinds orec kd mine ids sx)
+(defun sc:number (strs gmap ostrs invorder / nmap inv kinds orec kd mine ids sx lefts leftr byinv cur ours)
+  ;; stringi wg inwerterow: ((inwerter string ...) ...)
+  (foreach sx strs
+    (setq inv (cdr (assoc (sc:g sx "KEY") gmap)))
+    (if (setq cur (assoc inv byinv))
+      (setq byinv (subst (cons inv (cons sx (cdr cur))) cur byinv))
+      (setq byinv (cons (list inv sx) byinv))))
   (foreach inv invorder
-    (setq kinds nil)
+    (setq kinds nil lefts nil leftr nil
+          ours  (reverse (cdr (assoc inv byinv))))
     (foreach orec ostrs
       (if (and (= (nth 1 orec) inv) (not (member (nth 4 orec) kinds)))
         (setq kinds (cons (nth 4 orec) kinds))))
+    (foreach sx ours
+      (if (not (member (sc:g sx "KIND") kinds))
+        (setq kinds (cons (sc:g sx "KIND") kinds))))
     (foreach kd kinds
       (setq mine nil ids nil)
-      (foreach sx strs
-        (if (and (= (sc:g sx "KIND") kd) (= (cdr (assoc (sc:g sx "KEY") gmap)) inv))
+      (foreach sx ours
+        (if (= (sc:g sx "KIND") kd)
           (setq mine (cons sx mine))))
       (foreach orec ostrs
         (if (and (= (nth 1 orec) inv) (= (nth 4 orec) kd)) (setq ids (cons orec ids))))
@@ -2278,7 +2315,20 @@
       (while (and mine ids)
         (setq nmap (cons (cons (sc:g (car mine) "KEY") (car ids)) nmap)
               mine (cdr mine)
-              ids  (cdr ids)))))
+              ids  (cdr ids)))
+      (setq lefts (append mine lefts) leftr (append ids leftr)))
+    ;; najpierw numer z tego samego rzedu (G24 -> numer G25), potem dowolny
+    (setq lefts (sc:msort lefts (function sc:readless))
+          leftr (sc:msort leftr (function (lambda (oa ob) (< (nth 2 oa) (nth 2 ob))))))
+    (foreach sx lefts
+      (if (setq orec (vl-some (function (lambda (oq) (if (= (sc:alpha (nth 4 oq)) (sc:alpha (sc:g sx "KIND"))) oq)))
+                              leftr))
+        (setq nmap  (cons (cons (sc:g sx "KEY") orec) nmap)
+              leftr (vl-remove orec leftr))))
+    (foreach sx lefts
+      (if (and leftr (not (assoc (sc:g sx "KEY") nmap)))
+        (setq nmap  (cons (cons (sc:g sx "KEY") (car leftr)) nmap)
+              leftr (cdr leftr)))))
   nmap)
 
 ;; kotwice wszystkich stringow: "AI" (pasmo od startu) i "AX"
@@ -2288,38 +2338,33 @@
                       (sc:s (sc:s sx "AI" (car an)) "AX" (cadr an))))
           strs))
 
-;; przydzial dla danej liczby rzedow stolow na grupe (stringi z kotwicami)
-;; -> (stringi gmap nmap liczbaZamian kawalkow suma_odleglosci kawalki)
-(defun sc:assign (strs ostrs oinvs hrows adj / sw invorder gmap tres nsw nmap keys comps asn)
-  (setq strs (mapcar (function (lambda (sx) (sc:s sx "STRIPE" (/ (sc:g sx "AI") hrows)))) strs))
-  (setq sw       (sc:msort strs (function sc:sweepless))
-        invorder (mapcar (function car) oinvs)
-        gmap     (sc:greedy sw invorder ostrs)
-        nsw      0)
-  ;; tylko stringi z przydzialem (w trybie Dopasuj nadmiarowe zostaja bez)
-  (setq asn (vl-remove-if-not (function (lambda (sx) (assoc (sc:g sx "KEY") gmap))) strs))
-  (if (> (length invorder) 1)
-    (setq tres (sc:tidy asn gmap (sc:twins asn) adj)
-          gmap (car tres)
-          nsw  (cdr tres)))
-  (setq nmap  (sc:number asn gmap ostrs invorder)
-        keys  (mapcar (function (lambda (sx) (sc:g sx "KEY"))) asn)
-        comps (sc:comps keys gmap adj))
-  (list strs gmap nmap nsw (length comps) (sc:spread asn gmap) comps))
-
 ;;; --------------------------------------------------------------------------
-;;; Grupy w SKUPISKACH (jak INWERTERY w ZLICZ-PANELE.lsp)
+;;; Grupy inwerterow w SKUPISKACH (jak INWERTERY w ZLICZ-PANELE.lsp)
 ;;; --------------------------------------------------------------------------
-;;; Obszar dzielony na pol rekurencyjnie: lista inwerterow (w kolejnosci
-;;; numerow) na pol, pierwsza polowa dostaje czesc obszaru przy narozniku
-;;; startu. Ciecie wg rodzajow: pierwsza czesc bierze z kazdego rodzaju tyle
-;;; stringow, ile maja jej inwertery w oryginale - pierwsze w kolejnosci
-;;; rzedami (ciecie miedzy rzedami stolow, rzad na granicy dzielony od jednego
-;;; albo drugiego konca) albo kolumnami (ciecie w poprzek rzedow); kazda
-;;; kolejnosc tez od konca (druga czesc bierze ostatnie). Wybierany jest
-;;; podzial z najzwartszymi czesciami (obwod^2 / pole obrysu wg rzedow, ksztalt
-;;; *SC-ASPECT*) + kara za czesci zachodzace na siebie w tym samym rzedzie.
-;;; Potem porzadkowanie (zamiany jak w trybie Pasy).
+;;; Grupa inwertera musi byc JEDNYM skupiskiem: jej stringi polaczone
+;;; sasiedztwem (sc:adjacency). Grupa w kilku kawalkach = grupa rozbita.
+;;; 1. Podzial obszaru na pol rekurencyjnie: lista inwerterow (w kolejnosci
+;;;    numerow) na dwie czesci, pierwsza dostaje czesc obszaru przy narozniku
+;;;    startu. Ciecie wg rodzajow: pierwsza czesc bierze z kazdego rodzaju
+;;;    tyle stringow, ile maja jej inwertery w oryginale - pierwsze
+;;;    w kolejnosci rzedami (rzad na granicy dzielony od jednego albo drugiego
+;;;    konca) albo kolumnami (ciecie w poprzek rzedow); kazda kolejnosc tez
+;;;    od konca. Wybierany podzial: obie czesci w jednym kawalku, z nich
+;;;    najzwartszy (obwod^2 / pole obrysu wg rzedow, ksztalt *SC-ASPECT*,
+;;;    kara za czesci zachodzace na siebie w rzedzie). Gdy przy podziale na
+;;;    pol zadne ciecie nie daje czesci w jednym kawalku - inny podzial listy
+;;;    inwerterow (np. 3 + 5 zamiast 4 + 4).
+;;; 2. Naprawa grup rozbitych: string z oderwanego kawalka zamieniany ze
+;;;    stringiem TEGO SAMEGO rodzaju z innej grupy, lezacym przy glownym
+;;;    kawalku (sklad inwerterow bez zmian).
+;;; 3. Porzadkowanie: zamiany tego samego rodzaju, gdy grupy sa zwartsze.
+;;; ZAMIANA STRINGOW MIEDZY INWERTERAMI (STRPASTE pyta, gdy bez niej grupy
+;;; zostaja rozbite): ciecie moze tez isc po samej liczbie stringow (kara za
+;;; kazdy string innego rodzaju niz w oryginale, *SC-KCH*), naprawa zamienia
+;;; tez stringi roznych rodzajow, potem zamiany na granicach grup przywracaja
+;;; sklad z oryginalu wszedzie, gdzie grupy zostaja w jednym kawalku.
+;;; Liczba stringow kazdego inwertera jak w oryginale; zmienia sie tylko
+;;; rodzaj (dlugosc / rzad) czesci stringow - raport ZAMIANY STRINGOW.
 
 ;; zakres pasma w poprzek (Y) do polowy przerwy od sasiednich pasm ze
 ;; stringami -> ((bid y1 y2) ...)
@@ -2440,6 +2485,25 @@
       (setq rs (cons sx rs))))
   (list (reverse tk) (reverse rs)))
 
+;; ciecie wg rodzajow z dopelnieniem (zamiana stringow): z kazdego rodzaju
+;; pierwsze need stringow kolejnosci ord, razem najwyzej nn; gdy wzietych
+;; jest mniej niz nn - dopelnienie kolejnymi stringami kolejnosci (dowolnego
+;; rodzaju) -> (wziete reszta)
+(defun sc:kfill (ord need nn / left tk rs rest sx cur cnt)
+  (setq left need cnt 0)
+  (foreach sx ord
+    (setq cur (assoc (sc:g sx "KIND") left))
+    (if (and cur (> (cdr cur) 0) (< cnt nn))
+      (setq tk   (cons sx tk)
+            cnt  (1+ cnt)
+            left (subst (cons (car cur) (1- (cdr cur))) cur left))
+      (setq rs (cons sx rs))))
+  (foreach sx (reverse rs)
+    (if (< cnt nn)
+      (setq tk (cons sx tk) cnt (1+ cnt))
+      (setq rest (cons sx rest))))
+  (list (reverse tk) (reverse rest)))
+
 ;; ile stringow kazdego rodzaju maja inwertery invs w oryginale, najwyzej
 ;; tyle, ile jest (avail) -> ((rodzaj . liczba) ...)
 (defun sc:need (invs ostrs avail / out kc nn inv)
@@ -2449,45 +2513,290 @@
     (setq out (cons (cons (car kc) (min nn (cdr kc))) out)))
   out)
 
-(defun sc:keys (strs) (mapcar (function (lambda (sx) (sc:g sx "KEY"))) strs))
+;; liczba stringow inwerterow invs w oryginale
+(defun sc:icount (invs ostrs / nn orec)
+  (setq nn 0)
+  (foreach orec ostrs (if (member (nth 1 orec) invs) (setq nn (1+ nn))))
+  nn)
 
-;; dzielenie na pol: stringi strs na inwertery invs (w kolejnosci numerow)
-;; -> ((inwerter string ...) ...)
-(defun sc:bisect (strs invs ostrs / kk k1 k2 inv1 inv2 avail need1 need2 f0 ord pr pa pb sc bsc best)
-  (setq kk (length invs))
-  (cond
-    ((= kk 1) (list (cons (car invs) strs)))
-    ((null strs) (mapcar (function list) invs))
-    (T
-     (setq k1    (/ (1+ kk) 2)
-           k2    (- kk k1)
-           inv1  (car (sc:splitn invs k1))
-           inv2  (cadr (sc:splitn invs k1))
-           avail (sc:kcount (mapcar (function (lambda (sx) (sc:g sx "KIND"))) strs))
-           need1 (sc:need inv1 ostrs avail)
-           need2 (mapcar (function (lambda (kc) (cons (car kc) (- (cdr kc) (cdr (assoc (car kc) need1))))))
-                         avail)
-           ;; string przy narozniku startu - musi byc w pierwszej czesci,
-           ;; inaczej numeracja nie zaczynalaby sie od naroznika
-           f0    (sc:g (car (sc:ordrows strs nil)) "KEY"))
-     (foreach ord (list (sc:ordrows strs nil) (sc:ordrows strs T) (sc:ordcols strs))
-       (foreach pr (list (sc:kcut ord need1) (reverse (sc:kcut (reverse ord) need2)))
-         (setq pa (car pr) pb (cadr pr)
-               sc (+ (max (sc:ccost (sc:pext pa) k1) (sc:ccost (sc:pext pb) k2))
-                     (* *SC-MIXW* (/ (sc:overlap (sc:pext pa) (sc:pext pb)) *SC-SW*))
-                     (if (member f0 (sc:keys pa)) 0.0 100.0)))
-         (if (or (null bsc) (< sc (- bsc 1e-9))) (setq bsc sc best pr))))
-     (append (sc:bisect (car best) inv1 ostrs) (sc:bisect (cadr best) inv2 ostrs)))))
+;; licznik rodzajow: odczyt / zmiana o dn
+(defun sc:kget (kc kd / cur) (if (setq cur (assoc kd kc)) (cdr cur) 0))
+(defun sc:kadd (kc kd dn / cur)
+  (if (setq cur (assoc kd kc))
+    (subst (cons kd (+ (cdr cur) dn)) cur kc)
+    (cons (cons kd dn) kc)))
+
+;; ilu stringow rodzajow need brakuje w skladzie have (tyle stringow ma
+;; inny rodzaj niz w oryginale)
+(defun sc:deficit (have need / kc dev)
+  (setq dev 0)
+  (foreach kc need (setq dev (+ dev (max 0 (- (cdr kc) (sc:kget have (car kc)))))))
+  dev)
+
+(defun sc:kinds (strs) (mapcar (function (lambda (sx) (sc:g sx "KIND"))) strs))
+(defun sc:keys (strs) (mapcar (function (lambda (sx) (sc:g sx "KEY"))) strs))
 
 ;; lista -> (pierwsze nn reszta)
 (defun sc:splitn (lst nn / hd)
   (repeat nn (setq hd (cons (car lst) hd) lst (cdr lst)))
   (list (reverse hd) lst))
 
-;; przydzial SKUPISKAMI (stringi z kotwicami)
-;; -> (stringi gmap nmap liczbaZamian kawalkow suma_odleglosci kawalki)
-(defun sc:assignc (strs ostrs oinvs bands amap adj / invorder parts part sx gmap tres nsw nmap keys
-                      comps asn wds)
+;; porownanie list liczb (pierwsza rozna liczba decyduje): la > lb
+(defun sc:lexgt (la lb)
+  (cond ((or (null la) (null lb)) nil)
+        ((> (car la) (car lb)) T)
+        ((< (car la) (car lb)) nil)
+        (T (sc:lexgt (cdr la) (cdr lb)))))
+
+;; sasiedztwo zawezone do kluczy keys (szybsze szukanie w malych zbiorach)
+(defun sc:subadj (keys adj)
+  (vl-remove-if-not (function (lambda (ent) (member (car ent) keys))) adj))
+
+;; kawalki (skladowe spojne wsrod sasiadow) zbioru kluczy -> ((klucz ...) ...)
+;; left = klucze jeszcze nieodwiedzone (lista maleje - szybciej)
+(defun sc:compsof (keys adj / left queue cur nb comp out)
+  (setq left keys)
+  (while left
+    (setq queue (list (car left)) comp (list (car left)) left (cdr left))
+    (while queue
+      (setq cur (car queue) queue (cdr queue))
+      (foreach nb (cdr (assoc cur adj))
+        (if (member nb left)
+          (setq left  (vl-remove nb left)
+                comp  (cons nb comp)
+                queue (cons nb queue)))))
+    (setq out (cons comp out)))
+  out)
+
+;; zbior kluczy w jednym kawalku (pusty tez)?
+(defun sc:onepiece (keys adj) (<= (length (sc:compsof keys adj)) 1))
+
+(defun sc:ncomp (keys adj) (length (sc:compsof keys adj)))
+
+;; glowny (najwiekszy) kawalek grupy i stringi oderwane
+;; -> (glowny oderwane liczbaKawalkow)
+(defun sc:mainpart (keys adj / cps big cp rest)
+  (setq cps (sc:compsof keys adj))
+  (foreach cp cps (if (or (null big) (> (length cp) (length big))) (setq big cp)))
+  (foreach cp cps (if (not (eq cp big)) (setq rest (append cp rest))))
+  (list big rest (length cps)))
+
+;; kolejne podzialy listy inwerterow do sprawdzenia: najpierw na pol, potem
+;; coraz dalej od polowy (najwyzej 5)
+(defun sc:k1list (kk / k0 out dd)
+  (setq k0 (/ (1+ kk) 2) out (list k0) dd 1)
+  (while (and (< (length out) (min 5 (1- kk))) (< dd kk))
+    (if (>= (- k0 dd) 1) (setq out (append out (list (- k0 dd)))))
+    (if (<= (+ k0 dd) (1- kk)) (setq out (append out (list (+ k0 dd)))))
+    (setq dd (1+ dd)))
+  out)
+
+;; kandydaci ciecia dla podzialu k1: ((ocena wziete reszta) ...), rosnaco wg
+;; oceny. tier 0 = sklad z oryginalu (cieciem wg rodzajow; przy zamianie
+;; z dopelnieniem, gdy rodzaju brakuje juz wyzej), tier 1 = ciecie po liczbie
+;; stringow (tylko przy zamianie; kara *SC-KCH* za string innego rodzaju)
+(defun sc:bcands (strs invs k1 ostrs swap tier f0 / k2 inv1 avail need1 need2 n1 n2 ord prs pr pa pb out)
+  (setq k2    (- (length invs) k1)
+        inv1  (car (sc:splitn invs k1))
+        avail (sc:kcount (sc:kinds strs))
+        need1 (sc:need inv1 ostrs avail)
+        need2 (mapcar (function (lambda (kc) (cons (car kc) (- (cdr kc) (sc:kget need1 (car kc))))))
+                      avail)
+        n1    (min (sc:icount inv1 ostrs) (length strs))
+        n2    (- (length strs) n1))
+  (foreach ord (list (sc:ordrows strs nil) (sc:ordrows strs T) (sc:ordcols strs))
+    (setq prs (cond
+                ((= tier 1) (list (sc:splitn ord n1)))
+                (swap (list (sc:kfill ord need1 n1) (reverse (sc:kfill (reverse ord) need2 n2))))
+                (T (list (sc:kcut ord need1) (reverse (sc:kcut (reverse ord) need2))))))
+    (foreach pr prs
+      (setq pa  (car pr) pb (cadr pr)
+            out (cons (list (+ (max (sc:ccost (sc:pext pa) k1) (sc:ccost (sc:pext pb) k2))
+                               (* *SC-MIXW* (/ (sc:overlap (sc:pext pa) (sc:pext pb)) *SC-SW*))
+                               ;; string przy narozniku startu - w pierwszej czesci,
+                               ;; inaczej numeracja nie zaczynalaby sie od naroznika
+                               (if (member f0 (sc:keys pa)) 0.0 100.0)
+                               (* *SC-KCH* (sc:deficit (sc:kcount (sc:kinds pa)) need1)))
+                            pa pb)
+                      out))))
+  (sc:msort out (function (lambda (ca cb) (< (car ca) (car cb))))))
+
+;; dzielenie na pol: stringi strs na inwertery invs (w kolejnosci numerow);
+;; swap = T -> dozwolona zamiana stringow miedzy inwerterami
+;; -> ((inwerter string ...) ...)
+(defun sc:bisect (strs invs ostrs adj swap / kk sadj f0 k0 tiers tier ks k1 pr pa pb nx ok best bsc)
+  (setq kk (length invs))
+  (cond
+    ((= kk 1) (list (cons (car invs) strs)))
+    ((null strs) (mapcar (function list) invs))
+    (T
+     (setq sadj  (sc:subadj (sc:keys strs) adj)
+           f0    (sc:g (car (sc:ordrows strs nil)) "KEY")
+           k0    (/ (1+ kk) 2)
+           tiers (if swap '(0 1) '(0)))
+     ;; pierwsze ciecie (wg oceny), po ktorym obie czesci sa w jednym kawalku:
+     ;; najpierw sklad z oryginalu (kazdy podzial listy inwerterow), potem po
+     ;; liczbie stringow; gdy takiego nie ma - podzial na pol z najmniejsza
+     ;; liczba kawalkow
+     (while (and tiers (not ok))
+       (setq tier (car tiers) tiers (cdr tiers)
+             ks   (if (= tier 0) (sc:k1list kk) (list k0)))
+       (while (and ks (not ok))
+         (setq k1 (car ks) ks (cdr ks))
+         (foreach pr (sc:bcands strs invs k1 ostrs swap tier f0)
+           (if (not ok)
+             (progn
+               (setq pa (sc:keys (cadr pr)) pb (sc:keys (caddr pr)))
+               (if (> (length pa) (length pb)) (setq nx pa pa pb pb nx))
+               (cond
+                 ((and (sc:onepiece pa sadj) (sc:onepiece pb sadj)) (setq ok T best (cons k1 pr)))
+                 ((= k1 k0)
+                  (setq nx (+ (sc:ncomp pa sadj) (sc:ncomp pb sadj)))
+                  (if (or (null bsc) (< nx bsc)) (setq bsc nx best (cons k1 pr))))))))))
+     (setq k1 (car best))
+     (append (sc:bisect (nth 2 best) (car (sc:splitn invs k1)) ostrs sadj swap)
+             (sc:bisect (nth 3 best) (cadr (sc:splitn invs k1)) ostrs sadj swap)))))
+
+;; grupy z gmap -> ((inwerter klucz ...) ...)
+(defun sc:groups (gmap / out pr cur)
+  (foreach pr gmap
+    (if (setq cur (assoc (cdr pr) out))
+      (setq out (subst (cons (car cur) (cons (car pr) (cdr cur))) cur out))
+      (setq out (cons (list (cdr pr) (car pr)) out))))
+  out)
+
+;; grupy do naprawy: ((inwerter klucze sasiedztwo glowny oderwane sklad
+;; kawalkow) ...)
+(defun sc:grpinfo (gmap adj kmap / grp gadj mp)
+  (mapcar (function (lambda (grp)
+                      (setq gadj (sc:subadj (cdr grp) adj)
+                            mp   (sc:mainpart (cdr grp) gadj))
+                      (list (car grp) (cdr grp) gadj (car mp) (cadr mp)
+                            (sc:kcount (mapcar (function (lambda (kx) (cdr (assoc kx kmap)))) (cdr grp)))
+                            (caddr mp))))
+          (sc:groups gmap)))
+
+;; zamiana przydzialu dwoch stringow (klucze ka kb) w gmap
+(defun sc:swap2 (gmap ka kb / ia ib)
+  (setq ia (cdr (assoc ka gmap)) ib (cdr (assoc kb gmap)))
+  (subst (cons kb ia) (cons kb ib) (subst (cons ka ib) (cons ka ia) gmap)))
+
+;; grupy A i B przed zamiana / po zamianie ka (z A) <-> kb (z B)
+;; -> (kawalkow oderwanychStringow), A i B razem
+(defun sc:pmab0 (ga gb)
+  (list (+ (nth 6 ga) (nth 6 gb)) (+ (length (nth 4 ga)) (length (nth 4 gb)))))
+(defun sc:pmab (ga gb ka kb / ma mb)
+  (setq ma (sc:mainpart (cons kb (vl-remove ka (nth 1 ga))) (cons (assoc kb (nth 2 gb)) (nth 2 ga)))
+        mb (sc:mainpart (cons ka (vl-remove kb (nth 1 gb))) (cons (assoc ka (nth 2 ga)) (nth 2 gb))))
+  (list (+ (caddr ma) (caddr mb)) (+ (length (cadr ma)) (length (cadr mb)))))
+
+;; naprawa grup rozbitych: string z oderwanego kawalka grupy A zamieniany ze
+;; stringiem innej grupy B, lezacym przy glownym kawalku A. Przyjmowana
+;; zamiana, po ktorej grup A i B jest mniej kawalkow, albo tyle samo, ale
+;; mniej oderwanych stringow. xkind = nil -> tylko ten sam rodzaj (sklad
+;; inwerterow bez zmian), xkind = T -> tez rozne rodzaje (ten sam rodzaj ma
+;; pierwszenstwo). -> gmap
+(defun sc:fixpieces (strs gmap adj xkind / kmap pmap go nit grps grp cands ka kb gb same p0 p1 sc
+                        best bsc)
+  (setq kmap (mapcar (function (lambda (sx) (cons (sc:g sx "KEY") (sc:g sx "KIND")))) strs)
+        pmap (mapcar (function (lambda (sx) (list (sc:g sx "KEY") (sc:g sx "CX") (sc:g sx "CY")))) strs)
+        go   T
+        nit  0)
+  (while (and go (< nit *SC-FIXMAX*))
+    (setq grps (sc:grpinfo gmap adj kmap) best nil bsc nil nit (1+ nit))
+    (foreach grp grps
+      (if (nth 4 grp)
+        (progn
+          ;; stringi innych grup przy glownym kawalku
+          (setq cands nil)
+          (foreach ka (nth 3 grp)
+            (foreach kb (cdr (assoc ka (nth 2 grp)))
+              (if (and (not (member kb (nth 1 grp))) (not (member kb cands)))
+                (setq cands (cons kb cands)))))
+          (foreach ka (nth 4 grp)
+            (foreach kb cands
+              (setq same (= (cdr (assoc ka kmap)) (cdr (assoc kb kmap))))
+              (if (or same xkind)
+                (progn
+                  (setq gb (assoc (cdr (assoc kb gmap)) grps)
+                        p0 (sc:pmab0 grp gb)
+                        p1 (sc:pmab grp gb ka kb))
+                  (if (sc:lexgt p0 p1)
+                    (progn
+                      (setq sc (list (if same 1 0) (- (car p0) (car p1)) (- (cadr p0) (cadr p1))
+                                     (- (distance (cdr (assoc ka pmap)) (cdr (assoc kb pmap))))))
+                      (if (or (null bsc) (sc:lexgt sc bsc)) (setq bsc sc best (list ka kb))))))))))))
+    (if best
+      (setq gmap (sc:swap2 gmap (car best) (cadr best)))
+      (setq go nil)))
+  gmap)
+
+;; sklad inwerterow z oryginalu -> ((inwerter (rodzaj . liczba) ...) ...)
+(defun sc:quotas (invs ostrs / inv orec kds out)
+  (foreach inv invs
+    (setq kds nil)
+    (foreach orec ostrs (if (= (nth 1 orec) inv) (setq kds (cons (nth 4 orec) kds))))
+    (setq out (cons (cons inv (sc:kcount kds)) out)))
+  out)
+
+;; zamiany na granicach grup przywracajace sklad z oryginalu: string grupy A
+;; rodzaju, ktorego A ma za duzo, za sasiedni string grupy B rodzaju, ktorego
+;; A brakuje. Przyjmowana, gdy maleje liczba stringow innego rodzaju niz
+;; w oryginale (A i B razem), a kawalkow i oderwanych stringow nie
+;; przybywa. -> gmap
+(defun sc:fixkinds (strs gmap adj quotas / kmap pmap go nit grps grp gb ka kb xa xb ahave aneed bneed
+                       a2 b2 d0 d1 p0 p1 sc best bsc)
+  (setq kmap (mapcar (function (lambda (sx) (cons (sc:g sx "KEY") (sc:g sx "KIND")))) strs)
+        pmap (mapcar (function (lambda (sx) (list (sc:g sx "KEY") (sc:g sx "CX") (sc:g sx "CY")))) strs)
+        go   T
+        nit  0)
+  (while (and go (< nit *SC-FIXMAX*))
+    (setq grps (sc:grpinfo gmap adj kmap) best nil bsc nil nit (1+ nit))
+    (foreach grp grps
+      (setq ahave (nth 5 grp) aneed (cdr (assoc (car grp) quotas)))
+      (if (> (sc:deficit ahave aneed) 0)
+        (foreach ka (nth 1 grp)
+          (setq xa (cdr (assoc ka kmap)))
+          (if (> (sc:kget ahave xa) (sc:kget aneed xa))
+            (foreach kb (cdr (assoc ka (nth 2 grp)))
+              (setq xb (cdr (assoc kb kmap)))
+              (if (and (not (member kb (nth 1 grp)))
+                       (< (sc:kget ahave xb) (sc:kget aneed xb)))
+                (progn
+                  (setq gb    (assoc (cdr (assoc kb gmap)) grps)
+                        bneed (cdr (assoc (car gb) quotas))
+                        a2    (sc:kadd (sc:kadd ahave xa -1) xb 1)
+                        b2    (sc:kadd (sc:kadd (nth 5 gb) xb -1) xa 1)
+                        d0    (+ (sc:deficit ahave aneed) (sc:deficit (nth 5 gb) bneed))
+                        d1    (+ (sc:deficit a2 aneed) (sc:deficit b2 bneed)))
+                  (if (and (< d1 d0)
+                           (setq p0 (sc:pmab0 grp gb) p1 (sc:pmab grp gb ka kb))
+                           (<= (car p1) (car p0))
+                           (<= (cadr p1) (cadr p0)))
+                    (progn
+                      (setq sc (list (- d0 d1)
+                                     (- (distance (cdr (assoc ka pmap)) (cdr (assoc kb pmap))))))
+                      (if (or (null bsc) (sc:lexgt sc bsc)) (setq bsc sc best (list ka kb))))))))))))
+    (if best
+      (setq gmap (sc:swap2 gmap (car best) (cadr best)))
+      (setq go nil)))
+  gmap)
+
+;; stringi, ktore dostaly numer innego rodzaju niz w oryginale (zamiana
+;; stringow miedzy inwerterami) -> ((rekordZOryginalu string) ...)
+(defun sc:changes (strs nmap / str orec out)
+  (foreach str strs
+    (if (and (setq orec (cdr (assoc (sc:g str "KEY") nmap)))
+             (/= (sc:g str "KIND") (nth 4 orec)))
+      (setq out (cons (list orec str) out))))
+  (sc:msort out (function (lambda (ca cb) (sc:infless (nth 5 (car ca)) (nth 5 (car cb)))))))
+
+;; przydzial w skupiskach (stringi z kotwicami); swap = T -> z zamiana
+;; stringow miedzy inwerterami
+;; -> (stringi gmap nmap liczbaZamianPorzadkowania kawalkow suma_odleglosci
+;;     kawalki grupNiepustych stringowInnegoRodzaju)
+(defun sc:assignc (strs ostrs oinvs bands amap adj swap / invorder parts part sx gmap tres nsw nmap
+                      comps asn wds itm)
   (setq *SC-BSPAN* (sc:bspans bands amap)
         strs       (mapcar (function (lambda (sx) (sc:s sx "EXT" (sc:sext sx)))) strs))
   ;; typowa dlugosc stringu (kara za zachodzenie czesci liczona w stringach)
@@ -2497,19 +2806,66 @@
                     wds)))
   (setq *SC-SW*  (max 1.0 (if wds (sc:median wds) 1.0))
         invorder (mapcar (function car) oinvs)
-        parts    (sc:bisect strs invorder ostrs)
+        parts    (sc:bisect strs invorder ostrs adj swap)
         nsw      0)
   (foreach part parts
     (foreach sx (cdr part) (setq gmap (cons (cons (sc:g sx "KEY") (car part)) gmap))))
   (setq asn (vl-remove-if-not (function (lambda (sx) (assoc (sc:g sx "KEY") gmap))) strs))
   (if (> (length invorder) 1)
-    (setq tres (sc:tidy asn gmap (sc:twins asn) adj)
-          gmap (car tres)
-          nsw  (cdr tres)))
+    (progn
+      (setq gmap (sc:fixpieces asn gmap adj swap))
+      (if swap (setq gmap (sc:fixkinds asn gmap adj (sc:quotas invorder ostrs))))
+      (setq tres (sc:tidy asn gmap (sc:twins asn) adj)
+            gmap (car tres)
+            nsw  (cdr tres))))
   (setq nmap  (sc:number asn gmap ostrs invorder)
-        keys  (sc:keys asn)
-        comps (sc:comps keys gmap adj))
-  (list strs gmap nmap nsw (length comps) (sc:spread asn gmap) comps))
+        comps (sc:comps (sc:keys asn) gmap adj))
+  (list strs gmap nmap nsw (length comps) (sc:spread asn gmap) comps
+        (length (sc:groups gmap)) (length (sc:changes asn nmap))))
+
+;; grupy rozbite -> "INV3 (2 kawalki), INV5 (3 kawalki)"
+(defun sc:splittxt (comps invorder / inv nn cmp out)
+  (foreach inv invorder
+    (setq nn 0)
+    (foreach cmp comps (if (= (car cmp) inv) (setq nn (1+ nn))))
+    (if (> nn 1) (setq out (cons (strcat inv " (" (itoa nn) " kawalki)") out))))
+  (sc:join (reverse out) ", "))
+
+;; zamiany wg inwerterow -> ("ST1-INV1: G25 -> G24 (ST1-INV1-STR13); paneli 482 -> 481" ...)
+(defun sc:swaplines (strs gmap nmap ostrs invorder / chg inv mine op np orec sx out)
+  (setq chg (sc:changes strs nmap))
+  (foreach inv invorder
+    (setq mine (vl-remove-if-not (function (lambda (cr) (= (nth 1 (car cr)) inv))) chg))
+    (if mine
+      (progn
+        (setq op 0 np 0)
+        (foreach orec ostrs (if (= (nth 1 orec) inv) (setq op (+ op (sc:olen (nth 4 orec))))))
+        (foreach sx strs
+          (if (= (cdr (assoc (sc:g sx "KEY") gmap)) inv) (setq np (+ np (sc:olen (sc:g sx "KIND"))))))
+        (setq out (cons (strcat inv ": "
+                                (sc:join (mapcar (function (lambda (cr)
+                                                             (strcat (nth 4 (car cr)) " -> " (sc:g (cadr cr) "KIND")
+                                                                     " (" (car (car cr)) ")")))
+                                                 mine)
+                                         ", ")
+                                "; paneli " (itoa op) " -> " (itoa np))
+                        out)))))
+  (reverse out))
+
+;; raport zamian (lista ZAMIANY STRINGOW + kolka) -> liczba zamienionych stringow
+(defun sc:swapreport (strs gmap nmap ostrs invorder / chg cr orec str itm)
+  (setq chg (sc:changes strs nmap) *SC-ZAM* nil)
+  (foreach itm (sc:swaplines strs gmap nmap ostrs invorder)
+    (setq *SC-ZAM* (cons itm *SC-ZAM*)))
+  (foreach cr chg
+    (setq orec (car cr) str (cadr cr))
+    (setq *SC-ZAM* (cons (strcat "  " (car orec) ": w oryginale " (nth 4 orec) ", teraz " (sc:g str "KIND")
+                                 " - string \"" (sc:g str "TEXT") "\" "
+                                 (sc:pt (sc:g str "CX") (sc:g str "CY")))
+                         *SC-ZAM*))
+    (sc:circ (sc:g str "CX") (sc:g str "CY") *SC-YELLOW*
+             (strcat "ZAMIANA: " (car orec) " - w oryginale " (nth 4 orec) ", teraz " (sc:g str "KIND"))))
+  (length chg))
 
 ;; raport grup + kontrola "grupa w kilku kawalkach" i "daleko od grupy"
 (defun sc:groupinfo (strs gmap invorder amap comps / inv mine sx ais x1 x2 cx cy dds md dd kc nb
@@ -2529,9 +2885,9 @@
               (if (member (sc:g sx "KEY") cmp)
                 (setq kx (+ kx (sc:g sx "CX")) ky (+ ky (sc:g sx "CY")))))
             (sc:chk (strcat inv ": " (itoa (length cmp)) " string(i) oddzielone od reszty grupy"
-                            " (grupa w " (itoa (length pcs)) " kawalkach) - sprawdz, czy tak moze"
-                            " zostac, albo zmien strone startu / uklad grup (Skupiska / Pasy,"
-                            " liczba rzedow na grupe)")
+                            " (grupa ROZBITA na " (itoa (length pcs)) " kawalki) - uklad bez zamiany"
+                            " stringow miedzy inwerterami: sprawdz, czy tak moze zostac, albo zmien"
+                            " strone startu / zgodz sie na zamiane")
                     (/ kx (length cmp)) (/ ky (length cmp)))))))
     (setq mine nil ais nil x1 nil x2 nil cx 0.0 cy 0.0 dds nil)
     (foreach sx strs
@@ -2564,8 +2920,8 @@
                             ") przy grupie")
                     (sc:g sx "CX") (sc:g sx "CY"))))))))
 
-;; plan zapisu -> (napisy kreskowania); napis = (ename nowy stary x y),
-;; kreskowanie = (ename spec x y inwerter)
+;; plan zapisu -> (napisy kreskowania); napis = (ename nowy stary x y
+;; inwerter nowyString), kreskowanie = (ename spec x y inwerter)
 (defun sc:mkplan (strs nmap oinvs partial / labplan hatplan hmap str orec inv spec lab ntxt hen cur conf
                      unl)
   (foreach str strs
@@ -2592,7 +2948,8 @@
                   (sc:g str "CX") (sc:g str "CY")))
         (foreach lab (sc:g str "LABS")
           (setq ntxt (if (= inv "XX") "XX-XX-XX" (sc:newtext (nth 1 lab) (nth 6 lab) (nth 3 orec))))
-          (setq labplan (cons (list (nth 0 lab) ntxt (nth 1 lab) (nth 3 lab) (nth 4 lab)) labplan)))
+          (setq labplan (cons (list (nth 0 lab) ntxt (nth 1 lab) (nth 3 lab) (nth 4 lab) inv (car orec))
+                              labplan)))
         (foreach hen (sc:g str "HATS")
           (setq cur (assoc hen hmap))
           (cond
@@ -2621,7 +2978,7 @@
 (defun sc:plancsv (path strs gmap nmap / fh srt str orec)
   (if (setq fh (open path "w"))
     (progn
-      (write-line "Inwerter;NowyString;StaryNapis;Rodzaj;Panele;Pasmo;X;Y;Kreskowan;Napisow" fh)
+      (write-line "Inwerter;NowyString;StaryNapis;Rodzaj;Panele;Pasmo;X;Y;Kreskowan;Napisow;RodzajOryginal;Zamiana" fh)
       (setq srt (sc:msort (vl-remove-if-not (function (lambda (sx) (assoc (sc:g sx "KEY") nmap))) strs)
                           (function (lambda (sa sb)
                                       (sc:infless (nth 5 (cdr (assoc (sc:g sa "KEY") nmap)))
@@ -2632,7 +2989,8 @@
                             (sc:csvfld (sc:g str "TEXT")) ";" (sc:g str "KIND") ";"
                             (itoa (sc:g str "PAN")) ";" (itoa (1+ (sc:g str "AI"))) ";"
                             (sc:num (sc:g str "CX") 2) ";" (sc:num (sc:g str "CY") 2) ";"
-                            (itoa (length (sc:g str "HATS"))) ";" (itoa (length (sc:g str "LABS"))))
+                            (itoa (length (sc:g str "HATS"))) ";" (itoa (length (sc:g str "LABS"))) ";"
+                            (nth 4 orec) ";" (if (/= (sc:g str "KIND") (nth 4 orec)) "TAK" ""))
                     fh))
       ;; nadmiarowe (tryb Dopasuj)
       (foreach str strs
@@ -2640,7 +2998,7 @@
           (write-line (strcat "\"XX\";\"XX-XX-XX\";" (sc:csvfld (sc:g str "TEXT")) ";" (sc:g str "KIND") ";"
                               (itoa (sc:g str "PAN")) ";" (itoa (1+ (sc:g str "AI"))) ";"
                               (sc:num (sc:g str "CX") 2) ";" (sc:num (sc:g str "CY") 2) ";"
-                              (itoa (length (sc:g str "HATS"))) ";" (itoa (length (sc:g str "LABS"))))
+                              (itoa (length (sc:g str "HATS"))) ";" (itoa (length (sc:g str "LABS"))) ";;")
                       fh)))
       (close fh)
       T)
@@ -2649,8 +3007,9 @@
 ;; tekst skrocony do raportu
 (defun sc:short (txt) (if (> (strlen txt) 40) (strcat (substr txt 1 37) "...") txt))
 
-;; zapis w jednym UNDO + kontrola po zapisie -> (napisow kreskowan)
-(defun sc:write (doc labplan hatplan / lp hp el wfail nl nh)
+;; zapis w jednym UNDO + kontrola po zapisie
+;; -> (napisow kreskowan wierszeRaportuZmian napisowZInnymTekstem kreskowanZInnymKolorem)
+(defun sc:write (doc labplan hatplan / lp hp el wfail nl nh nlc nhc olds old rows)
   (vla-startundomark doc)
   (setq *SC-UNDO* T)
   (foreach lp labplan
@@ -2667,7 +3026,8 @@
                (nth 3 lp) (nth 4 lp)))
       (T (entupd (car lp)))))
   (foreach hp hatplan
-    (setq el (entget (car hp)))
+    (setq el   (entget (car hp))
+          olds (cons (cons (car hp) (sc:colname (sc:colspec el))) olds))
     (cond
       ((sc:locked (cdr (assoc 8 el)))
        (setq wfail (cons (car hp) wfail))
@@ -2681,25 +3041,91 @@
       (T (entupd (car hp)))))
   (vla-endundomark doc)
   (setq *SC-UNDO* nil)
-  ;; kontrola po zapisie: ponowny odczyt z rysunku
-  (setq nl 0 nh 0)
+  ;; kontrola po zapisie: ponowny odczyt z rysunku; raport zmian = tylko
+  ;; potwierdzone zmiany (tekst / kolor inny niz przed zapisem)
+  (setq nl 0 nh 0 nlc 0 nhc 0)
   (foreach lp labplan
     (cond
-      ((= (cdr (assoc 1 (entget (car lp)))) (cadr lp)) (setq nl (1+ nl)))
+      ((= (cdr (assoc 1 (entget (car lp)))) (cadr lp))
+       (setq nl (1+ nl))
+       (if (/= (nth 2 lp) (cadr lp))
+         (setq nlc  (1+ nlc)
+               rows (cons (strcat "NAPIS;" (sc:csvfld (nth 5 lp)) ";" (sc:csvfld (nth 6 lp)) ";"
+                                  (sc:csvfld (nth 2 lp)) ";" (sc:csvfld (cadr lp)) ";"
+                                  (sc:num (nth 3 lp) 2) ";" (sc:num (nth 4 lp) 2) ";")
+                          rows))))
       ((not (member (car lp) wfail))
        (sc:err (strcat "napis \"" (sc:short (nth 2 lp)) "\": po zapisie tekst inny niz w planie")
                (nth 3 lp) (nth 4 lp)))))
   (foreach hp hatplan
     (cond
-      ((sc:colok (entget (car hp)) (cadr hp)) (setq nh (1+ nh)))
+      ((sc:colok (entget (car hp)) (cadr hp))
+       (setq nh  (1+ nh)
+             old (cdr (assoc (car hp) olds)))
+       (if (/= old (sc:colname (cadr hp)))
+         (setq nhc  (1+ nhc)
+               rows (cons (strcat "KRESKOWANIE;" (sc:csvfld (nth 4 hp)) ";;" (sc:csvfld old) ";"
+                                  (sc:csvfld (sc:colname (cadr hp))) ";"
+                                  (sc:num (nth 2 hp) 2) ";" (sc:num (nth 3 hp) 2) ";")
+                          rows))))
       ((not (member (car hp) wfail))
        (sc:err (strcat "kreskowanie (" (nth 4 hp) "): po zapisie kolor inny niz w planie")
                (nth 2 hp) (nth 3 hp)))))
-  (list nl nh))
+  (list nl nh (reverse rows) nlc nhc))
+
+;; raport zmian <rysunek>_strzmiany.csv -> sciezka albo nil
+(defun sc:zmianycsv (rows / path fh row)
+  (setq path (strcat (getvar "DWGPREFIX") (sc:noext (getvar "DWGNAME")) "_strzmiany.csv"))
+  (if (setq fh (open path "w"))
+    (progn
+      (write-line "Typ;Inwerter;String;Przed;Po;X;Y;Uwaga" fh)
+      (foreach row rows (write-line row fh))
+      (close fh)
+      path)
+    nil))
+
+;; na koniec STRPASTE: co zmieniono (linia polecen) + raport zmian (CSV):
+;; kazdy zmieniony napis i kolor kreskowania (przed -> po) i zamiany stringow
+;; miedzy inwerterami. wr = wynik sc:write
+(defun sc:done (wr plan asg ostrs invorder swapped / rows chg cr orec str path itm)
+  (setq rows (caddr wr)
+        chg  (if swapped (sc:changes (nth 0 asg) (nth 2 asg)) nil))
+  (foreach cr chg
+    (setq orec (car cr) str (cadr cr)
+          rows (append rows
+                       (list (strcat "ZAMIANA;" (sc:csvfld (nth 1 orec)) ";" (sc:csvfld (car orec)) ";"
+                                     (nth 4 orec) ";" (sc:g str "KIND") ";"
+                                     (sc:num (sc:g str "CX") 2) ";" (sc:num (sc:g str "CY") 2) ";"
+                                     (sc:csvfld (strcat "string innego rodzaju niz w oryginale, paneli "
+                                                        (itoa (sc:olen (nth 4 orec))) " -> "
+                                                        (itoa (sc:olen (sc:g str "KIND"))))))))))
+  (setq path (sc:zmianycsv rows))
+  (princ "\n\n==================== STRPASTE - CO ZMIENIONO ====================")
+  (princ (strcat "\n  Napisy stringow (czlony ST / INV / STR z oryginalu): zapisane " (itoa (car wr))
+                 " z " (itoa (length (car plan))) ", w tym z innym tekstem niz przed zapisem: "
+                 (itoa (nth 3 wr))))
+  (princ (strcat "\n  Kreskowania (kolor inwertera): zapisane " (itoa (cadr wr)) " z "
+                 (itoa (length (cadr plan))) ", w tym ze zmiana koloru: " (itoa (nth 4 wr))))
+  (princ (strcat "\n  Grupy inwerterow: " (itoa (nth 7 asg))
+                 (if (> (nth 4 asg) (nth 7 asg))
+                   (strcat " - ROZBITE: " (sc:splittxt (nth 6 asg) invorder))
+                   ", kazda w jednym skupisku")))
+  (if chg
+    (progn
+      (princ (strcat "\n  Zamiana stringow miedzy inwerterami: " (itoa (length chg))
+                     " stringow dostalo numer innego rodzaju niz w oryginale"
+                     " (liczba stringow kazdego inwertera bez zmian):"))
+      (foreach itm (sc:swaplines (nth 0 asg) (nth 1 asg) (nth 2 asg) ostrs invorder)
+        (princ (strcat "\n    " itm))))
+    (princ "\n  Sklad inwerterow jak w oryginale (bez zamiany stringow)."))
+  (princ (if path
+           (strcat "\n  Raport zmian (kazda zmiana: przed -> po): " path)
+           "\n  Raportu zmian NIE zapisano (plik otwarty w Excelu?)"))
+  (princ "\n  Cofniecie wszystkich zmian: jedno U."))
 
 (defun c:STRPASTE ( / *error* doc dflt csvp data ometa oinvs ostrs bad pa lablay tlays res
-                      strs okc nkc ok ans hdef hrows asg gmap nmap nsw amap plan ppath wr
-                      adj evals hh minp best etxt ev partial shown nunused orec
+                      strs okc nkc ok ans hdef asg asg2 swapped invorder gmap nmap nsw amap plan
+                      ppath wr adj itm partial shown nunused orec
                       xtra xkeys kc on sur lst gaps kd nn xs sidesok bilp alls)
   (defun *error* (msg)
     (if (and doc *SC-UNDO*) (progn (vla-endundomark doc) (setq *SC-UNDO* nil)))
@@ -2853,59 +3279,54 @@
            (setq adj  (sc:adjacency strs (sc:nbdist strs))
                  hdef (sc:toint (sc:g ometa "RZEDY_NA_GRUPE")))
            (if (or (null hdef) (< hdef 1)) (setq hdef 2))
-           ;; --- uklad grup: Skupiska = podzial obszaru na pol (jak INWERTERY),
-           ;;     Pasy = pasy po N rzedow stolow przegladane kolumnami ---
-           (initget "Skupiska Pasy")
-           (setq ans (getkword (strcat "\nUklad grup inwerterow [Skupiska/Pasy] <" *SC-MODE* ">: ")))
-           (if ans (setq *SC-MODE* ans))
-           (if (= *SC-MODE* "Skupiska")
+           ;; --- grupy inwerterow w skupiskach; gdy przy skladzie inwerterow
+           ;;     z oryginalu grupy zostaja rozbite - pytanie o zamiane stringow
+           ;;     miedzy inwerterami ---
+           (princ "\nUkladam grupy inwerterow w skupiskach...")
+           (setq invorder (mapcar (function car) oinvs)
+                 asg      (sc:assignc strs ostrs oinvs (sc:g res "BANDS") amap adj nil)
+                 swapped  nil)
+           (if (> (nth 4 asg) (nth 7 asg))
              (progn
-               (princ "\nUkladam grupy inwerterow (skupiska)...")
-               (setq asg (sc:assignc strs ostrs oinvs (sc:g res "BANDS") amap adj) hrows nil)
-               (princ (strcat " kawalkow grup: " (itoa (nth 4 asg)) ", suma odleglosci od srodkow: "
-                              (rtos (nth 5 asg) 2 0) " m")))
-             (progn
-               (princ "\nUkladam grupy inwerterow (pasy)")
-               (setq evals nil hh 1)
-               ;; najwyzej 12 wariantow (duze obszary: kazdy wariant to pelne ukladanie)
-               (while (<= hh (min 12 (length amap)))
-                 (princ ".")
-                 (setq evals (cons (cons hh (sc:assign strs ostrs oinvs hh adj)) evals)
-                       hh    (1+ hh)))
-               (setq evals (reverse evals) minp nil best nil etxt nil)
-               (foreach ev evals (if (or (null minp) (< (nth 5 ev) minp)) (setq minp (nth 5 ev))))
-               (foreach ev evals
-                 (if (and (= (car ev) (min hdef (length amap) 12)) (= (nth 5 ev) minp)) (setq best ev)))
-               (if (null best)
-                 (foreach ev evals
-                   (if (and (= (nth 5 ev) minp) (or (null best) (< (nth 6 ev) (nth 6 best))))
-                     (setq best ev))))
-               (foreach ev evals
-                 (setq etxt (cons (strcat (itoa (car ev)) " -> " (itoa (nth 5 ev)) " kaw. / "
-                                          (rtos (nth 6 ev) 2 0) " m")
-                                  etxt)))
-               (setq etxt (sc:join (reverse etxt) "; "))
-               (princ (strcat "\n  Rzedow na grupe -> kawalkow grup / suma odleglosci od srodkow: " etxt))
-               (initget 6)
-               (setq hrows (getint (strcat "\nRzedow stolow na grupe jednego inwertera (oryginal: "
-                                           (itoa hdef) ", najzwartsze grupy: " (itoa (car best))
-                                           ") <" (itoa (car best)) ">: ")))
-               (if (null hrows) (setq hrows (car best)))
-               ;; --- przydzial wybrany (wartosc spoza ocenionych: ulozony teraz) ---
-               (setq asg (cdr (assoc (min hrows (length amap)) evals)))
-               (if (null asg) (setq asg (sc:assign strs ostrs oinvs (min hrows (length amap)) adj)))))
+               (princ (strcat "\n  Przy skladzie inwerterow z oryginalu grupy sa ROZBITE: "
+                              (sc:splittxt (nth 6 asg) invorder)))
+               (princ "\n  Ukladam z zamiana stringow miedzy inwerterami...")
+               (setq asg2 (sc:assignc strs ostrs oinvs (sc:g res "BANDS") amap adj T))
+               (cond
+                 ((>= (- (nth 4 asg2) (nth 7 asg2)) (- (nth 4 asg) (nth 7 asg)))
+                  (princ (strcat "\n  Zamiana stringow nie zmniejsza rozbicia grup (obszar rozdzielony"
+                                 " przerwami?) - uklad BEZ zamian, grupy rozbite w raporcie.")))
+                 ((= (nth 8 asg2) 0)
+                  (princ "\n  Znaleziono uklad bez rozbitych grup, sklad inwerterow bez zmian.")
+                  (setq asg asg2))
+                 (T
+                  (princ (strcat "\n  Z zamiana: "
+                                 (if (= (nth 4 asg2) (nth 7 asg2))
+                                   "kazda grupa w jednym skupisku"
+                                   (strcat "grupy nadal rozbite: " (sc:splittxt (nth 6 asg2) invorder)))
+                                 "; stringow innego rodzaju niz w oryginale: " (itoa (nth 8 asg2))
+                                 " (liczba stringow kazdego inwertera bez zmian):"))
+                  (foreach itm (sc:swaplines (nth 0 asg2) (nth 1 asg2) (nth 2 asg2) ostrs invorder)
+                    (princ (strcat "\n    " itm)))
+                  (initget "Tak Nie")
+                  (setq ans (getkword (strcat "\nZamienic stringi miedzy inwerterami? (Nie = uklad bez"
+                                              " zamian, grupy rozbite) [Tak/Nie] <Tak>: ")))
+                  (if (/= ans "Nie") (setq asg asg2 swapped T))))))
            (setq strs (append (nth 0 asg) xtra) gmap (nth 1 asg) nmap (nth 2 asg) nsw (nth 3 asg))
            (sc:info (strcat "Numeracja od strony: " *SC-HFROM* ", pierwsze rzedy od: " *SC-VFROM*
-                            (if hrows
-                              (strcat ", uklad grup: pasy, rzedow stolow na grupe: " (itoa hrows)
-                                      " (oryginal: " (itoa hdef) ")")
-                              ", uklad grup: skupiska (podzial obszaru na pol, jak INWERTERY)")
+                            "; grupy w skupiskach (podzial obszaru na pol, jak INWERTERY)"
                             "; rzedow stolow ze stringami: " (itoa (length amap))))
-           (if hrows
-             (sc:info (strcat "Ocena (rzedow na grupe -> kawalkow grup / suma odleglosci od srodkow): "
-                              etxt)))
            (sc:info (strcat "Grupy inwerterow: " (itoa (length oinvs)) ", kawalkow grup: "
-                            (itoa (nth 4 asg)) ", zamian przy porzadkowaniu: " (itoa nsw)))
+                            (itoa (nth 4 asg))
+                            (if (> (nth 4 asg) (nth 7 asg))
+                              (strcat " - GRUPY ROZBITE: " (sc:splittxt (nth 6 asg) invorder))
+                              " (kazda grupa w jednym skupisku)")
+                            ", zamian przy porzadkowaniu: " (itoa nsw)))
+           (if swapped
+             (sc:info (strcat "Zamiana stringow miedzy inwerterami: "
+                              (itoa (sc:swapreport (nth 0 asg) gmap nmap ostrs invorder))
+                              " stringow dostalo numer innego rodzaju niz w oryginale"
+                              " (lista: ZAMIANY STRINGOW MIEDZY INWERTERAMI)")))
            (sc:groupinfo strs gmap (mapcar (function car) oinvs) amap (nth 6 asg))
            (setq plan (sc:mkplan strs nmap oinvs partial))
            ;; numery z oryginalu, ktore nie trafily do nowego obszaru
@@ -2932,11 +3353,10 @@
              (princ "\nRysunek bez zmian.")
              (progn
                (setq wr (sc:write doc (car plan) (cadr plan)))
-               (princ (strcat "\nZmieniono napisow: " (itoa (car wr)) " z " (itoa (length (car plan)))
-                              ", kreskowan: " (itoa (cadr wr)) " z " (itoa (length (cadr plan)))
-                              " (potwierdzone kontrola po zapisie; cofniecie: jedno U)."))
                (if (or (< (car wr) (length (car plan))) (< (cadr wr) (length (cadr plan))))
-                 (sc:print "BLEDY ZAPISU" *SC-ERRS*))))))
+                 (sc:print "BLEDY ZAPISU" *SC-ERRS*))
+               ;; na koniec: co zmieniono + raport zmian (CSV)
+               (sc:done wr plan asg ostrs invorder swapped)))))
         (sc:askcircles)))))
   (princ))
 
