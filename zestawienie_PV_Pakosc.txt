@@ -1,0 +1,57 @@
+moduł LR8-66HGD-620M obszar Wielowieś 4 – 16 038 szt.
+moduł LR8-66HGD-620M obszar Wielowieś 5 – 15 309 szt.
+moduł LR8-66HGD-620M obszar Wielowieś 6 – 0 szt.
+moduł LR8-66HGD-620M obszary Wielowieś 4+5+6 – 31 347 szt.
+module LR8-66HGD-620M area Wielowieś 4 – 16 038 pcs.
+module LR8-66HGD-620M area Wielowieś 5 – 15 309 pcs.
+module LR8-66HGD-620M area Wielowieś 6 – 0 pcs.
+module LR8-66HGD-620M areas Wielowieś 4+5+6 – 31 347 pcs.
+
+moduł LR8-66HGD-625M obszar Wielowieś 4 – 0 szt.
+moduł LR8-66HGD-625M obszar Wielowieś 5 – 729 szt.
+moduł LR8-66HGD-625M obszar Wielowieś 6 – 9 558 szt.
+moduł LR8-66HGD-625M obszary Wielowieś 4+5+6 – 10 287 szt.
+module LR8-66HGD-625M area Wielowieś 4 – 0 pcs.
+module LR8-66HGD-625M area Wielowieś 5 – 729 pcs.
+module LR8-66HGD-625M area Wielowieś 6 – 9 558 pcs.
+module LR8-66HGD-625M areas Wielowieś 4+5+6 – 10 287 pcs.
+
+sumaryczna moc zainstalowana w obszarze Wielowieś 4 – 9,94356 MWp
+w tym sumaryczna moc modułów 620 Wp – 9,94356 MWp
+w tym sumaryczna moc modułów 625 Wp – 0,00000 MWp
+total installed capacity in area Wielowieś 4 – 9,94356 MWp
+including a total module power of 620 Wp – 9,94356 MWp
+including a total module power of 625 Wp – 0,00000 MWp
+
+sumaryczna moc zainstalowana w obszarze Wielowieś 5 – 9,94721 MWp
+w tym sumaryczna moc modułów 620 Wp – 9,49158 MWp
+w tym sumaryczna moc modułów 625 Wp – 0,45563 MWp
+total installed capacity in area Wielowieś 5 – 9,94721 MWp
+including a total module power of 620 Wp – 9,49158 MWp
+including a total module power of 625 Wp – 0,45563 MWp
+
+sumaryczna moc zainstalowana w obszarze Wielowieś 6 – 5,97375 MWp
+w tym sumaryczna moc modułów 620 Wp – 0,00000 MWp
+w tym sumaryczna moc modułów 625 Wp – 5,97375 MWp
+total installed capacity in area Wielowieś 6 – 5,97375 MWp
+including a total module power of 620 Wp – 0,00000 MWp
+including a total module power of 625 Wp – 5,97375 MWp
+
+podobszary / sub-areas:
+Wielowieś 4a – 12 069 szt. (620 Wp) – 7,48278 MWp / 12 069 pcs. (620 Wp) – 7,48278 MWp
+Wielowieś 4b – 3 969 szt. (620 Wp) – 2,46078 MWp / 3 969 pcs. (620 Wp) – 2,46078 MWp
+Wielowieś 5a – 2 754 szt. (620 Wp) – 1,70748 MWp / 2 754 pcs. (620 Wp) – 1,70748 MWp
+Wielowieś 5b – 4 131 szt. (620 Wp) – 2,56122 MWp / 4 131 pcs. (620 Wp) – 2,56122 MWp
+Wielowieś 5c – 9 153 szt. (8 424 x 620 Wp + 729 x 625 Wp) – 5,67851 MWp / 9 153 pcs. (8 424 x 620 Wp + 729 x 625 Wp) – 5,67851 MWp
+Wielowieś 6a – 3 564 szt. (625 Wp) – 2,22750 MWp / 3 564 pcs. (625 Wp) – 2,22750 MWp
+Wielowieś 6b – 2 349 szt. (625 Wp) – 1,46813 MWp / 2 349 pcs. (625 Wp) – 1,46813 MWp
+Wielowieś 6c – 3 645 szt. (625 Wp) – 2,27813 MWp / 3 645 pcs. (625 Wp) – 2,27813 MWp
+
+sumaryczna liczba modułów na PV Pakość – 41 634 szt.
+total number of modules on PV Pakość – 41 634 pcs.
+sumaryczna moc zainstalowana na PV Pakość – 25,86452 MWp
+w tym sumaryczna moc modułów 620 Wp – 19,43514 MWp
+w tym sumaryczna moc modułów 625 Wp – 6,42938 MWp
+total installed capacity on PV Pakość – 25,86452 MWp
+including a total module power of 620 Wp – 19,43514 MWp
+including a total module power of 625 Wp – 6,42938 MWp
