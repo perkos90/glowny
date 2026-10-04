@@ -1,0 +1,263 @@
+<title>Oświetlenie łazienki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Układ: arkusz rysunkowy — rzut sufitu po lewej, zestawienie opraw po prawej, uwagi pod spodem */
+:root {
+  --bg: #f3f3ef;
+  --paper: #fdfdf9;
+  --ink: #1f2a27;
+  --muted: #5f6b67;
+  --rule: #d6d8d1;
+  --wall: #b9bdb6;
+  --fix: #ecede7;
+  --fix-line: #868b84;
+  --glass: #8fb3ac;
+  --light: #c2861b;
+  --mood: #94609a;
+  --spk: #4b5bb0;
+  --vent: #0d8a80;
+  --dim: #56625e;
+  --f-display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161a19; --paper: #1e2321; --ink: #e6e9e4; --muted: #9aa49f; --rule: #343b38;
+    --wall: #59605c; --fix: #2a302d; --fix-line: #7d857f; --glass: #6f9e95;
+    --light: #e0a43a; --mood: #c08ac6; --spk: #8d9cf0; --vent: #3cc0b3; --dim: #a4ada8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161a19; --paper: #1e2321; --ink: #e6e9e4; --muted: #9aa49f; --rule: #343b38;
+  --wall: #59605c; --fix: #2a302d; --fix-line: #7d857f; --glass: #6f9e95;
+  --light: #e0a43a; --mood: #c08ac6; --spk: #8d9cf0; --vent: #3cc0b3; --dim: #a4ada8;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.sheet { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 28px; }
+header h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); letter-spacing: .04em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); font-size: 16px; }
+.main { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+.plan { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; overflow-x: auto; }
+.plan svg { display: block; width: 100%; min-width: 600px; height: auto; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 8px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.num { white-space: nowrap; font-weight: 600; }
+td small { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.tag { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 4px; border: 2.5px solid currentColor; border-radius: 999px; font-family: var(--f-display); font-weight: 700; font-size: 13px; box-sizing: border-box; }
+.c-l { color: var(--light); } .c-a { color: var(--mood); } .c-g { color: var(--spk); } .c-w { color: var(--vent); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; border-top: 1px solid var(--rule); padding-top: 22px; }
+.notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.notes li { max-width: 62ch; }
+.foot { color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.foot strong { color: var(--ink); }
+
+/* rysunek */
+.wall { fill: var(--wall); }
+.floor { fill: var(--paper); }
+.fx { fill: var(--fix); stroke: var(--fix-line); stroke-width: 1; }
+.fx-in { fill: var(--paper); stroke: var(--fix-line); stroke-width: .8; }
+.thin { fill: none; stroke: var(--fix-line); stroke-width: .5; }
+.glass { fill: var(--glass); }
+.lbl { fill: var(--fix-line); font-family: var(--f-body); font-size: 8.5px; letter-spacing: .06em; }
+.axis { stroke: var(--light); stroke-width: .6; stroke-dasharray: 3 3; opacity: .7; fill: none; }
+.lamp circle { fill: var(--paper); stroke: var(--light); stroke-width: 2.2; }
+.lamp text, .tl { fill: var(--light); font-family: var(--f-display); font-weight: 700; font-size: 8px; text-anchor: middle; dominant-baseline: central; }
+.lamp.ip circle { stroke-dasharray: none; }
+.beam { fill: var(--light); opacity: .07; }
+.mstrip { fill: var(--light); }
+.mood { stroke: var(--mood); stroke-width: 3; fill: none; }
+.mood-d { stroke: var(--mood); stroke-width: 2.2; stroke-dasharray: 4 3; fill: none; }
+.tm { fill: var(--mood); font-family: var(--f-display); font-weight: 700; font-size: 8px; text-anchor: middle; }
+.spk circle { fill: var(--paper); stroke: var(--spk); stroke-width: 2.2; }
+.spk text { fill: var(--spk); font-family: var(--f-display); font-weight: 700; font-size: 8px; text-anchor: middle; dominant-baseline: central; }
+.vent circle { fill: var(--paper); stroke: var(--vent); stroke-width: 2.2; }
+.vent text { fill: var(--vent); font-family: var(--f-display); font-weight: 700; font-size: 8px; text-anchor: middle; dominant-baseline: central; }
+.dl { stroke: var(--dim); stroke-width: .6; fill: none; }
+.ext { stroke: var(--dim); stroke-width: .4; stroke-dasharray: 2 2; fill: none; }
+.dt { fill: var(--dim); font-family: var(--f-body); font-size: 7.5px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.dt.tot { font-weight: 600; }
+</style>
+
+<div class="sheet">
+  <header>
+    <h1>Łazienka · rozmieszczenie oświetlenia</h1>
+    <p>Rzut sufitu na tle wyposażenia. Wymiary w cm, od lewej ściany (x) i od ściany z oknem (y).</p>
+  </header>
+
+  <div class="main">
+    <div class="plan">
+      <svg viewBox="-70 -42 500 470" role="img" aria-label="Rzut łazienki z rozmieszczeniem opraw oświetleniowych, głośnika i wywiewu wraz z wymiarami">
+        <defs><clipPath id="room"><rect x="0" y="0" width="332.5" height="364.5"/></clipPath></defs>
+        <!-- ściany -->
+        <rect class="wall" x="-6" y="-6" width="344.5" height="376.5"/>
+        <rect class="floor" x="0" y="0" width="332.5" height="364.5"/>
+        <!-- okno -->
+        <rect class="floor" x="102" y="-6" width="178" height="6"/>
+        <rect class="glass" x="102" y="-3.6" width="178" height="1.2"/>
+        <text class="lbl" x="191" y="-14" text-anchor="middle">OKNO</text>
+        <!-- drzwi (otwierane na zewnątrz) -->
+        <rect class="floor" x="332.5" y="259" width="6" height="80" style="fill: var(--paper)"/>
+        <line class="thin" x1="338.5" y1="259" x2="418.5" y2="259" style="stroke-width:1"/>
+        <path class="thin" d="M418.5,259 A80,80 0 0 1 338.5,339"/>
+        <text class="lbl" x="352" y="356">WEJŚCIE</text>
+
+        <!-- osie opraw -->
+        <line class="axis" x1="245" y1="0" x2="245" y2="364.5"/>
+        <line class="axis" x1="0" y1="191" x2="332.5" y2="191"/>
+
+        <!-- wanna -->
+        <rect class="fx" x="26" y="31.5" width="178" height="77.5" rx="38.75"/>
+        <rect class="fx-in" x="33" y="38.5" width="164" height="63.5" rx="31.75"/>
+        <text class="lbl" x="115" y="73" text-anchor="middle" style="font-size:11px">WANNA</text>
+
+        <!-- blat z umywalkami + lustra -->
+        <rect class="fx" x="288" y="31.5" width="44.5" height="215.5"/>
+        <rect class="fx-in" x="296" y="58" width="26" height="30" rx="12"/>
+        <rect class="fx-in" x="296" y="176" width="26" height="30" rx="12"/>
+        <rect class="glass" x="330" y="43" width="2.5" height="60"/>
+        <rect class="glass" x="330" y="161" width="2.5" height="60"/>
+        <rect class="mstrip" x="326.5" y="36" width="6" height="4"/>
+        <rect class="mstrip" x="326.5" y="106" width="6" height="4"/>
+        <rect class="mstrip" x="326.5" y="154" width="6" height="4"/>
+        <rect class="mstrip" x="326.5" y="224" width="6" height="4"/>
+        <text class="tl" x="312" y="132">M</text>
+
+        <!-- WC -->
+        <rect class="fx" x="0" y="156" width="22" height="50"/>
+        <rect class="fx" x="22" y="163" width="50" height="36" rx="18"/>
+        <rect class="fx-in" x="30" y="169" width="36" height="24" rx="12"/>
+        <text class="lbl" x="18" y="222">WC</text>
+
+        <!-- prysznic -->
+        <rect class="fx" x="5" y="288" width="132" height="70.5"/>
+        <path class="thin" d="M5,288 L137,358.5 M137,288 L5,358.5"/>
+        <text class="lbl" x="104" y="353" text-anchor="middle">PRYSZNIC</text>
+
+        <!-- światło nastrojowe A -->
+        <line class="mood" x1="26" y1="6" x2="204" y2="6"/>
+        <text class="tm" x="115" y="20">A</text>
+        <line class="mood-d" x1="284.5" y1="31.5" x2="284.5" y2="247"/>
+        <text class="tm" x="276" y="258">A</text>
+
+        <!-- strumienie opraw (orientacyjnie, kąt ok. 60°, sufit ok. 260 cm, na wys. 85 cm) -->
+        <g clip-path="url(#room)">
+        <circle class="beam" cx="245" cy="73" r="100"/>
+        <circle class="beam" cx="245" cy="191" r="100"/>
+        <circle class="beam" cx="245" cy="309" r="100"/>
+        <circle class="beam" cx="120" cy="191" r="100"/>
+        </g>
+
+        <!-- oprawy -->
+        <g class="lamp"><circle cx="245" cy="73" r="10"/><text x="245" y="73">L1</text></g>
+        <g class="lamp"><circle cx="245" cy="191" r="10"/><text x="245" y="191">L2</text></g>
+        <g class="lamp"><circle cx="245" cy="309" r="10"/><text x="245" y="309">L3</text></g>
+        <g class="lamp"><circle cx="120" cy="191" r="10"/><text x="120" y="191">L4</text></g>
+        <g class="lamp ip"><circle cx="71" cy="323" r="10"/><text x="71" y="323">L5</text></g>
+
+        <!-- głośnik i wywiew -->
+        <g class="spk"><circle cx="182.5" cy="250" r="10"/><text x="182.5" y="250">G</text></g>
+        <g class="vent"><circle cx="55" cy="250" r="10"/><text x="55" y="250">W</text></g>
+
+        <!-- wymiary poziome (od lewej ściany) -->
+        <g>
+          <line class="ext" x1="71" y1="372" x2="71" y2="396"/>
+          <line class="ext" x1="120" y1="372" x2="120" y2="396"/>
+          <line class="ext" x1="245" y1="372" x2="245" y2="396"/>
+          <line class="dl" x1="0" y1="390" x2="332.5" y2="390"/>
+          <path class="dl" d="M-3,393 l6,-6 M68,393 l6,-6 M117,393 l6,-6 M242,393 l6,-6 M329.5,393 l6,-6"/>
+          <line class="dl" x1="0" y1="372" x2="0" y2="396"/>
+          <line class="dl" x1="332.5" y1="372" x2="332.5" y2="396"/>
+          <text class="dt" x="35.5" y="386">71</text>
+          <text class="dt" x="95.5" y="386">49</text>
+          <text class="dt" x="182.5" y="386">125</text>
+          <text class="dt" x="288.75" y="386">87,5</text>
+          <line class="dl" x1="0" y1="410" x2="332.5" y2="410"/>
+          <path class="dl" d="M-3,413 l6,-6 M329.5,413 l6,-6"/>
+          <line class="dl" x1="0" y1="396" x2="0" y2="414"/>
+          <line class="dl" x1="332.5" y1="396" x2="332.5" y2="414"/>
+          <text class="dt tot" x="166.25" y="406">ok. 332,5</text>
+        </g>
+
+        <!-- wymiary pionowe (od ściany z oknem) -->
+        <g>
+          <line class="ext" x1="-30" y1="73" x2="-8" y2="73"/>
+          <line class="ext" x1="-30" y1="191" x2="-8" y2="191"/>
+          <line class="ext" x1="-30" y1="309" x2="-8" y2="309"/>
+          <line class="dl" x1="-26" y1="0" x2="-26" y2="364.5"/>
+          <path class="dl" d="M-29,3 l6,-6 M-29,76 l6,-6 M-29,194 l6,-6 M-29,312 l6,-6 M-29,367.5 l6,-6"/>
+          <line class="dl" x1="-32" y1="0" x2="-8" y2="0"/>
+          <line class="dl" x1="-32" y1="364.5" x2="-8" y2="364.5"/>
+          <text class="dt" transform="translate(-30 36.5) rotate(-90)">73</text>
+          <text class="dt" transform="translate(-30 132) rotate(-90)">118</text>
+          <text class="dt" transform="translate(-30 250) rotate(-90)">118</text>
+          <text class="dt" transform="translate(-30 336.75) rotate(-90)">55,5</text>
+          <line class="dl" x1="-48" y1="0" x2="-48" y2="364.5"/>
+          <path class="dl" d="M-51,3 l6,-6 M-51,367.5 l6,-6"/>
+          <line class="dl" x1="-52" y1="0" x2="-32" y2="0"/>
+          <line class="dl" x1="-52" y1="364.5" x2="-32" y2="364.5"/>
+          <text class="dt tot" transform="translate(-52 182.25) rotate(-90)">ok. 364,5</text>
+        </g>
+      </svg>
+    </div>
+
+    <div>
+      <h2>Zestawienie</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th></th><th>Funkcja i oprawa</th><th>x / y [cm]</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag c-l">L1</span></td><td>Główne, przed umywalką 1<small>w osi umywalki, 43 cm przed frontem blatu</small></td><td class="num">245 / 73</td></tr>
+            <tr><td><span class="tag c-l">L2</span></td><td>Główne, przed umywalką 2<small>w osi umywalki</small></td><td class="num">245 / 191</td></tr>
+            <tr><td><span class="tag c-l">L3</span></td><td>Główne, przy wejściu<small>ta sama oś, ten sam rozstaw 118 cm</small></td><td class="num">245 / 309</td></tr>
+            <tr><td><span class="tag c-l">L4</span></td><td>Główne, strefa WC i środek<small>w rzędzie z L2, przed miską WC (nie nad głową)</small></td><td class="num">120 / 191</td></tr>
+            <tr><td><span class="tag c-l">L5</span></td><td>Prysznic, IP65<small>środek brodzika; jeśli deszczownica będzie na środku, przesunąć L5 ok. 30 cm w stronę wejścia do kabiny</small></td><td class="num">71 / 323</td></tr>
+            <tr><td><span class="tag c-l">M</span></td><td>Przy lustrach, na ścianie<small>pionowe pasy LED po obu bokach każdego lustra (lub nad lustrem), na wysokości twarzy</small></td><td class="num">ściana</td></tr>
+            <tr><td><span class="tag c-a">A</span></td><td>Nastrojowe<small>LED we wnęce/listwie nad wanną (IP65) oraz LED pod blatem, ściemniane</small></td><td class="num">liniowe</td></tr>
+            <tr><td><span class="tag c-g">G</span></td><td>Głośnik sufitowy<small>środek trójkąta L2–L3–L4, poza obrysem wanny i prysznica</small></td><td class="num">182,5 / 250</td></tr>
+            <tr><td><span class="tag c-w">W</span></td><td>Wywiew rekuperacji<small>bez zmian: między WC a prysznicem</small></td><td class="num">55 / 250</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div>
+      <h2>Dlaczego tak</h2>
+      <ul>
+        <li>Trzy oprawy L1–L3 w jednej osi z równym rozstawem 118 cm: dwie trafiają w osie umywalek, trzecia oświetla wejście.</li>
+        <li>L4 domyka lewą część pomieszczenia (WC i wolne przejście), które w poprzednim schemacie było nieoświetlone.</li>
+        <li>Nad wanną nie ma downlightu, bo leżąc patrzy się prosto w oprawę. Wannę oświetla pośrednio linia A.</li>
+        <li>Downlighty oświetlają głowę z góry i dają cień na twarzy, dlatego przy lustrach zostaje światło boczne M.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Oprawy</h2>
+      <ul>
+        <li>L1–L4: downlight LED 8–10 W, ok. 800 lm, 3000 K, CRI ≥ 90, kąt 50–60°, antyolśnieniowy (UGR &lt; 19), IP44.</li>
+        <li>L5: ta sama rodzina, ok. 600 lm, IP65.</li>
+        <li>Razem ok. 3800 lm na ok. 12,1 m², czyli ok. 310 lm/m². Z lustrami M wystarcza na całą łazienkę.</li>
+        <li>M: 3000–4000 K, CRI ≥ 90. A: taśma 24 V, 2700 K.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Sterowanie</h2>
+      <ul>
+        <li>Obwód 1: L1–L4, włącznik przy drzwiach (najlepiej ze ściemniaczem).</li>
+        <li>Obwód 2: L5, osobny klawisz przy drzwiach.</li>
+        <li>Obwód 3: M, włącznik przy blacie.</li>
+        <li>Obwód 4: A, ściemniacz. LED pod blatem może działać nocą z czujnika ruchu.</li>
+        <li>Zasilacze LED poza strefami wilgotnymi, z dostępem rewizyjnym. Cały obwód łazienki za RCD 30 mA.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="foot"><strong>Schemat koncepcyjny, nie projekt wykonawczy.</strong> Wymiary odczytane ze schematu w skali względem szerokości 332,5 cm, więc przed montażem trzeba je zweryfikować na miejscu. Położenie wywiewu i wysokość zabudowy do uzgodnienia z instalatorami.</p>
+</div>
