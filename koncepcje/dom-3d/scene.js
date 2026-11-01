@@ -178,7 +178,7 @@ function livingDetails() {
   // listwy na ścianie nad wnęką
   if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
-  const cx = 316.5; if (!NOMOULD) { B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22);
+  const cx = 316.5; if (!NOMOULD) { if (!String(CONCEPT).startsWith('k1w')) { B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22); }
   for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); } }
   // listwa przypodłogowa
   B(102, 531, 0, 2, 0, 10, mat.wall2); B(0, 2, 0, 1040, 0, 10, mat.wall2);
@@ -312,11 +312,18 @@ function concept2() {
 
 // ---------------- build ----------------
 // ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
+function tvRelief(cx = 316.5) { // czerwona ramka +10 / pas wklęsły +3 / zielony panel +10 (cm od ściany)
+  const R = 112, Y = 101, G = 91, T = HR;
+  B(cx - R, cx - Y, 0, 10, 0, T, mat.wall2); B(cx + Y, cx + R, 0, 10, 0, T, mat.wall2); B(cx - Y, cx + Y, 0, 10, 0, 13, mat.wall2); B(cx - Y, cx + Y, 0, 10, T - 10, T, mat.wall2);
+  B(cx - Y, cx + Y, 0, 3, 13, T - 10, mat.wall2);
+  B(cx - G, cx + G, 0, 10, 36, T - 20, mat.wall2);
+}
 function conceptK1W(noSide = false) {
-  // ściana TV jak w koncepcji 1
-  B(196, 436, 0, 45, 0, 58, mat.black); for (const x of [276, 356]) B(x - .3, x + .3, 45, 45.3, 4, 54, mat.blackG);
-  B(233, 399, 3, 6, 95, 190, mat.blackG); B(235, 397, 6, 6.3, 97, 188, mat.screen);
-  lamp(225, 22, 58); sph(410, 22, 64, 6, mat.cer); B(380, 420, 10, 34, 58, 64, mat.oak);
+  // ściana TV: wypukłości wg szkicu, TV na zielonym panelu (+10 cm), konsola przed ramką
+  tvRelief();
+  B(196, 436, 10, 55, 0, 58, mat.black); for (const x of [276, 356]) B(x - .3, x + .3, 55, 55.3, 4, 54, mat.blackG);
+  B(233, 399, 10, 13, 95, 190, mat.blackG); B(235, 397, 13, 13.3, 97, 188, mat.screen);
+  lamp(225, 32, 58); sph(410, 32, 64, 6, mat.cer); B(380, 420, 20, 44, 58, 64, mat.oak);
   for (const x of [166, 467]) { photoFrame(x, 232, 48, 58, 0); photoFrame(x, 164, 48, 58, x > 300 ? 2 : 1); photoFrame(x, 96, 48, 58, x > 300 ? 0 : 2); sconceTV(x, 302); }
   // biblioteka: 4 wieże (bez ławy)
   const towers = [[0, 63.5], [63.5, 127], [127, 197], [197, 267]];
@@ -1233,6 +1240,7 @@ const VIEWS = {
   main:   { pos: [330, 525, 160], look: [330, 0], up: 41, down: 33 },
   niche1: { pos: [515, 120, 140], look: [0, 235], up: 30, down: 26 },
   niche1w: { pos: [520, 150, 140], look: [0, 230], up: 30, down: 26 },
+  tvside: { pos: [80, 300, 150], look: [420, 0], up: 35, down: 30 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
