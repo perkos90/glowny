@@ -330,22 +330,24 @@ function conceptK2W(mode = 'L') {
   B(cx - pw / 2, cx + pw / 2, 10, 13, ph0, ph0 + phh, mat.oakD); B(cx - pw / 2 + 4, cx + pw / 2 - 4, 13, 13.4, ph0 + 4, ph0 + phh - 4, M({ map: paintTex(0), roughness: .7 }));
   B(cx - 2, cx + 2, 10, 17, ph0 + phh + 12, ph0 + phh + 20, mat.brass); B(cx - 34, cx + 34, 14, 21, ph0 + phh + 8, ph0 + phh + 12, mat.brass);
   { const l = new THREE.SpotLight('#ffd9a0', 4, 3, .9, .8, 2); l.position.set(-cx / 100, (ph0 + phh + 8) / 100, .2); l.target.position.set(-cx / 100, (ph0 + phh / 2) / 100, 0); CUR.add(l, l.target); }
+  // --- wnęka obniżona do spodu podciągu (280 cm)
+  const TOP = 280; B(0, NICHE + 1, 0, BEAM0, TOP, HN + 1, mat.wall);
   // --- wnęka: zabudowa TV w ciepłej bieli
   const WB = mat.wall, WC = mat.wall2;
   for (const [a, b] of [[0, 92], [302, 394]]) {
     B(0, 40, a, b, 0, 8, WC); B(0, 40, a, b, 8, 86, WB); const m = (a + b) / 2;
     for (const [p, q] of [[a + 1.5, m - .3], [m + .3, b - 1.5]]) { B(40, 41.2, p, q, 10, 84, WC); const c = B(41.2, 41.6, p + 5, q - 5, 16, 78, mat.cane); uvScale(c, 2.2); sph(42.6, p < m ? q - 4 : p + 4, 60, 1.4, mat.brass); }
     B(0, 42, a, b, 86, 90, WC); B(0, 40, a, b, 90, 160, WB); const sp = B(40, 40.6, a + 5, b - 5, 94, 156, mat.cane); uvScale(sp, 2.2);
-    B(0, 40, a, b, 160, 163, WC); B(0, 36, a, a + 2.5, 163, HN, WB); B(0, 36, b - 2.5, b, 163, HN, WB);
+    B(0, 40, a, b, 160, 163, WC); B(0, 36, a, a + 2.5, 163, TOP, WB); B(0, 36, b - 2.5, b, 163, TOP, WB);
     for (const h of [212, 252]) B(0, 34, a + 2, b - 2, h, h + 2.5, WC);
     for (const [h, mh] of [[163, 46], [214.5, 36], [254.5, 32]]) shelf('y', a + 3, b - 3, h, 32, mh, 0, 1);
   }
-  for (let y = 93; y < 301; y += 2.6) B(2, 4.5, y, y + 1.9, 0, HN, WC, { cast: false });
+  for (let y = 93; y < 301; y += 2.6) B(2, 4.5, y, y + 1.9, 0, TOP, WC, { cast: false });
   B(4.5, 5.5, 102, 292, 61, 169, new THREE.MeshStandardMaterial({ color: '#ffe9c4', emissive: '#ffd99a', emissiveIntensity: 1.4 }), { cast: false });
   B(5.5, 9, 102.5, 291.5, 61, 169, mat.blackG); B(9, 9.3, 104, 290, 63, 167, mat.screen);
   B(4.5, 42, 104, 290, 20, 52, WC); for (const y of [166, 228]) B(42, 42.3, y - .3, y + .3, 22, 50, M({ color: '#d8cdbd' }));
   ledStrip(4.5, 40, 106, 288, 18, 20);
-  for (const y of [46, 197, 348]) cyl(70, y, HN - 1, HN, 4, mat.glow, 16);
+  for (const y of [46, 197, 348]) cyl(70, y, TOP - 1, TOP, 4, mat.glow, 16);
   flushBooks();
   // --- meble
   if (mode === 'L') {
