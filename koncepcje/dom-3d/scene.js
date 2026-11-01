@@ -321,7 +321,7 @@ function sofaStraight(x0, x1, y0, y1, back) { // back: 'S' (oparcie przy y0) / '
   const py = back === 'S' ? [y0 + 22, y0 + 36] : [y1 - 36, y1 - 22];
   B(x0 + 24, x0 + 66, py[0], py[1], 50, 92, M({ color: '#d8ccb8', roughness: 1 }), { r: 8 }); B(x1 - 66, x1 - 24, py[0], py[1], 50, 92, M({ color: '#bca78c', roughness: 1 }), { r: 8 });
 }
-function conceptK2W(mode = 'L') {
+function conceptK2W(mode = 'L', sideWall = false) {
   // --- ściana płd.: wypukłości (ramka szersza 1,5×) + obraz na środku, bez ramek z boku
   const cx = 316.5, Y = 101, R = Y + 16.5, G = 91, T = HR;
   B(cx - R, cx - Y, 0, 10, 0, T, mat.wall2); B(cx + Y, cx + R, 0, 10, 0, T, mat.wall2); B(cx - Y, cx + Y, 0, 10, 0, 13, mat.wall2); B(cx - Y, cx + Y, 0, 10, T - 10, T, mat.wall2);
@@ -332,6 +332,8 @@ function conceptK2W(mode = 'L') {
   { const l = new THREE.SpotLight('#ffd9a0', 4, 3, .9, .8, 2); l.position.set(-cx / 100, (ph0 + phh + 8) / 100, .2); l.target.position.set(-cx / 100, (ph0 + phh / 2) / 100, 0); CUR.add(l, l.target); }
   // --- wnęka obniżona do spodu podciągu (280 cm)
   const TOP = 280; B(0, NICHE + 1, 0, BEAM0, TOP, HN + 1, mat.wall);
+  if (sideWall) { // zabudowa boku wnęki od strony holu: ścianka g-k 12,5 cm (CW75 + 2×12,5) do spodu podciągu
+    B(0, NICHE, BEAM0, BEAM0 + 12.5, 0, TOP, mat.wall); B(0, NICHE, BEAM0 + 12.5, BEAM0 + 13.5, 0, 10, mat.wall2); B(NICHE - 1, NICHE, BEAM0, BEAM0 + 13.5, 0, 10, mat.wall2); }
   // --- wnęka: zabudowa TV w ciepłej bieli
   const WB = mat.wall, WC = mat.wall2;
   for (const [a, b] of [[0, 92], [302, 394]]) {
@@ -1261,7 +1263,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true), 'k2w': () => conceptK2W('L'), 'k2wp': () => conceptK2W('P') }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true), 'k2w': () => conceptK2W('L'), 'k2wp': () => conceptK2W('P'), 'k2wz': () => conceptK2W('L', true), 'k2wpz': () => conceptK2W('P', true) }; const GS = {};
 const CS = (Q.get('cs') || '').split(',').filter(Boolean);
 for (const k in CF) if ((INTER && (!CS.length || CS.includes(k))) || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
@@ -1298,6 +1300,7 @@ const VIEWS = {
   niche1w: { pos: [520, 150, 140], look: [0, 230], up: 30, down: 26 },
   tvside: { pos: [80, 300, 150], look: [420, 0], up: 35, down: 30 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
+  bok:    { pos: [300, 560, 150], look: [40, 330], up: 30, down: 26 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
   wide:   { pos: [40, 600, 150], look: [420, 60], up: 38, down: 32 },
