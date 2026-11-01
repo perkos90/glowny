@@ -12,9 +12,9 @@ CS=[
  ('3','Alkowa wypoczynkowa (daybed) + zasłony od sufitu','Wnęka: tapicerowany daybed 100 × 210 cm z szufladami, kanałowe oparcie, kinkiety na ramieniu, szafki i półki po bokach. Antresola: duży obraz z kinkietem i lniane zasłony zawieszone pod sufitem (5,9 m) – można zasłonić całą wnękę i zrobić z niej miejsce dla gościa.',
   ['Ściany wnęki w ciepłym taupe (tadelakt/wapno)','Daybed = dodatkowe miejsce do spania','Szyna sufitowa na 5,9 m, zasłony podwójnej wysokości','Duży obraz 155 × 190 cm nad wnęką'],
   'Bardzo przytulnie, „hotelowo”. Zasłony 5,9 m to spory koszt i pranie.','średni'),
- ('4','Strefa kominkowa z kamiennym „kominem” do sufitu','Wnęka: biokominek (bez komina – za ścianą jest WC) w obudowie z kamienia, ławy po bokach ze schowkiem na drewno. Antresola: pas kamienia 140 cm kontynuowany od kominka do sufitu – optycznie wielki komin; reszta ściany w wapnie, belki dębowe w suficie wnęki.',
-  ['Okładzina: trawertyn/wapień lub tynk kamieniopodobny (lżejszy)','Okrągłe lustro w mosiężnej ramie nad kominkiem','Ławy 45 × 116 cm z poduszkami, drewno pod spodem','Kinkiety na „kominie” na wys. ~4,3 m'],
-  'Klimatycznie i ponadczasowo. Ciężar kamienia na ścianie antresoli – lepiej płyty cienkie lub tynk.','średni–wysoki'),
+ ('4','Kącik muzyczny z pianinem + panele akustyczne','Wnęka: pianino (150 × 60 cm) z ławą – razem ok. 100 cm głębokości, czyli dokładnie na wymiar wnęki. Po bokach dębowe szafki z plecionką i półki na płyty winylowe i książki, nad pianinem obraz z kinkietem. Antresola: sześć dużych paneli akustycznych obciągniętych lnem w dębowych ramach – piękna, miękka ściana, która wycisza pogłos wysokiego salonu.',
+  ['Ściany wnęki w tynku wapiennym (ciepła biel)','Pianino czarne na wysoki połysk – akcent jak czarna konsola TV','Półki na winyle (31 × 31 cm) w dolnym rzędzie','Panele akustyczne 118 × 128 cm, len w kolorze ścian'],
+  'Elegancko i praktycznie dla akustyki. Pianino nie przy oknie – dobrze dla instrumentu (stała temperatura).','średni'),
  ('5','Domowy bar / kawiarnia + ściana galeryjna','Wnęka „zalana” głęboką zielenią na wysoki połysk: zabudowa barowa z blatem z marmuru, chłodziarka do wina, ekspres, postarzane lustro z szklanymi półkami na mosiężnych wspornikach. Antresola: ściana galeryjna – kilkanaście ram w różnych rozmiarach z kinkietami obrazowymi.',
   ['Fronty lakier zielony (np. oliwkowy/butelkowy), uchwyty mosiężne','Lustro antyczne + szkło + podświetlenie LED','Woda do ekspresu – podejście wodne przy WC za ścianą (ułatwia)','Galeria zdjęć cz-b jak na ścianie TV'],
   'Najbardziej odważna, „jewel box”. Kontrast z kremowym salonem.','średni'),
@@ -30,8 +30,7 @@ for k,t,lead,items,note,cost in CS:
 <div class="g"><figure>{e}<figcaption>Widok całej ściany z salonu: wnęka (0–2,9 m) + antresola (2,9–5,9 m).</figcaption></figure>
 <div><figure>{p}<figcaption>Rzut wnęki i salonu.</figcaption></figure><ul>{li}</ul><p class="note"><b>W skrócie:</b> {note} <b>Koszt:</b> {cost}.</p></div></div></section>'''
 LINKS=[('Ideal Home – 31 pomysłów na wnęki','https://www.idealhome.co.uk/all-rooms-ideas/clever-designs-for-alcoves-91177'),('Frederic – łóżka/daybedy we wnękach','https://fredericmagazine.com/2022/10/alcove-beds/'),
-('Feather & Black – alkowa z zasłoną','https://www.featherandblack.com/inspiration/alcove-bedroom-ideas'),('Houzz – pomysły na wnęki przy kominku','https://www.houzz.com.sg/magazine/10-stylish-ideas-for-fireplace-alcoves-stsetivw-vs~54272787'),
-('OSMOZ – obudowa kominka jako oś zabudowy','https://www.osmoz.com/inspiration/osmoz-magazine/2046/easy-mantel-shelf-and-surround-ideas-for-a-built-in-look'),('Houzz – bar we wnęce z lustrem antycznym','https://www.houzz.com/hznb/projects/home-bar-pj-vj~6873776'),
+('Feather & Black – alkowa z zasłoną','https://www.featherandblack.com/inspiration/alcove-bedroom-ideas'),('Houzz – bar we wnęce z lustrem antycznym','https://www.houzz.com/hznb/projects/home-bar-pj-vj~6873776'),
 ('Boston Globe – wnęka zamieniona w zielony bar','https://www.bostonglobe.com/2025/03/14/magazine/home-design-turning-unused-nook-into-wet-bar'),('Armac Martin – inspiracje barów domowych','https://www.armacmartin.com/blogs/the-journal/luxury-home-bar-inspiration'),
 ('Crittall – wewnętrzne ściany stalowe','https://crittall-windows.co.uk/news/stunning-internal-windows'),('Houzz – 10 sposobów na drzwi Crittall we wnętrzu','https://www.houzz.co.uk/ideabooks/81346771/thumbs/crittall-style-windows-10-stylish-ideas-for-using-them-inside')]
 li="".join(f'<li><a href="{u}">{t}</a></li>' for t,u in LINKS)
@@ -50,7 +49,7 @@ table{{width:100%;border-collapse:collapse;font:14px/1.45 Helvetica,Arial,sans-s
 <tr><td>1 Biblioteka x2</td><td>czytanie, książki</td><td>regały do sufitu + drabina</td><td>oświetlenie półek</td><td>wysoki</td></tr>
 <tr><td>2 TV + lamele</td><td>kino domowe</td><td>lamele dębowe (akustyka)</td><td>przeniesienie TV/SAT/INT, audio</td><td>średni–wysoki</td></tr>
 <tr><td>3 Daybed + zasłony</td><td>wypoczynek / gość</td><td>obraz + zasłony 5,9 m</td><td>kinkiety, szyna</td><td>średni</td></tr>
-<tr><td>4 Kominek</td><td>strefa kominkowa</td><td>kamienny „komin”</td><td>biokominek (bez komina), kinkiety</td><td>średni–wysoki</td></tr>
+<tr><td>4 Kącik muzyczny</td><td>pianino, winyle</td><td>panele akustyczne lniane</td><td>kinkiet obrazowy, gniazdo</td><td>średni</td></tr>
 <tr><td>5 Bar</td><td>bar / kawiarnia</td><td>ściana galeryjna</td><td>chłodziarka, ekspres, woda, LED</td><td>średni</td></tr>
 <tr><td>6 Pracownia</td><td>biuro za szkłem</td><td>lustra w stalowej kracie</td><td>gniazda przy biurku, LAN</td><td>średni–wysoki</td></tr></table></section>
 <section class="card"><h2>Inspiracje</h2><ul>{li}</ul><p class="small">Wyszukiwarka nie zwraca bezpośrednio tablic Pinteresta, więc posłużyłem się serwisami, z których pochodzi większość pinów o tych tematach (Houzz, Ideal Home, Crittall, magazyny wnętrzarskie).</p></section>

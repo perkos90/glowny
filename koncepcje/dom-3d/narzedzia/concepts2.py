@@ -106,20 +106,34 @@ def elevW(kind):
         d.line(-4,HT-6,BEAM0+4,HT-6,C['black'],2.5)
         for a,b in ((-4,60),(334,398)): d.rect(a,0,b-a,HT-6,fill='url(#linen)',stroke='#d6c9b4',sw=.8,pattern='linen')
         elev_frame(d,'antresola: obraz + zasłony lniane od sufitu (5,9 m) – można zamknąć wnękę')
-    if kind=='4':   # kominek + kamienny „komin” do sufitu
-        elev_base(d,LIME); fc=197
-        d.rect(fc-70,0,140,HT,fill='url(#stone)',stroke='#bfae93',sw=1,pattern='stone')
-        d.rect(fc-38,20,76,48,fill='#141414',stroke='#000',sw=1); d.poly([(fc-26,22),(fc-10,40),(fc,28),(fc+12,44),(fc+26,22)],fill='#ff9a3c',stroke='none',sw=0)
-        d.rect(fc-80,128,160,8,fill='#d2c3a8',stroke='#b8a789',sw=.8)
-        d.circle(fc,195,44,fill='#dfe6ea',stroke=C['brass'],sw=3)
-        for a,b in ((4,120),(274,390)):
-            d.rect(a,0,b-a,40,fill='url(#stone)',stroke='#bfae93',sw=.8,pattern='stone'); d.rect(a,40,b-a,4,fill=C['oak'],stroke='none',sw=0); d.rect(a+4,44,b-a-8,9,fill=C['linen'],stroke='#cdbfa9',sw=.6,rx=3)
-            for r in range(3):
-                for k in range(7): d.circle(a+10+k*((b-a-20)/6.5),7+r*10,4.8,fill=rnd.choice(['#7a5a3e','#8a6a4b','#6b4e35']),stroke='#4e3826',sw=.5)
-            for h in (150,205): d.rect(a+6,h,b-a-12,4,fill=C['oak'],stroke='none',sw=0); d.rect(a+16,h+4,10,18,fill='#e8e2d8',stroke='#c9c0b2',sw=.4); d.circle(a+50,h+12,8,fill='#f4f1ec',stroke='#c9c0b2',sw=.4)
-        for y in range(40,BEAM0,78): d.rect(y-6,HN-14,12,14,fill=C['oak2'],stroke='none',sw=0)
-        for x in (fc-110,fc+110): d.rect(x-3,420,6,40,fill=C['brass'],stroke='none',sw=0); d.poly([(x-14,460),(x+14,460),(x+8,430),(x-8,430)],fill='#f3ead7',stroke=C['brass'],sw=.8)
-        elev_frame(d,'antresola: kamienny „komin” 140 cm od kominka do sufitu, reszta wapno')
+    if kind=='4':   # kącik muzyczny z pianinem + panele akustyczne
+        elev_base(d,'url(#lime)')
+        for a_,b_ in ((0,92),(302,394)):
+            d.rect(a_,0,b_-a_,85,fill=C['oak'],stroke=C['oak2'],sw=1)
+            for x0,x1 in ((a_+3,(a_+b_)/2-.5),((a_+b_)/2+.5,b_-3)): d.rect(x0,8,x1-x0,72,fill='url(#cane)',stroke='#a88f68',sw=.6,pattern='cane')
+            d.rect(a_,85,b_-a_,3,fill=C['oak2'],stroke='none',sw=0)
+            for h in (88,140,192,240):
+                d.rect(a_+2,h,b_-a_-4,3,fill=C['oak'],stroke='none',sw=0)
+                if h==88:
+                    for k in range(14): d.rect(a_+6+k*5.6,h+3,4.4,31,fill=rnd.choice(['#2b2b2b','#c9b18a','#6d5e4c','#e7e1d4','#8a3d2c','#3f5a6b']),stroke='none',sw=0)
+                else: books_row(d,a_+4,b_-4,h+3,44,rnd)
+        # pianino
+        d.rect(122,0,150,125,fill='#151515',stroke='#000',sw=1.2); d.rect(122,70,150,8,fill='#222',stroke='#000',sw=.6)
+        for k in range(52): d.rect(124+k*2.82,72,2.4,6,fill='#f6f4ee',stroke='none',sw=0)
+        d.rect(122,125,150,4,fill='#0e0e0e',stroke='none',sw=0); d.rect(132,8,6,62,fill='#0e0e0e',stroke='none',sw=0); d.rect(256,8,6,62,fill='#0e0e0e',stroke='none',sw=0)
+        d.rect(150,0,94,48,fill='url(#boucle)',stroke='#a99d8b',sw=.7,pattern='boucle',rx=3); d.rect(150,48,94,5,fill=C['oak'],stroke='none',sw=0)
+        d.rect(170,129,40,26,fill='#efe9df',stroke='#b9ad9b',sw=.6); vf=(232,129)
+        d.circle(vf[0],vf[1]+14,12,fill='#e8e2d8',stroke='#c9c0b2',sw=.4)
+        for x in (197,): picture_light(d,x,205,70)
+        d.rect(152,140,90,58,fill='#f6f2ea',stroke='#8a6a4c',sw=2.4); d.rect(160,148,74,42,fill='#cdbfa8',stroke='none',sw=0)
+        # GÓRA: panele akustyczne lniane w ramach dębowych 3×2
+        W_=118; H_=128
+        for i in range(3):
+            for j in range(2):
+                x=10+i*(W_+10); y=305+j*(H_+12)
+                d.rect(x,y,W_,H_,fill=C['oak'],stroke=C['oak2'],sw=1); d.rect(x+5,y+5,W_-10,H_-10,fill='url(#linen)',stroke='none',sw=0,pattern='linen')
+        for x in (69,197,325): d.rect(x-2,575,4,10,fill=C['brass'],stroke='none',sw=0)
+        elev_frame(d,'antresola: panele akustyczne (len w ramach dębowych) – wyciszają wysoki salon')
     if kind=='5':   # bar + ściana galeryjna
         elev_base(d,GREEN)
         d.rect(8,0,378,10,fill=C['black'],stroke='none',sw=0)
@@ -177,8 +191,10 @@ def plan_k(kind):
         d.rect(0,92,100,210,fill='url(#boucle)',stroke='#8f8578',sw=.8,pattern='boucle'); d.text(50,197,'daybed 100×210',7,'#5b5146',rot=90)
         d.line(99,0,99,BEAM0,C['black'],1.4,dash=[4,2]); d.text(108,60,'szyna zasłon (od sufitu 5,9 m)',6,'#555','left',rot=90)
     if kind=='4':
-        d.rect(0,127,42,140,fill='url(#stone)',stroke='#bfae93',sw=.8,pattern='stone'); d.text(21,197,'biokominek',6.5,'#4a3f30',rot=90)
-        for a,b in ((4,120),(274,390)): d.rect(0,a,45,b-a,fill='url(#stone)',stroke='#bfae93',sw=.8,pattern='stone'); d.text(22,(a+b)/2,'ława + drewno',6,'#4a3f30',rot=90)
+        for a_,b_ in ((0,92),(302,394)): d.rect(0,a_,45,b_-a_,fill=C['oak'],stroke=C['oak2'],sw=.8)
+        d.rect(0,122,60,150,fill='#151515',stroke='#000',sw=.8); d.text(30,197,'pianino 150 × 60',7,'#ddd',rot=90)
+        d.rect(62,150,38,94,fill='#f1ece3',stroke='#a99d8b',sw=.6); d.text(81,197,'ława',6,'#5b5146',rot=90)
+        d.rect(NICHE,0,4,BEAM0,fill=C['oak'],stroke=C['oak2'],sw=.4); d.text(NICHE+14,197,'panele akustyczne na antresoli',6,'#6e5a40',rot=90)
     if kind=='5':
         d.rect(0,8,64,378,fill=GREEN,stroke='#2c362a',sw=.8); d.text(32,197,'bar 64 × 378 (blat h=90)',7,'#e8e2d4',rot=90)
         d.rect(0,38,60,54,fill='#1b2020',stroke='#000',sw=.6); d.text(30,65,'chłodziarka',5.5,'#ccc',rot=90)
