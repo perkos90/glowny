@@ -174,14 +174,14 @@ function livingDetails() {
   // portal wnęki
   B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2);
   // listwy na ścianie nad wnęką
-  if (!/^[rpc]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
+  if (!/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
   const cx = 316.5; B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22);
   for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); }
   // listwa przypodłogowa
   B(102, 531, 0, 2, 0, 10, mat.wall2); B(0, 2, 0, 1040, 0, 10, mat.wall2);
   // żyrandol
-  if (/^[rpc]/.test(String(CONCEPT))) return;
+  if (/^[rpcm]/.test(String(CONCEPT))) return;
   const hz = 345, cxz = 316, cyz = 200; cyl(cxz, cyz, hz, HR, .8, mat.black, 8);
   for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, R = 55 + (i % 2) * -18; const px = cxz + Math.cos(a) * R, py = cyz + Math.sin(a) * R;
     rodBetween([cxz, cyz, hz], [px, py, hz], .9, mat.black); cyl(px, py, hz, hz + 6, 2.2, mat.black); cyl(px, py, hz + 6, hz + 32 + (i % 2) * 12, 2.6, mat.glow, 16); }
@@ -309,6 +309,96 @@ function concept2() {
 }
 
 // ---------------- build ----------------
+// ======================= NOWOCZESNA KLASYKA – seria 2 =======================
+mat.mocha = M({ color: '#7b6150', roughness: .6, name: 'mocha' }); mat.mochaL = M({ color: '#8d725f', roughness: .6, name: 'mochaL' });
+function mouldPanel(x, y0, y1, h0, h1, m, inset = 9) { frameRect(y0, y1, x, h0, h1, 3, 2.2, m, 'y'); frameRect(y0 + inset, y1 - inset, x, h0 + inset, h1 - inset, 1.6, 1.4, m, 'y'); }
+function aboveBoiserie(m, layout = 'tall') { // fryz + gzyms + płyciny na antresoli
+  B(100, 108, -4, BEAM0 + 4, HN, 334, m); B(108, 112, -4, BEAM0 + 4, 326, 334, m); B(112, 115, -4, BEAM0 + 4, 330, 334, m);
+  B(100, 112, -6, BEAM0 + 6, HR - 16, HR, m); B(112, 116, -6, BEAM0 + 6, HR - 8, HR - 2, m);
+  const cols = layout === 'tall' ? [[16, 118], [138, 256], [276, 378]] : [[16, 186], [208, 378]];
+  for (const [a, b] of cols) { mouldPanel(102, a, b, 350, 470, m); mouldPanel(102, a, b, 488, HR - 32, m); }
+}
+// M1: paryska (Haussmann) – biel + czarne detale, stalowe drzwi witryn
+function conceptM1() {
+  livingStd(); tvSouth();
+  B(0, 1.5, 0, BEAM0, 0, HN, mat.wall2); mouldPanel(1.5, 120, 274, 110, 270, mat.wall2);
+  const st = M({ color: '#141414', roughness: .35, metalness: .4 });
+  for (const [a, b] of [[4, 116], [278, 390]]) { B(0, 45, a, b, 0, 255, mat.wall2); B(0, 1, a + 3, b - 3, 90, 250, M({ color: '#d8d0c4' }));
+    B(0, 45, a + 3, b - 3, 88, 92, mat.calac); for (const h of [140, 192]) { B(0, 40, a + 4, b - 4, h, h + 1.2, M({ color: '#e6efee', roughness: .05, transparent: true, opacity: .4 })); shelf('y', a + 6, b - 6, h + 1.2, 30, 46, 0, 1); } shelf('y', a + 6, b - 6, 92, 30, 44, 0, 1);
+    const m = (a + b) / 2; for (const [p, q] of [[a + 2, m - .5], [m + .5, b - 2]]) { B(44, 46, p, q, 92, 95, st); B(44, 46, p, q, 247, 250, st); B(44, 46, p, p + 2.5, 92, 250, st); B(44, 46, q - 2.5, q, 92, 250, st); for (const h of [143, 195]) B(44, 46, p, q, h - .8, h + .8, st); B(44.8, 45.2, p + 2.5, q - 2.5, 95, 247, mat.glass); }
+    for (const [p, q] of [[a + 2, m - .5], [m + .5, b - 2]]) { B(45, 46.5, p, q, 6, 86, mat.wall2); frameRect(p + 6, q - 6, 46.5, 12, 80, 1.6, 1.2, mat.wall2, 'y'); B(46.5, 48, p < m ? q - 8 : p + 6, p < m ? q - 6 : p + 8, 50, 70, st); } B(0, 47, a, b, 255, HN, mat.wall2); }
+  B(4, 46, 140, 254, 0, 78, mat.black); for (const y of [178, 216]) B(46, 46.3, y - .3, y + .3, 4, 76, mat.blackG); B(2, 48, 136, 258, 78, 82, mat.calac);
+  { const fr = new THREE.Mesh(new THREE.TorusGeometry(.42, .02, 10, 48), st); fr.rotation.y = Math.PI / 2; fr.position.set(-.03, 1.62, 1.97); CUR.add(fr); const mi = new THREE.Mesh(new THREE.CircleGeometry(.41, 48), mat.mirror); mi.rotation.y = -Math.PI / 2; mi.position.set(-.025, 1.62, 1.97); CUR.add(mi); }
+  lamp(20, 160, 82); vaseFlowers(20, 236, 82, .6); flushBooks();
+  portalClassic(); aboveBoiserie(mat.wall2); for (const y of [67, 197, 327]) B(102, 104, y - 20, y + 20, HR - 34, HR - 30, M({ color: '#141414' }));
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// M2: TV jak obraz w boazerii + kasetonowy sufit wnęki z ukrytym LED
+function conceptM2() {
+  livingStd(); southGallery();
+  B(0, 1.5, 0, BEAM0, 0, HN, mat.wall2); for (const [a, b] of [[14, 110], [284, 380]]) mouldPanel(1.5, a, b, 20, 270, mat.wall2);
+  mouldPanel(1.5, 120, 274, 20, 70, mat.wall2); B(1.5, 6, 104, 290, 88, 200, mat.wall2); frameRect(104, 290, 6, 88, 200, 5, 3, mat.gilt, 'y');
+  B(4, 7, 107, 287, 91, 197, mat.blackG); B(7, 7.3, 109, 285, 93, 195, mat.screen);
+  for (let x = 0; x < NICHE; x += 34) for (let y = 0; y < BEAM0; y += 49.25) { B(x, x + 34, y, y + 3, HN - 14, HN, mat.wall2); B(x, x + 3, y, y + 49.25, HN - 14, HN, mat.wall2); }
+  B(0, NICHE, 0, BEAM0, HN - 1, HN, mat.wall2, { cast: false }); ledStrip(0, NICHE, 2, BEAM0 - 2, HN - 15, HN - 14);
+  B(4, 45, 30, 364, 0, 30, mat.wall2); B(2, 47, 26, 368, 30, 34, mat.trav); for (const y of [80, 314]) { sph(22, y, 50, 14, mat.cer, 1.1); } cyl(22, 140, 34, 64, 6, mat.black, 24, 9); vaseFlowers(22, 250, 34, .6);
+  for (const y of [40, 354]) { B(1.5, 3.5, y - 4, y + 4, 190, 212, mat.gilt); rodBetween([3.5, y, 205], [14, y, 205], .6, mat.gilt); cyl(14, y, 200, 216, 6, mat.shade, 20, 8); const l = new THREE.PointLight('#ffd6a0', 1.2, 2.2, 2); l.position.set(-.14, 2.0, y / 100); CUR.add(l); }
+  portalClassic(); aboveBoiserie(mat.wall2); chandelierTiers(316, 200, HR, HR - 190);
+}
+// M3: ryflowane kolumny + łuk z tynku (nowoczesny portal) + trawertyn
+function conceptM3() {
+  livingStd(); southGallery();
+  const pl = mat.plaster; B(0, 1.5, 0, BEAM0, 0, HN, mat.micro);
+  // ściana frontowa z łukiem (x 92..102)
+  const cx = 197, r = 150; B(92, 102, -2, 47, 0, HN, pl); B(92, 102, 347, BEAM0 + 2, 0, HN, pl);
+  for (let i = 0; i < 220; i++) { const a = Math.PI * (i + .5) / 220; const yy = cx - r * Math.cos(a), zz = 150 + r * Math.sin(a); const ww = Math.PI * r / 220 + 1.2; B(92, 102, yy - ww / 2, yy + ww / 2, zz, HN, pl); }
+  // kolumny ryflowane
+  for (const y of [22, 372]) { cyl(112, y, 0, 6, 24, pl, 32); cyl(112, y, 6, HN + 30, 18, pl, 40); for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; const g = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, (HN + 18) / 100, 8), pl); g.position.set(-(112 + Math.cos(a) * 17.2) / 100, (HN + 24) / 200 + .03, (y + Math.sin(a) * 17.2) / 100); g.castShadow = true; CUR.add(g); } cyl(112, y, HN + 22, HN + 34, 24, pl, 32); }
+  B(92, 108, -4, BEAM0 + 4, HN, 334, pl); B(108, 114, -6, BEAM0 + 6, 326, 340, pl);
+  // wnętrze: trawertynowa ława + rzeźba + obraz
+  const tb = B(0, 48, 60, 334, 0, 42, mat.trav); uvScale(tb, .5); B(2, 46, 70, 220, 42, 52, mat.boucle, { r: 4 }); sph(22, 280, 62, 14, mat.cer); cyl(22, 315, 42, 80, 6, mat.black, 24, 9);
+  B(0, 2, 137, 257, 110, 230, mat.oak); B(2, 2.4, 141, 253, 114, 226, M({ map: paintTex(0), roughness: .7 }));
+  // nad: tynk + dwa wąskie lustra łukowe
+  B(100, 102, -4, BEAM0 + 4, 334, HR, mat.micro);
+  for (const y of [90, 304]) { const r = 32, h1 = 552; B(102, 104, y - r, y + r, 360, h1 - r, mat.gilt); B(104, 104.4, y - r + 3, y + r - 3, 363, h1 - r, mat.mirror);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(r / 100, r / 100, .02, 48, 1, false, 0, Math.PI), mat.gilt); cap.rotation.z = Math.PI / 2; cap.rotation.x = -Math.PI / 2; cap.position.set(-1.03, (h1 - r) / 100, y / 100); CUR.add(cap);
+    const cm = new THREE.Mesh(new THREE.CircleGeometry(r / 100 - .03, 48, 0, Math.PI), mat.mirror); cm.rotation.y = -Math.PI / 2; cm.position.set(-1.046, (h1 - r) / 100, y / 100); CUR.add(cm); }
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// M4: trzy łukowe lustra we wnęce + konsola + boazeria
+function conceptM4() {
+  livingStd(); southGallery();
+  B(0, 1.5, 0, BEAM0, 0, HN, mat.greige);
+  for (const [cy, w] of [[72, 92], [197, 120], [322, 92]]) { const r = w / 2, h0 = 30, h1 = 262; B(1.5, 4, cy - r, cy + r, h0, h1 - r, mat.gilt); B(4, 4.4, cy - r + 3, cy + r - 3, h0 + 3, h1 - r, mat.mirror);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(r / 100, r / 100, .025, 48, 1, false, 0, Math.PI), mat.gilt); cap.rotation.z = Math.PI / 2; cap.rotation.x = -Math.PI / 2; cap.position.set(-.028, (h1 - r) / 100, cy / 100); CUR.add(cap);
+    const cm = new THREE.Mesh(new THREE.CircleGeometry(r / 100 - .03, 48, 0, Math.PI), mat.mirror); cm.rotation.y = -Math.PI / 2; cm.rotation.z = Math.PI / 2 * 0; cm.position.set(-.046, (h1 - r) / 100, cy / 100); CUR.add(cm); }
+  B(4, 45, 40, 354, 30, 76, mat.black); B(2, 47, 36, 358, 76, 80, mat.calac); ledStrip(4, 44, 42, 352, 28, 30); for (const y of [118.5, 197, 275.5]) B(45, 45.3, y - .3, y + .3, 32, 74, mat.blackG);
+  lamp(20, 110, 80); lamp(20, 284, 80); vaseFlowers(22, 197, 80, .7);
+  portalClassic(); aboveBoiserie(mat.wall2, 'tall'); chandelierTiers(316, 200, HR, HR - 190);
+}
+// M5: „mocha mousse” – cała ściana w kolorze mokki z boazerią i mosiądzem, kremowa ława
+function conceptM5() {
+  livingStd(); southGallery();
+  B(0, 1.5, 0, BEAM0, 0, HN, mat.mocha); B(0, NICHE, 0, 1.5, 0, HN, mat.mocha); B(0, NICHE, BEAM0 - 1.5, BEAM0, 0, HN, mat.mocha); B(0, NICHE, 0, BEAM0, HN - 1.5, HN, mat.mochaL, { cast: false });
+  for (const [a, b] of [[14, 110], [128, 266], [284, 380]]) mouldPanel(1.5, a, b, 110, 270, mat.mocha); for (const [a, b] of [[14, 110], [284, 380]]) mouldPanel(1.5, a, b, 14, 92, mat.mocha);
+  B(0, 70, 120, 274, 0, 40, mat.mocha); B(0, 72, 118, 276, 40, 54, mat.boucle, { r: 5 }); B(4, 22, 130, 180, 54, 96, mat.boucle, { r: 8 }); B(4, 22, 214, 264, 54, 92, M({ color: '#d9c7b0' }), { r: 8 });
+  for (const y of [100, 294]) { B(1.5, 3.5, y - 4, y + 4, 140, 160, mat.brass); rodBetween([3.5, y, 152], [18, y + (y < 200 ? 10 : -10), 156], .6, mat.brass); cyl(20, y + (y < 200 ? 12 : -12), 146, 162, 7, mat.shade, 20, 9); const l = new THREE.PointLight('#ffd6a0', 1.5, 2.5, 2); l.position.set(-.2, 1.5, y / 100); CUR.add(l); }
+  B(1.5, 3, 160, 234, 170, 250, mat.brass); B(3, 3.3, 163, 231, 173, 247, M({ map: paintTex(1), roughness: .7 }));
+  B(100, 110, -4, BEAM0 + 4, HN - 2, HN + 16, mat.mocha); B(100, 108, -4, 12, 0, HN, mat.mocha); B(100, 108, BEAM0 - 12, BEAM0 + 4, 0, HN, mat.mocha);
+  B(100, 102, -4, BEAM0 + 4, 300, HR, mat.mocha); aboveBoiserie(mat.mocha); for (const [a, b] of [[16, 118], [138, 256], [276, 378]]) { B(102, 103, a + 14, b - 14, 364, 364.6, mat.brass); B(102, 103, a + 14, b - 14, 502, 502.6, mat.brass); }
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// M6: trawertynowy monolit we wnęce (ściana + ława + półki) + jasna boazeria
+function conceptM6() {
+  livingStd(); southGallery();
+  for (const f of [B(0, 2, 0, BEAM0, 0, HN, mat.trav), B(0, NICHE, 0, 2, 0, HN, mat.trav), B(0, NICHE, BEAM0 - 2, BEAM0, 0, HN, mat.trav)]) uvScale(f, .45);
+  const bn = B(0, 55, 2, BEAM0 - 2, 0, 44, mat.trav); uvScale(bn, .5); B(4, 50, 30, 200, 44, 54, mat.linen, { r: 4 }); B(4, 20, 40, 90, 54, 94, mat.boucle, { r: 8 });
+  for (const h of [150, 210]) { const sh = B(0, 30, 230, 380, h, h + 8, mat.trav); uvScale(sh, .5); } cyl(14, 260, 158, 190, 6, mat.cer); sph(14, 320, 222, 12, mat.white); cyl(14, 355, 158, 180, 8, mat.black, 24, 6);
+  B(0, 2, 60, 210, 120, 250, mat.black); B(2, 2.4, 64, 206, 124, 246, M({ map: paintTex(0), roughness: .7 })); B(2, 6, 110, 160, 256, 259, mat.brass);
+  ledStrip(2, 4, 4, BEAM0 - 4, HN - 8, HN - 6);
+  portalClassic(); aboveBoiserie(mat.wall2, 'wide'); chandelierTiers(316, 200, HR, HR - 190);
+}
+
 // ======================= SERIA „KLASYKA” (PL / RU / US) =======================
 function paintTex(kind) { return cv(512, 640, (g, w, h) => { const sky = g.createLinearGradient(0, 0, 0, h * .6); sky.addColorStop(0, kind ? '#c9b99a' : '#b8c2c0'); sky.addColorStop(1, '#efe3c8'); g.fillStyle = sky; g.fillRect(0, 0, w, h);
   for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(255,248,230,${rnd() * .25})`; g.beginPath(); g.ellipse(rnd() * w, rnd() * h * .45, 40 + rnd() * 90, 10 + rnd() * 20, 0, 0, 7); g.fill(); }
@@ -594,7 +684,7 @@ function conceptR3() {
   B(0, 2, 140, 254, 190, 270, mat.black); B(2, 2.4, 146, 248, 196, 264, M({ map: paintTex(1), roughness: .6 }));
   // rejki (fluted) na antresoli – pełna szerokość, od 2,9 do sufitu
   B(100, 102, -2, BEAM0 + 2, HN, HR, mat.greige);
-  for (let y = -2; y < BEAM0 + 2; y += 4.2) { const c = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, (HR - HN) / 100, 10, 1, false, 0, Math.PI), mat.greige); c.rotation.y = -Math.PI / 2; c.position.set(-1.02, (HN + HR) / 200, (y + 2.1) / 100); c.castShadow = c.receiveShadow = true; CUR.add(c); }
+  for (let y = -2; y < BEAM0 + 2; y += 4.2) { const c = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, (HR - HN) / 100, 10, 1, false, 0, Math.PI), mat.greige); c.rotation.y = Math.PI / 2; c.position.set(-1.02, (HN + HR) / 200, (y + 2.1) / 100); c.castShadow = c.receiveShadow = true; CUR.add(c); }
   ledStrip(102, 106, -2, BEAM0 + 2, HN, HN + 1.5);
   // pionowe kinkiety
   for (const y of [-30, BEAM0 + 30]) { }
@@ -993,7 +1083,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6 }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6 }; const GS = {};
 for (const k in CF) if (INTER || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
 
