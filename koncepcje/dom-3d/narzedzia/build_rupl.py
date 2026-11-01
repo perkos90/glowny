@@ -1,7 +1,7 @@
 import sys
 OUT=sys.argv[1]
 import os
-REAL={k:os.path.exists(f'/tmp/blend/rupl/{k}.jpg') and k not in ('r1',) for k in ['r1','r2','r3','r4','p1','p2','p3','p4','c1','c2','c3','c4','c5','c6','m1','m2','m3','m4','m5','m6']}
+REAL={k:os.path.exists(f'/tmp/blend/rupl/{k}.jpg') for k in ['r1','r2','r3','r4','p1','p2','p3','p4','c1','c2','c3','c4','c5','c6','m1','m2','m3','m4','m5','m6']}
 RU=[('r1','Marmurowa nisza TV + boazeria z mosiądzem','«Мраморная ниша»',
  'Wnęka wyłożona jasnym marmurem (lub spiekiem Calacatta) z podświetleniem LED po obwodzie. W środku TV i długa, czarna konsola podwieszana z podświetleniem od spodu. Wnękę obramowuje szeroka, klasyczna opaska. Na antresoli boazeria: sześć symetrycznych płycin z cienką mosiężną wstawką, gzyms nad wnęką i kaskadowy żyrandol.',
  ['Marmur/spiek bookmatch, podświetlenie konturowe','Konsola lakier czarny 274 cm, LED pod spodem','Boazeria malowana w kolorze ścian + mosiądz 6 mm','Żyrandol kaskadowy czarny z mosiądzem'],'wysoki'),
