@@ -326,19 +326,28 @@ function conceptK1B() {
   }
   // blat ciemny
   B(0, D0 + 4, -1, BEAM0 + 1, 88, 91.5, M({ color: '#2a2b2c', roughness: .35, name: 'blat' }));
-  // nadstawka: pilastry, plecy, półki, fryz z gzymsem i lampką
-  for (let i = 0; i <= n; i++) { const y = i * bw; const y0 = Math.max(0, y - 3), y1 = Math.min(BEAM0, y + 3); B(0, D1 + 2, y0, y1, 91.5, 262, W); B(D1 + 2, D1 + 3, y0 + .6, y1 - .6, 91.5, 262, W); }
+  // nadstawka: pilastry do fryzu, plecy, półki; fryz ciągły dosunięty do sufitu wnęki (bez gzymsów)
+  const FZ = 238, FD = D1 + 3;
+  for (let i = 0; i <= n; i++) { const y = i * bw; const y0 = Math.max(0, y - 3), y1 = Math.min(BEAM0, y + 3); B(0, D1 + 2, y0, y1, 91.5, FZ, W); B(D1 + 2, FD, y0 + .6, y1 - .6, 91.5, FZ, W); }
   for (let i = 0; i < n; i++) { const a = i * bw + 3, b = (i + 1) * bw - 3, m = (a + b) / 2;
-    B(0, 1.5, a, b, 91.5, 262, M({ color: '#ece4d8', roughness: .9 }));
+    B(0, 1.5, a, b, 91.5, FZ, M({ color: '#ece4d8', roughness: .9 }));
     for (const h of [140, 190]) B(0, D1, a, b, h, h + 3, W);
-    B(0, D1 + 4, a - 3, b + 3, 252, 262, W); B(D1 + 2, D1 + 5, a - 2, b + 2, 236, 262, W); // fryz
-    // gzyms schodkowy
-    B(0, D1 + 7, a - 5, b + 5, 262, 267, W); B(0, D1 + 10, a - 7, b + 7, 267, 272, W); B(0, D1 + 13, a - 9, b + 9, 272, 276, W); B(0, D1 + 15, a - 10, b + 10, 276, 279, W);
-    // lampka obrazowa mosiężna na fryzie
-    B(D1 + 5, D1 + 8, m - 1.2, m + 1.2, 244, 252, mat.brass); B(D1 + 6, D1 + 13, m - 17, m + 17, 238, 242, mat.brass); B(D1 + 8, D1 + 12, m - 17, m + 17, 236.5, 238, mat.brass);
-    const s = new THREE.SpotLight('#ffd49a', 2.4, 2.6, 1.0, .85, 2); s.position.set(-(D1 + 10) / 100, 2.36, m / 100); s.target.position.set(-.1, 1.4, m / 100); CUR.add(s, s.target);
+    B(FD, FD + 3, m - 1.2, m + 1.2, 244, 254, mat.brass); B(FD + 1, FD + 8, m - 17, m + 17, 238, 242, mat.brass); B(FD + 3, FD + 7, m - 17, m + 17, 236.5, 238, mat.brass);
+    const s = new THREE.SpotLight('#ffd49a', 2.4, 2.6, 1.0, .85, 2); s.position.set(-(FD + 5) / 100, 2.36, m / 100); s.target.position.set(-.1, 1.4, m / 100); CUR.add(s, s.target);
   }
-  B(0, 52, 0, BEAM0, 279, HN, mat.wall2);
+  B(0, FD, 0, BEAM0, FZ, HN, W); B(FD - .5, FD, 0, BEAM0, FZ, FZ + 1.2, M({ color: '#e7ded0' }));
+  // zawinięcie na krótką ścianę wnęki (ściana zewn., y=0): szafka narożna + półki + fryz
+  { const x0 = D0, x1 = NICHE, m = (x0 + x1) / 2;
+    B(x0, x1, 0, D0 - 6, 0, 10, W); B(x0, x1, 0, D0, 10, 88, W); B(x0 + 3, x1 - 3, D0, D0 + 2, 12, 86, W); const c = B(x0 + 9, x1 - 9, D0 + 2, D0 + 2.3, 18, 80, mat.cane); uvScale(c, 2.2);
+    for (const [p, q, r, t] of [[x0 + 3, x0 + 9, 12, 86], [x1 - 9, x1 - 3, 12, 86], [x0 + 3, x1 - 3, 12, 18], [x0 + 3, x1 - 3, 80, 86]]) B(p, q, D0 + 2, D0 + 3, r, t, W);
+    B(x1 - 12, x1 - 10.6, D0 + 3, D0 + 6, 50, 70, mat.brass);
+    B(x0, x1 + 1, -1, D0 + 4, 88, 91.5, M({ color: '#2a2b2c', roughness: .35, name: 'blat' }));
+    B(x0, x1, 0, 1.5, 91.5, FZ, M({ color: '#ece4d8', roughness: .9 })); B(x1 - 6, x1, 0, D1 + 2, 91.5, FZ, W); B(x1 - 5.4, x1 - .6, D1 + 2, FD, 91.5, FZ, W);
+    for (const h of [140, 190]) B(x0, x1 - 6, 0, D1, h, h + 3, W);
+    B(x0, x1, 0, FD, FZ, HN, W);
+    B(m - 1.2, m + 1.2, FD, FD + 3, 244, 254, mat.brass); B(m - 14, m + 14, FD + 1, FD + 8, 238, 242, mat.brass);
+    const s = new THREE.SpotLight('#ffd49a', 1.8, 2.4, 1.0, .85, 2); s.position.set(-m / 100, 2.36, (FD + 5) / 100); s.target.position.set(-m / 100, 1.4, .1); CUR.add(s, s.target);
+    shelf('x', x0 + 2, x1 - 8, 193, 30, 44, 0, 1); sph(m, 18, 160, 13, mat.cer, .95); shelf('x', x0 + 2, x0 + 24, 91.5, 30, 44, 0, 1); }
   // dekoracje jak na zdjęciu: książki pion/poziom, wazony, paprotka, ramka
   rnd = (() => { let s = 777; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
   const dec = [[0, 'books', 'vase'], [1, 'vase', 'books'], [2, 'plant', 'books'], [3, 'books', 'frame']];
@@ -362,7 +371,7 @@ function builtUps() {
   const cx = 316.5;
   B(cx - 112, cx + 112, 0, 2.2, 0, HR, mat.wall2); B(cx - 92, cx + 92, 2.2, 3.6, 0, HR - 30, mat.wall2);
   for (const [a, b] of [[106, cx - 126], [cx + 126, 529]]) B(a, b, 0, 1.2, 330, HR - 30, mat.wall2);
-  B(102, 106, -6, BEAM0 + 6, HN - 2, HN + 26, mat.wall2); B(102, 106, -6, 12, 0, HN, mat.wall2); B(102, 106, BEAM0 - 12, BEAM0 + 6, 0, HN, mat.wall2);
+  B(102, 106, 0, BEAM0, HN - 2, HN + 26, mat.wall2); B(102, 106, 0, 12, 0, HN, mat.wall2); B(102, 106, BEAM0 - 12, BEAM0, 0, HN, mat.wall2);
   B(102, 104.2, 18, BEAM0 - 18, 350, HR - 34, mat.wall2); B(104.2, 105.6, 48, BEAM0 - 48, 380, HR - 64, mat.wall2);
 }
 
@@ -930,10 +939,12 @@ function houseShell() {
   // strop z otworem nad salonem i schodami
   const slab = { o: H.slab.o, h: [[[102, 0], [553, 0], [553, BEAM0], [102, BEAM0]].reverse(), [[-150, 655], [-25, 655], [-25, 1090], [-150, 1090]].reverse()] };
   extrude(slab, HN, 330, mat.wall).name = 'CEIL';
+  { const up = { o: H.slab.o, h: [[[76, -45], [553, -45], [553, BEAM1], [76, BEAM1]].reverse()] }; extrude(up, 330, 600, mat.wall).name = 'CEIL'; }
   // szyb schodów na piętro (piętro nie jest jeszcze modelowane)
   { const c = B(-160, -15, 645, 1100, 600, 620, mat.wall); c.name = 'CEIL'; for (const w of [B(-160, -150, 645, 1100, 330, 600, mat.wall), B(-25, -15, 645, 1100, 330, 600, mat.wall), B(-160, -15, 645, 655, 330, 600, mat.wall), B(-160, -15, 1090, 1100, 330, 600, mat.wall)]) w.name = 'CEIL'; }
   // pustka salonu – ściany do góry
   B(76, 102, -45, BEAM0, 330, HR, mat.wall); B(-45, 600, BEAM0, BEAM1, 280, HR + 20, mat.wall); B(76, 580, -45, 0, 290, HR + 20, mat.wall);
+  B(60, 102, -45, BEAM1, HN - 1, 340, mat.wall); // uszczelnienie styku strop / ściana łazienki nad wnęką
   B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, HR + 20, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
   // okna / drzwi zewnętrzne / bramy
@@ -1178,6 +1189,7 @@ const VIEWS = {
   niche1: { pos: [515, 120, 140], look: [0, 235], up: 30, down: 26 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
+  gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
   wide:   { pos: [40, 600, 150], look: [420, 60], up: 38, down: 32 },
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
