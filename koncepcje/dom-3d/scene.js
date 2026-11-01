@@ -167,7 +167,7 @@ function architecture() {
 }
 function livingDetails() {
   // gzyms
-  B(102, 553, 0, 12, HR - 12, HR, mat.wall2); B(102, 115, 0, BEAM0, HR - 12, HR, mat.wall2);
+  if (!/^k2w/.test(String(CONCEPT))) { B(102, 553, 0, 12, HR - 12, HR, mat.wall2); B(102, 115, 0, BEAM0, HR - 12, HR, mat.wall2); }
   // zasłony
   for (const [y0, y1] of [[2, 70], [324, 392]]) { const g = new THREE.PlaneGeometry((y1 - y0) / 100, (HR - 12) / 100, 60, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 55) * .035);
     const c = new THREE.Mesh(g, M({ map: T.linen, color: '#efe6d6', roughness: 1, side: THREE.DoubleSide })); c.rotation.y = Math.PI / 2; c.position.set(-(WIN - 14) / 100, (HR - 12) / 200, (y0 + y1) / 200); c.castShadow = true; c.receiveShadow = true; CUR.add(c); }
@@ -176,10 +176,10 @@ function livingDetails() {
   // portal wnęki
   if (!NOMOULD && !/^k[12]w/.test(String(CONCEPT))) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
   // listwy na ścianie nad wnęką
-  if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
+  if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT)) && !/^k2w/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
   const cx = 316.5; if (!NOMOULD) { if (!/^k[12]w/.test(String(CONCEPT))) { B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22); }
-  for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); } }
+  if (!/^k2w/.test(String(CONCEPT))) for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); } }
   // listwa przypodłogowa
   B(102, 531, 0, 2, 0, 10, mat.wall2); B(0, 2, 0, 1040, 0, 10, mat.wall2);
   // żyrandol
