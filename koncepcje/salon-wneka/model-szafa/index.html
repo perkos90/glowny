@@ -9,8 +9,8 @@ button{border:1px solid #d9cfbf;background:#fff;border-radius:999px;padding:7px 
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:18px Georgia,serif;color:#7a6f63}
 </style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script></head><body>
 <div id="load">Ładowanie modelu 3D…</div>
-<div id="hd"><b>Wnęka: biblioteka + szafa</b><span>Koncepcja 1 bez ławy i drabiny: 4 moduły biblioteczne + półki na krótkiej ścianie, po prawej (od strony holu) szafa 127 × 45 cm (w licu biblioteki) do sufitu wnęki – kremowe fronty z plecionką, mosiężne uchwyty. Przeciągnij, żeby obracać.</span></div>
-<div id="ui"><div class="grp"><span class="lab">Wersja</span><button data-c="k1w" class="on">Biblioteka + szafa</button><button data-c="1">Koncepcja 1 (z ławą)</button></div>
+<div id="hd"><b>Wnęka: biblioteka + szafa</b><span>Koncepcja 1 bez ławy i drabiny: 4 moduły biblioteczne (wariant bez bocznych półek na krótkiej ścianie), po prawej (od strony holu) szafa 127 × 45 cm (w licu biblioteki) do sufitu wnęki – kremowe fronty z plecionką, mosiężne uchwyty. Przeciągnij, żeby obracać.</span></div>
+<div id="ui"><div class="grp"><span class="lab">Wersja</span><button data-c="k1w2" class="on">Bez bocznej części</button><button data-c="k1w">Z boczną częścią</button><button data-c="1">Koncepcja 1 (z ławą)</button></div>
 <div class="grp"><span class="lab">Widok</span><button data-v="wneka" class="on">Wnęka</button><button data-v="salon">Salon</button><button data-v="okno">Od wnęki</button><button data-v="gora">Z góry</button></div></div>
 <script>window.__ready=()=>{document.getElementById('load').remove();window.__go('wneka');
 document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{window.__setConcept(b.dataset.c);document.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));});
@@ -26,7 +26,7 @@ import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const Q = new URLSearchParams('i=1&c=k1w&cs=k1w,1');
+const Q = new URLSearchParams('i=1&c=k1w2&cs=k1w2,k1w,1');
 const CONCEPT = Q.get('c') || '1', VIEW = Q.get('v') || 'main', INTER = Q.get('i') === '1';
 const W = +(Q.get('w') || innerWidth), H = +(Q.get('h') || innerHeight);
 let rnd = (() => { let s = 12345; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
@@ -192,7 +192,7 @@ function livingDetails() {
   B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
   if (NOMOULD) { builtUps(); }
   // portal wnęki
-  if (!NOMOULD && CONCEPT !== 'k1w') { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
+  if (!NOMOULD && !String(CONCEPT).startsWith('k1w')) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
   // listwy na ścianie nad wnęką
   if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
@@ -330,7 +330,7 @@ function concept2() {
 
 // ---------------- build ----------------
 // ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
-function conceptK1W() {
+function conceptK1W(noSide = false) {
   // ściana TV jak w koncepcji 1
   B(196, 436, 0, 45, 0, 58, mat.black); for (const x of [276, 356]) B(x - .3, x + .3, 45, 45.3, 4, 54, mat.blackG);
   B(233, 399, 3, 6, 95, 190, mat.blackG); B(235, 397, 6, 6.3, 97, 188, mat.screen);
@@ -348,9 +348,9 @@ function conceptK1W() {
     const s = new THREE.SpotLight('#ffd49a', 2.2, 2.4, 1.0, .8, 2); s.position.set(-.34, 2.66, m / 100); s.target.position.set(-.1, 1.4, m / 100); CUR.add(s, s.target);
   }
   // półki na krótkiej ścianie (zawinięcie L)
-  B(45, 102, 0, 30, 0, 10, mat.wall2); B(45, 102, 0, 30, 10, 85, mat.wall); B(45, 102, 30, 31, 12, 83, mat.cane);
+  if (!noSide) { B(45, 102, 0, 30, 0, 10, mat.wall2); B(45, 102, 0, 30, 10, 85, mat.wall); B(45, 102, 30, 31, 12, 83, mat.cane);
   for (const h of [85, 132, 179, 226]) { B(45, 102, 0, 30, h, h + 2.5, mat.wall); shelf('x', 46, 101, h + 2.5, 28, 44, 0, 1); }
-  B(100, 102, 0, 30, 85, HN, mat.wall);
+  B(100, 102, 0, 30, 85, HN, mat.wall); }
   // SZAFA po prawej (od strony holu): 127 cm, gł. 45 (lico z biblioteką), do sufitu wnęki, 2 skrzydła z plecionką
   const Y0 = 267, Y1 = BEAM0, SD = 45, ym = (Y0 + Y1) / 2;
   B(0, SD, Y0, Y1, 0, 10, mat.wall2); B(0, SD - 2, Y0, Y1, 10, HN, mat.wall);
@@ -1216,7 +1216,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true) }; const GS = {};
 const CS = (Q.get('cs') || '').split(',').filter(Boolean);
 for (const k in CF) if ((INTER && (!CS.length || CS.includes(k))) || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
@@ -1258,7 +1258,7 @@ const VIEWS = {
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
-const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : (CONCEPT === 'k1w' ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
+const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : (String(CONCEPT).startsWith('k1w') ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
