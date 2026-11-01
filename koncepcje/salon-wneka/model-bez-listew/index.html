@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Salon Izabelin – model 3D: biblioteka bez listew</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#efe9df;font:14px/1.4 Helvetica,Arial,sans-serif;color:#2f2a25}
+canvas{display:block}
+#ui{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;background:rgba(251,248,243,.93);padding:10px 12px;border-radius:14px;box-shadow:0 4px 20px rgba(60,45,30,.15);max-width:calc(100% - 24px);z-index:5}
+.grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap} .lab{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a7d6d;margin-right:2px}
+button{border:1px solid #d9cfbf;background:#fff;border-radius:999px;padding:7px 12px;font:inherit;color:#2f2a25;cursor:pointer} button.on{background:#2f2a25;color:#fbf8f3;border-color:#2f2a25}
+#hd{position:fixed;left:16px;top:14px;background:rgba(251,248,243,.9);padding:10px 14px;border-radius:12px;max-width:380px;z-index:5}
+#hd b{font:400 19px Georgia,serif;display:block} #hd span{font-size:12px;color:#7a6f63}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:18px Georgia,serif;color:#7a6f63}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<div id="load">Ładowanie modelu 3D…</div>
+<div id="hd"><b>Salon – biblioteka bez listew</b><span>Biblioteka jak na zdjęciu: 4 moduły z gzymsami i lampkami, plecionka, ciemny blat. Ściany bez listew ozdobnych – głębia z nadbudów z płyt (ściana TV, opaska wnęki, antresola). Przeciągnij, żeby obracać.</span></div>
+<div id="ui">
+ <div class="grp"><span class="lab">Wnęka</span><button data-c="k1b" class="on">Biblioteka (nowa)</button><button data-c="1">Koncepcja 1</button><button data-c="2">TV we wnęce</button></div>
+ <div class="grp"><span class="lab">Widok</span><button data-v="salon" class="on">Salon</button><button data-v="wneka">Wnęka</button><button data-v="kuchnia">Z kuchni</button><button data-v="dom">Cały parter</button><button id="ceil">Sufit: wł.</button></div>
+</div>
+<script>
+window.__Q='i=1&house=1&c=k1b&nomould=1&cs=k1b,1,2'; window.__ASSET='./';
+window.__ready=()=>{document.getElementById('load').remove(); window.__go('salon'); window.__ceil(true); let ceil=true;
+ document.getElementById('ceil').onclick=e=>{ceil=!ceil;window.__ceil(ceil);e.target.textContent='Sufit: '+(ceil?'wł.':'wył.');};
+ document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{window.__setConcept(b.dataset.c);document.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));});
+ document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{window.__go(b.dataset.v);const inside=b.dataset.v!=='dom';ceil=inside;window.__ceil(inside);document.getElementById('ceil').textContent='Sufit: '+(inside?'wł.':'wył.');document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));});};
+</script>
+<script type="module" src="./scene.js"></script></body></html>
