@@ -311,6 +311,51 @@ function concept2() {
 }
 
 // ---------------- build ----------------
+// ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
+function conceptK1W() {
+  // ściana TV jak w koncepcji 1
+  B(196, 436, 0, 45, 0, 58, mat.black); for (const x of [276, 356]) B(x - .3, x + .3, 45, 45.3, 4, 54, mat.blackG);
+  B(233, 399, 3, 6, 95, 190, mat.blackG); B(235, 397, 6, 6.3, 97, 188, mat.screen);
+  lamp(225, 22, 58); sph(410, 22, 64, 6, mat.cer); B(380, 420, 10, 34, 58, 64, mat.oak);
+  for (const x of [166, 467]) { photoFrame(x, 232, 48, 58, 0); photoFrame(x, 164, 48, 58, x > 300 ? 2 : 1); photoFrame(x, 96, 48, 58, x > 300 ? 0 : 2); sconceTV(x, 302); }
+  // biblioteka: 4 wieże (bez ławy)
+  const towers = [[0, 63.5], [63.5, 127], [127, 197], [197, 267]];
+  for (const [a, b] of towers) {
+    B(0, 42, a + .5, b - .5, 0, 10, mat.wall2); B(0, 45, a, b, 10, 85, mat.wall); const m = (a + b) / 2;
+    for (const [p, q] of [[a + 1.5, m - .3], [m + .3, b - 1.5]]) { B(45, 47, p, q, 12, 83, mat.wall2); const c = B(47, 47.5, p + 5, q - 5, 17, 78, mat.cane); uvScale(c, 2.2); sph(48.5, (p < m ? q - 4 : p + 4), 58, 1.4, mat.brass); }
+    B(0, 46, a, b, 85, 88, mat.wall2); B(0, 36, a, a + 2, 88, HN, mat.wall); B(0, 36, b - 2, b, 88, HN, mat.wall);
+    for (const h of [135, 182, 229]) B(0, 34, a + 2, b - 2, h, h + 2.5, mat.wall);
+    for (const [h, mh] of [[88, 47], [137.5, 44], [184.5, 44], [231.5, 44]]) shelf('y', a + 2, b - 2, h, 34, mh, 0, 1);
+    B(30, 38, m - 15, m + 15, 270, 273, mat.brass); rodBetween([30, m, 271], [22, m, 280], .7, mat.brass);
+    const s = new THREE.SpotLight('#ffd49a', 2.2, 2.4, 1.0, .8, 2); s.position.set(-.34, 2.66, m / 100); s.target.position.set(-.1, 1.4, m / 100); CUR.add(s, s.target);
+  }
+  // półki na krótkiej ścianie (zawinięcie L)
+  B(45, 102, 0, 30, 0, 10, mat.wall2); B(45, 102, 0, 30, 10, 85, mat.wall); B(45, 102, 30, 31, 12, 83, mat.cane);
+  for (const h of [85, 132, 179, 226]) { B(45, 102, 0, 30, h, h + 2.5, mat.wall); shelf('x', 46, 101, h + 2.5, 28, 44, 0, 1); }
+  B(100, 102, 0, 30, 85, HN, mat.wall);
+  // SZAFA po prawej (od strony holu): 127 cm, gł. 60, do sufitu wnęki, 2 skrzydła z plecionką
+  const Y0 = 267, Y1 = BEAM0, SD = 60, ym = (Y0 + Y1) / 2;
+  B(0, SD, Y0, Y1, 0, 10, mat.wall2); B(0, SD - 2, Y0, Y1, 10, HN, mat.wall);
+  B(0, SD + 1, Y0, Y0 + 2.5, 0, HN, mat.wall2); B(0, SD + 1, Y1 - 2.5, Y1, 0, HN, mat.wall2); // boki
+  for (const [p, q] of [[Y0 + 2.5, ym - .4], [ym + .4, Y1 - 2.5]]) {
+    B(SD - 2, SD, p, q, 10, 236, mat.wall2); B(SD - 2, SD, p, q, 238, HN - 2, mat.wall2); // drzwi + nadstawka
+    for (const [h0, h1] of [[22, 112], [124, 224]]) { frameRect(p + 6, q - 6, SD, h0, h1, 2.4, 1.6, mat.wall2, 'y'); const c = B(SD, SD + .4, p + 9, q - 9, h0 + 3, h1 - 3, mat.cane); uvScale(c, 2.2); }
+    frameRect(p + 6, q - 6, SD, 246, HN - 10, 2.4, 1.6, mat.wall2, 'y');
+    const hx = p < ym ? q - 7 : p + 7; B(SD + 1.6, SD + 4.6, hx - .8, hx + .8, 98, 140, mat.brass); B(SD, SD + 4.6, hx - 1, hx + 1, 98, 100, mat.brass); B(SD, SD + 4.6, hx - 1, hx + 1, 138, 140, mat.brass);
+  }
+  B(SD - 2, SD + .8, Y0 + 2, Y1 - 2, 236, 238, mat.wall2);
+  // oprawy w suficie wnęki
+  for (const y of [60, 197]) cyl(70, y, HN - 1, HN, 4, mat.glow, 16);
+  flushBooks();
+  // salon jak w koncepcji 1
+  sofa(152, 496, 317, 418, 396, 496, 141, 317, 'N', 'E');
+  B(204, 352, 182, 300, 0, 4, mat.oakD); const ct = B(204, 352, 182, 300, 34, 40, mat.oak); uvScale(ct, 1); for (const [x, y] of [[208, 186], [348, 186], [208, 296], [348, 296]]) B(x - 3, x + 3, y - 3, y + 3, 4, 34, mat.oak);
+  vaseFlowers(250, 230, 40, .8); B(290, 330, 220, 250, 40, 46, M({ color: '#d9cbb5' }));
+  B(150, 510, 110, 405, 0, 1.2, mat.rug).material = mat.rug;
+  B(180, 450, 422, 462, 76, 80, mat.oak); B(180, 450, 422, 462, 20, 23, mat.oak); for (const [x, y] of [[183, 425], [447, 425], [183, 459], [447, 459]]) B(x - 2, x + 2, y - 2, y + 2, 0, 76, mat.oak);
+  lamp(420, 442, 80); vaseFlowers(220, 442, 80, .9); B(290, 340, 428, 456, 80, 86, mat.cer);
+}
+
 // ======================= K1B: biblioteka jak na zdjęciu (koncepcja 1 dopasowana) =======================
 function plantFern(x, y, h, s = 1) { cyl(x, y, h, h + 14 * s, 8 * s, mat.white, 24, 6 * s); for (let i = 0; i < 26; i++) { const a = rnd() * 6.28, r = rnd() * 14 * s; const l = new THREE.Mesh(new THREE.SphereGeometry((3 + rnd() * 3) * s / 100, 8, 6), mat.leaf); l.scale.set(1, .5, 2.2); l.position.set(-(x + Math.cos(a) * r) / 100, (h + 18 * s + rnd() * 12 * s) / 100, (y + Math.sin(a) * r) / 100); l.rotation.set(rnd(), rnd() * 3, rnd()); l.castShadow = true; CUR.add(l); } }
 function conceptK1B() {
@@ -1153,7 +1198,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W }; const GS = {};
 const CS = (Q.get('cs') || '').split(',').filter(Boolean);
 for (const k in CF) if ((INTER && (!CS.length || CS.includes(k))) || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
@@ -1187,6 +1232,7 @@ for (const [px, pz, sz] of [[-8.2, 3.0, 4.5], [-8.6, 0.2, 3.5], [-8.0, 5.8, 3]])
 const VIEWS = {
   main:   { pos: [330, 525, 160], look: [330, 0], up: 41, down: 33 },
   niche1: { pos: [515, 120, 140], look: [0, 235], up: 30, down: 26 },
+  niche1w: { pos: [520, 150, 140], look: [0, 230], up: 30, down: 26 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
@@ -1194,7 +1240,7 @@ const VIEWS = {
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
-const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : 'niche1') : VIEW; const V = VIEWS[vk];
+const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : (CONCEPT === 'k1w' ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
