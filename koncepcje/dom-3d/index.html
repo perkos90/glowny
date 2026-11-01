@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dom Izabelin – parter: spacer 360° i model 3D</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#f3efe8;color:#2f2a25;font:14px/1.4 Helvetica,Arial,sans-serif}
+#top{position:fixed;left:0;right:0;top:0;height:54px;display:flex;align-items:center;gap:18px;padding:0 16px;background:rgba(251,248,243,.94);box-shadow:0 1px 0 #e3dbcf;z-index:20}
+#top b{font:400 19px Georgia,serif;white-space:nowrap} .tabs{display:flex;gap:6px}
+button{border:1px solid #d9cfbf;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;color:#2f2a25;cursor:pointer;white-space:nowrap} button.on{background:#2f2a25;color:#fbf8f3;border-color:#2f2a25}
+.view{position:fixed;inset:54px 0 0 0;display:none} .view.on{display:block}
+#pano canvas{display:block;width:100%;height:100%;cursor:grab}
+#rooms{position:absolute;left:14px;bottom:14px;right:14px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;pointer-events:none} #rooms button{pointer-events:auto;box-shadow:0 2px 10px rgba(60,45,30,.12)}
+#map{position:absolute;right:14px;top:14px;width:300px;background:rgba(251,248,243,.92);border-radius:12px;padding:8px;box-shadow:0 4px 18px rgba(60,45,30,.15)} #map svg{width:100%;display:block}
+#map .dot{cursor:pointer} #cap{position:absolute;left:14px;top:14px;background:rgba(251,248,243,.92);padding:10px 14px;border-radius:12px;max-width:360px;box-shadow:0 4px 18px rgba(60,45,30,.12)} #cap b{font:400 18px Georgia,serif;display:block}
+#m3d{z-index:2;pointer-events:none;background:transparent} #m3d .ui,#m3d .ui *{pointer-events:auto} #m3d .ui{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center;background:rgba(251,248,243,.92);padding:8px 10px;border-radius:14px;z-index:5;max-width:calc(100% - 24px)}
+#load3d{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:18px Georgia,serif;color:#7a6f63}
+#gal{overflow:auto;padding:24px} #gal .g{display:grid;grid-template-columns:2fr 3fr;gap:14px;max-width:1300px;margin:0 auto 26px} #gal img{width:100%;border-radius:6px;display:block} #gal h2{font:400 24px Georgia,serif;max-width:1300px;margin:8px auto 10px}
+@media(max-width:800px){#top b{display:none}#map{width:170px}#cap{max-width:60%}#gal .g{grid-template-columns:1fr}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<div id="top"><b>Dom Izabelin · parter</b><div class="tabs"><button data-t="pano" class="on">Spacer 360°</button><button data-t="m3d">Model 3D</button><button data-t="gal">Wizualizacje salonu</button></div></div>
+<div id="pano" class="view on"><div id="cap"><b id="capt">Salon</b><span>Przeciągnij, żeby się rozejrzeć. Kółko przybliża. Kliknij punkt na planie albo pomieszczenie na dole.</span></div><div id="map"></div><div id="rooms"></div></div>
+<div id="m3d" class="view"><div id="load3d">Ładowanie modelu 3D…</div><div class="ui" style="display:none" id="ui3d">
+ <button data-c="1" class="on">Salon: biblioteka</button><button data-c="2">Salon: TV we wnęce</button><span style="width:8px"></span>
+ <button data-g="dom" class="on">Cały parter</button><button data-g="salon">Salon</button><button data-g="kuchnia">Kuchnia</button><button data-g="hol">Hol</button><button data-g="garderoba">Garderoba</button><button data-g="wc">WC</button><button data-g="kotlownia">Kotłownia</button>
+ <button id="ceil">Sufit: wył.</button></div></div>
+<div id="gal" class="view"><h2>Koncepcja 1 · Biblioteka we wnęce</h2><div class="g"><img src="viz/k1_main.jpg"><img src="viz/k1_niche.jpg"></div><h2>Koncepcja 2 · TV we wnęce</h2><div class="g"><img src="viz/k2_main.jpg"><img src="viz/k2_niche.jpg"></div>
+<p style="max-width:1300px;margin:0 auto;color:#7a7066">Rendery: Blender Cycles na wymiarach z DWG. Dekoracje i materiały przykładowe.</p></div>
+<script type="module">
+import * as THREE from 'three';
+const ROOMS=[['salon1','Salon – biblioteka',330,250],['salon2','Salon – TV we wnęce',330,250],['jadalnia','Jadalnia',300,760],['kuchnia','Kuchnia',270,1160],['hol','Hol wejściowy',-300,525],['schody','Schody',-90,600],['garderoba','Garderoba',-530,830],['wc','WC',-110,335],['kotlownia','Kotłownia',-480,1570],['gabinet','Gabinet',-400,220]];
+// ---- tabs
+let started3d=false;
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===b.dataset.t));
+ const c3=document.querySelector('body>canvas'); if(c3) c3.style.display=b.dataset.t==='m3d'?'block':'none'; if(b.dataset.t==='m3d'&&!started3d){started3d=true;start3d();} if(b.dataset.t==='m3d'&&window.__render)window.__render(); if(b.dataset.t==='pano')resize();});
+// ---- 360 viewer
+const host=document.getElementById('pano'); const R=new THREE.WebGLRenderer({antialias:true}); R.setPixelRatio(Math.min(devicePixelRatio,2)); host.prepend(R.domElement);
+const S=new THREE.Scene(); const C=new THREE.PerspectiveCamera(75,1,.1,100); const geo=new THREE.SphereGeometry(10,64,48); geo.scale(-1,1,1);
+const MT=new THREE.MeshBasicMaterial({color:0xffffff}); const sph=new THREE.Mesh(geo,MT); S.add(sph); const TL=new THREE.TextureLoader(); const cache={};
+let lon=90,lat=0,fov=75,cur=null;
+function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w)return;R.setSize(w,h);C.aspect=w/h;C.updateProjectionMatrix();draw();}
+function draw(){const phi=THREE.MathUtils.degToRad(90-lat),th=THREE.MathUtils.degToRad(lon);C.fov=fov;C.updateProjectionMatrix();C.lookAt(Math.sin(phi)*Math.cos(th),Math.cos(phi),Math.sin(phi)*Math.sin(th));R.render(S,C);}
+function show(id){const r=ROOMS.find(x=>x[0]===id);cur=id;document.getElementById('capt').textContent=r[1];document.querySelectorAll('#rooms button').forEach(b=>b.classList.toggle('on',b.dataset.r===id));
+ document.querySelectorAll('.dot').forEach(d=>d.setAttribute('fill',d.dataset.r===id?'#b03c3c':'#2f2a25'));
+ const set=t=>{t.colorSpace=THREE.SRGBColorSpace;MT.map=t;MT.needsUpdate=true;draw();}; if(cache[id])set(cache[id]); else TL.load('pano/'+id+'.jpg',t=>{cache[id]=t;if(cur===id)set(t);});}
+let drag=null; R.domElement.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,lon,lat];R.domElement.setPointerCapture(e.pointerId)});
+R.domElement.addEventListener('pointermove',e=>{if(!drag)return;lon=drag[2]-(e.clientX-drag[0])*.15*fov/75;lat=Math.max(-85,Math.min(85,drag[3]+(e.clientY-drag[1])*.15*fov/75));draw();});
+R.domElement.addEventListener('pointerup',()=>drag=null); R.domElement.addEventListener('wheel',e=>{fov=Math.max(35,Math.min(100,fov+e.deltaY*.04));draw();e.preventDefault();},{passive:false});
+addEventListener('resize',resize);
+const rb=document.getElementById('rooms'); ROOMS.forEach(r=>{const b=document.createElement('button');b.textContent=r[1];b.dataset.r=r[0];b.onclick=()=>show(r[0]);rb.appendChild(b);});
+// ---- plan (z house.json)
+fetch('house.json').then(r=>r.json()).then(H=>{const X0=-1620,X1=1000,Y0=-80,Y1=1760,sc=300/(X1-X0),h=(Y1-Y0)*sc;const P=([x,y])=>`${((x-X0)*sc).toFixed(1)},${((Y1-y)*sc).toFixed(1)}`;
+ let s=`<svg viewBox="0 0 300 ${h.toFixed(0)}">`; for(const w of [...H.walls,...H.ins]) s+=`<path fill-rule="evenodd" fill="#8a7a6a" d="${[w.o,...(w.h||[])].map(r=>'M'+r.map(P).join('L')+'Z').join('')}"/>`;
+ ROOMS.forEach(r=>{if(r[0]==='salon2')return;const [cx,cy]=P([r[2],r[3]]).split(',');s+=`<circle class="dot" data-r="${r[0]}" cx="${cx}" cy="${cy}" r="7" fill="#2f2a25" stroke="#fff" stroke-width="2"><title>${r[1]}</title></circle>`;});
+ s+='</svg>'; const m=document.getElementById('map'); m.innerHTML=s; m.querySelectorAll('.dot').forEach(d=>d.onclick=()=>show(d.dataset.r)); show(cur||'salon1');});
+resize(); show('salon1');
+// ---- 3D
+async function start3d(){window.__Q='i=1&house=1&c=1';window.__ASSET='./';window.__ready=()=>{document.getElementById('load3d').remove();document.getElementById('ui3d').style.display='flex';
+ let ceil=false;document.getElementById('ceil').onclick=e=>{ceil=!ceil;window.__ceil(ceil);e.target.textContent='Sufit: '+(ceil?'wł.':'wył.');};
+ document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{window.__setConcept(b.dataset.c);document.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));});
+ document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{window.__go(b.dataset.g);const inside=b.dataset.g!=='dom';ceil=inside;window.__ceil(inside);document.getElementById('ceil').textContent='Sufit: '+(inside?'wł.':'wył.');document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('on',x===b));});
+ const c=document.querySelector('body>canvas');c.style.position='fixed';c.style.top='54px';c.style.left='0';c.style.zIndex='1';};
+ await import('./scene.js');}
+</script></body></html>
