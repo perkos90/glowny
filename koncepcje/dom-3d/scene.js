@@ -355,6 +355,9 @@ function conceptK2W(mode = 'L', sideWall = false) {
   B(4.5, 42, 104, 290, 20, 52, WC); for (const y of [166, 228]) B(42, 42.3, y - .3, y + .3, 22, 50, M({ color: '#d8cdbd' }));
   ledStrip(4.5, 40, 106, 288, 18, 20);
   for (const y of [46, 197, 348]) cyl(70, y, TOP - 1, TOP, 4, mat.glow, 16);
+  // 2 głośniki sufitowe pomiędzy oczkami (grill Ø20 cm, malowany na kolor sufitu)
+  { const gr = M({ color: '#ebe5dc', roughness: .9, name: 'grill' }), ring = M({ color: '#ddd5ca', roughness: .7, name: 'grillRing' });
+    for (const y of [121.5, 272.5]) { cyl(70, y, TOP - .8, TOP, 11, ring, 40); cyl(70, y, TOP - 1, TOP - .2, 9.6, gr, 40); for (let k = -3; k <= 3; k++) B(70 + k * 2.6 - .3, 70 + k * 2.6 + .3, y - Math.sqrt(Math.max(0, 81 - (k * 2.6) ** 2)), y + Math.sqrt(Math.max(0, 81 - (k * 2.6) ** 2)), TOP - 1.15, TOP - 1, ring, { cast: false }); } }
   flushBooks();
   // --- meble
   if (mode === 'L') {
@@ -367,7 +370,7 @@ function conceptK2W(mode = 'L', sideWall = false) {
     B(354, 450, 126, 236, 0, 12, mat.black); B(354, 450, 126, 236, 12, 40, mat.boucle, { r: 4 }); B(356, 448, 128, 234, 40, 50, mat.boucle, { r: 6 }); B(430, 450, 126, 236, 40, 64, mat.boucle, { r: 8 });
     const ct = B(200, 330, 150, 236, 34, 40, mat.oak, { r: 6 }); uvScale(ct, 1); B(215, 315, 165, 221, 0, 34, mat.oak, { r: 4 });
     vaseFlowers(240, 190, 40, .75); B(285, 320, 200, 228, 40, 46, M({ color: '#d9cbb5' }));
-    armchair(205, 320, Math.PI); armchair(325, 320, Math.PI); pouf(410, 300, 26, M({ color: '#d9cbb5', roughness: 1 }));
+    { const tc = [265, 193]; for (const [x, y, m] of [[205, 272, mat.boucle], [265, 284, M({ color: '#d9cbb5', roughness: 1 })], [325, 272, mat.boucle]]) { pouf(x, y, 26, m); const a = Math.atan2(tc[1] - y, tc[0] - x); B(x - 3 + Math.cos(a) * 14, x + 3 + Math.cos(a) * 14, y - 3 + Math.sin(a) * 14, y + 3 + Math.sin(a) * 14, 41, 41.5, m); } } // pufy przy stoliku, zwrócone do niego
     B(130, 470, 20, 370, 0, 1.2, mat.rug).material = mat.rug;
   } else {
     // dwie kanapy równoległe (prostopadle do okna i TV), stolik pośrodku
@@ -377,9 +380,7 @@ function conceptK2W(mode = 'L', sideWall = false) {
     B(130, 440, 20, 370, 0, 1.2, mat.rug).material = mat.rug;
     for (const y of [30, 360]) { B(410, 455, y - 22, y + 22, 0, 52, mat.oak, { r: 3 }); lamp(432, y, 52); }
   }
-  // konsola za kanapą od strony jadalni (jak dotąd)
-  B(180, 450, 422, 462, 76, 80, mat.oak); B(180, 450, 422, 462, 20, 23, mat.oak); for (const [x, y] of [[183, 425], [447, 425], [183, 459], [447, 459]]) B(x - 2, x + 2, y - 2, y + 2, 0, 76, mat.oak);
-  lamp(420, 442, 80); vaseFlowers(220, 442, 80, .9);
+
 }
 
 // ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
@@ -1315,6 +1316,7 @@ const VIEWS = {
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   bok:    { pos: [300, 560, 150], look: [40, 330], up: 30, down: 26 },
   kuch:   { pos: [300, 700, 170], look: [300, 0], up: 32, down: 34 },
+  sufit:  { pos: [180, 197, 150], look: [0, 197], up: 50, down: 10 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
   wide:   { pos: [40, 600, 150], look: [420, 60], up: 38, down: 32 },
