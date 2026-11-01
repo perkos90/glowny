@@ -9,7 +9,7 @@ button{border:1px solid #d9cfbf;background:#fff;border-radius:999px;padding:7px 
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:18px Georgia,serif;color:#7a6f63}
 </style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script></head><body>
 <div id="load">Ładowanie modelu 3D…</div>
-<div id="hd"><b>Wnęka: biblioteka + szafa</b><span>Koncepcja 1 bez ławy i drabiny: 4 moduły biblioteczne + półki na krótkiej ścianie, po prawej (od strony holu) szafa 127 × 60 cm do sufitu wnęki – kremowe fronty z plecionką, mosiężne uchwyty. Przeciągnij, żeby obracać.</span></div>
+<div id="hd"><b>Wnęka: biblioteka + szafa</b><span>Koncepcja 1 bez ławy i drabiny: 4 moduły biblioteczne + półki na krótkiej ścianie, po prawej (od strony holu) szafa 127 × 45 cm (w licu biblioteki) do sufitu wnęki – kremowe fronty z plecionką, mosiężne uchwyty. Przeciągnij, żeby obracać.</span></div>
 <div id="ui"><div class="grp"><span class="lab">Wersja</span><button data-c="k1w" class="on">Biblioteka + szafa</button><button data-c="1">Koncepcja 1 (z ławą)</button></div>
 <div class="grp"><span class="lab">Widok</span><button data-v="wneka" class="on">Wnęka</button><button data-v="salon">Salon</button><button data-v="okno">Od wnęki</button><button data-v="gora">Z góry</button></div></div>
 <script>window.__ready=()=>{document.getElementById('load').remove();window.__go('wneka');
@@ -351,8 +351,8 @@ function conceptK1W() {
   B(45, 102, 0, 30, 0, 10, mat.wall2); B(45, 102, 0, 30, 10, 85, mat.wall); B(45, 102, 30, 31, 12, 83, mat.cane);
   for (const h of [85, 132, 179, 226]) { B(45, 102, 0, 30, h, h + 2.5, mat.wall); shelf('x', 46, 101, h + 2.5, 28, 44, 0, 1); }
   B(100, 102, 0, 30, 85, HN, mat.wall);
-  // SZAFA po prawej (od strony holu): 127 cm, gł. 60, do sufitu wnęki, 2 skrzydła z plecionką
-  const Y0 = 267, Y1 = BEAM0, SD = 60, ym = (Y0 + Y1) / 2;
+  // SZAFA po prawej (od strony holu): 127 cm, gł. 45 (lico z biblioteką), do sufitu wnęki, 2 skrzydła z plecionką
+  const Y0 = 267, Y1 = BEAM0, SD = 45, ym = (Y0 + Y1) / 2;
   B(0, SD, Y0, Y1, 0, 10, mat.wall2); B(0, SD - 2, Y0, Y1, 10, HN, mat.wall);
   B(0, SD + 1, Y0, Y0 + 2.5, 0, HN, mat.wall2); B(0, SD + 1, Y1 - 2.5, Y1, 0, HN, mat.wall2); // boki
   for (const [p, q] of [[Y0 + 2.5, ym - .4], [ym + .4, Y1 - 2.5]]) {

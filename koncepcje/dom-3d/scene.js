@@ -333,8 +333,8 @@ function conceptK1W() {
   B(45, 102, 0, 30, 0, 10, mat.wall2); B(45, 102, 0, 30, 10, 85, mat.wall); B(45, 102, 30, 31, 12, 83, mat.cane);
   for (const h of [85, 132, 179, 226]) { B(45, 102, 0, 30, h, h + 2.5, mat.wall); shelf('x', 46, 101, h + 2.5, 28, 44, 0, 1); }
   B(100, 102, 0, 30, 85, HN, mat.wall);
-  // SZAFA po prawej (od strony holu): 127 cm, gł. 60, do sufitu wnęki, 2 skrzydła z plecionką
-  const Y0 = 267, Y1 = BEAM0, SD = 60, ym = (Y0 + Y1) / 2;
+  // SZAFA po prawej (od strony holu): 127 cm, gł. 45 (lico z biblioteką), do sufitu wnęki, 2 skrzydła z plecionką
+  const Y0 = 267, Y1 = BEAM0, SD = 45, ym = (Y0 + Y1) / 2;
   B(0, SD, Y0, Y1, 0, 10, mat.wall2); B(0, SD - 2, Y0, Y1, 10, HN, mat.wall);
   B(0, SD + 1, Y0, Y0 + 2.5, 0, HN, mat.wall2); B(0, SD + 1, Y1 - 2.5, Y1, 0, HN, mat.wall2); // boki
   for (const [p, q] of [[Y0 + 2.5, ym - .4], [ym + .4, Y1 - 2.5]]) {
