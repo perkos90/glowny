@@ -174,11 +174,11 @@ function livingDetails() {
   B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
   if (NOMOULD) { builtUps(); }
   // portal wnęki
-  if (!NOMOULD && !String(CONCEPT).startsWith('k1w')) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
+  if (!NOMOULD && !/^k[12]w/.test(String(CONCEPT))) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
   // listwy na ścianie nad wnęką
   if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
-  const cx = 316.5; if (!NOMOULD) { if (!String(CONCEPT).startsWith('k1w')) { B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22); }
+  const cx = 316.5; if (!NOMOULD) { if (!/^k[12]w/.test(String(CONCEPT))) { B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22); }
   for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); } }
   // listwa przypodłogowa
   B(102, 531, 0, 2, 0, 10, mat.wall2); B(0, 2, 0, 1040, 0, 10, mat.wall2);
@@ -311,6 +311,60 @@ function concept2() {
 }
 
 // ---------------- build ----------------
+// ======================= K2W: TV we wnęce (ciepła biel) + ściana płd. z wypukłościami i obrazem =======================
+function sofaStraight(x0, x1, y0, y1, back) { // back: 'S' (oparcie przy y0) / 'N' (przy y1)
+  B(x0, x1, y0, y1, 0, 12, mat.black); B(x0, x1, y0, y1, 12, 40, mat.boucle, { r: 4 });
+  if (back === 'S') B(x0, x1, y0, y0 + 22, 40, 80, mat.boucle, { r: 8 }); else B(x0, x1, y1 - 22, y1, 40, 80, mat.boucle, { r: 8 });
+  B(x0, x0 + 20, y0, y1, 40, 64, mat.boucle, { r: 8 }); B(x1 - 20, x1, y0, y1, 40, 64, mat.boucle, { r: 8 });
+  const s0 = back === 'S' ? y0 + 22 : y0 + 2, s1 = back === 'S' ? y1 - 2 : y1 - 22; const n = 3, w = (x1 - x0 - 40) / n;
+  for (let i = 0; i < n; i++) B(x0 + 20 + i * w + 1, x0 + 20 + (i + 1) * w - 1, s0, s1, 40, 50, mat.boucle, { r: 6 });
+  const py = back === 'S' ? [y0 + 22, y0 + 36] : [y1 - 36, y1 - 22];
+  B(x0 + 24, x0 + 66, py[0], py[1], 50, 92, M({ color: '#d8ccb8', roughness: 1 }), { r: 8 }); B(x1 - 66, x1 - 24, py[0], py[1], 50, 92, M({ color: '#bca78c', roughness: 1 }), { r: 8 });
+}
+function conceptK2W(mode = 'L') {
+  // --- ściana płd.: wypukłości (ramka szersza 1,5×) + obraz na środku, bez ramek z boku
+  const cx = 316.5, Y = 101, R = Y + 16.5, G = 91, T = HR;
+  B(cx - R, cx - Y, 0, 10, 0, T, mat.wall2); B(cx + Y, cx + R, 0, 10, 0, T, mat.wall2); B(cx - Y, cx + Y, 0, 10, 0, 13, mat.wall2); B(cx - Y, cx + Y, 0, 10, T - 10, T, mat.wall2);
+  B(cx - Y, cx + Y, 0, 3, 13, T - 10, mat.wall2); B(cx - G, cx + G, 0, 10, 36, T - 20, mat.wall2);
+  const ph0 = mode === 'L' ? 115 : 125, pw = 130, phh = 165;
+  B(cx - pw / 2, cx + pw / 2, 10, 13, ph0, ph0 + phh, mat.oakD); B(cx - pw / 2 + 4, cx + pw / 2 - 4, 13, 13.4, ph0 + 4, ph0 + phh - 4, M({ map: paintTex(0), roughness: .7 }));
+  B(cx - 2, cx + 2, 10, 17, ph0 + phh + 12, ph0 + phh + 20, mat.brass); B(cx - 34, cx + 34, 14, 21, ph0 + phh + 8, ph0 + phh + 12, mat.brass);
+  { const l = new THREE.SpotLight('#ffd9a0', 4, 3, .9, .8, 2); l.position.set(-cx / 100, (ph0 + phh + 8) / 100, .2); l.target.position.set(-cx / 100, (ph0 + phh / 2) / 100, 0); CUR.add(l, l.target); }
+  // --- wnęka: zabudowa TV w ciepłej bieli
+  const WB = mat.wall, WC = mat.wall2;
+  for (const [a, b] of [[0, 92], [302, 394]]) {
+    B(0, 40, a, b, 0, 8, WC); B(0, 40, a, b, 8, 86, WB); const m = (a + b) / 2;
+    for (const [p, q] of [[a + 1.5, m - .3], [m + .3, b - 1.5]]) { B(40, 41.2, p, q, 10, 84, WC); const c = B(41.2, 41.6, p + 5, q - 5, 16, 78, mat.cane); uvScale(c, 2.2); sph(42.6, p < m ? q - 4 : p + 4, 60, 1.4, mat.brass); }
+    B(0, 42, a, b, 86, 90, WC); B(0, 40, a, b, 90, 160, WB); const sp = B(40, 40.6, a + 5, b - 5, 94, 156, mat.cane); uvScale(sp, 2.2);
+    B(0, 40, a, b, 160, 163, WC); B(0, 36, a, a + 2.5, 163, HN, WB); B(0, 36, b - 2.5, b, 163, HN, WB);
+    for (const h of [212, 252]) B(0, 34, a + 2, b - 2, h, h + 2.5, WC);
+    for (const [h, mh] of [[163, 46], [214.5, 36], [254.5, 32]]) shelf('y', a + 3, b - 3, h, 32, mh, 0, 1);
+  }
+  for (let y = 93; y < 301; y += 2.6) B(2, 4.5, y, y + 1.9, 0, HN, WC, { cast: false });
+  B(4.5, 5.5, 102, 292, 61, 169, new THREE.MeshStandardMaterial({ color: '#ffe9c4', emissive: '#ffd99a', emissiveIntensity: 1.4 }), { cast: false });
+  B(5.5, 9, 102.5, 291.5, 61, 169, mat.blackG); B(9, 9.3, 104, 290, 63, 167, mat.screen);
+  B(4.5, 42, 104, 290, 20, 52, WC); for (const y of [166, 228]) B(42, 42.3, y - .3, y + .3, 22, 50, M({ color: '#d8cdbd' }));
+  ledStrip(4.5, 40, 106, 288, 18, 20);
+  for (const y of [46, 197, 348]) cyl(70, y, HN - 1, HN, 4, mat.glow, 16);
+  flushBooks();
+  // --- meble
+  if (mode === 'L') {
+    sofa(355, 455, 90, 390, 255, 355, 290, 390, 'E', 'N');
+    const ct = B(205, 320, 145, 260, 34, 40, mat.oak, { r: 6 }); uvScale(ct, 1); B(225, 300, 165, 240, 0, 34, mat.oak, { r: 4 });
+    vaseFlowers(240, 200, 40, .75); B(150, 470, 70, 350, 0, 1.2, mat.rug);
+  } else {
+    // dwie kanapy równoległe (prostopadle do okna i TV), stolik pośrodku
+    sofaStraight(160, 400, 32, 128, 'S'); sofaStraight(160, 400, 262, 358, 'N');
+    const ct = B(200, 360, 158, 232, 36, 42, mat.oak, { r: 4 }); uvScale(ct, 1); for (const [x, y] of [[204, 162], [356, 162], [204, 228], [356, 228]]) B(x - 3, x + 3, y - 3, y + 3, 0, 36, mat.oak);
+    vaseFlowers(250, 195, 42, .75); B(300, 340, 180, 210, 42, 48, M({ color: '#d9cbb5' }));
+    B(130, 440, 20, 370, 0, 1.2, mat.rug).material = mat.rug;
+    for (const y of [30, 360]) { B(410, 455, y - 22, y + 22, 0, 52, mat.oak, { r: 3 }); lamp(432, y, 52); }
+  }
+  // konsola za kanapą od strony jadalni (jak dotąd)
+  B(180, 450, 422, 462, 76, 80, mat.oak); B(180, 450, 422, 462, 20, 23, mat.oak); for (const [x, y] of [[183, 425], [447, 425], [183, 459], [447, 459]]) B(x - 2, x + 2, y - 2, y + 2, 0, 76, mat.oak);
+  lamp(420, 442, 80); vaseFlowers(220, 442, 80, .9);
+}
+
 // ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
 function tvRelief(cx = 316.5) { // czerwona ramka +10 / pas wklęsły +3 / zielony panel +10 (cm od ściany)
   const R = 112, Y = 101, G = 91, T = HR;
@@ -1205,7 +1259,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true) }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true), 'k2w': () => conceptK2W('L'), 'k2wp': () => conceptK2W('P') }; const GS = {};
 const CS = (Q.get('cs') || '').split(',').filter(Boolean);
 for (const k in CF) if ((INTER && (!CS.length || CS.includes(k))) || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
@@ -1248,7 +1302,7 @@ const VIEWS = {
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
-const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : (String(CONCEPT).startsWith('k1w') ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
+const vk = VIEW === 'niche' ? ((CONCEPT === '2' || /^k2w/.test(String(CONCEPT))) ? 'niche2' : (String(CONCEPT).startsWith('k1w') ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
