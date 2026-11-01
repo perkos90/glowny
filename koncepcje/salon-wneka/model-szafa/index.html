@@ -192,7 +192,7 @@ function livingDetails() {
   B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
   if (NOMOULD) { builtUps(); }
   // portal wnęki
-  if (!NOMOULD) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); if (CONCEPT !== 'k1w') B(96, 108, 0, 8, 0, 292, mat.wall2); }
+  if (!NOMOULD && CONCEPT !== 'k1w') { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
   // listwy na ścianie nad wnęką
   if (!NOMOULD && !/^[rpcm]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
