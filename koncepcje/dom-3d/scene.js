@@ -15,6 +15,7 @@ let rnd = (() => { let s = 12345; return () => (s = (s * 16807) % 2147483647) / 
 const pick = a => a[Math.floor(rnd() * a.length)];
 const HOUSE_MODE = Q.get('house') === '1';
 const NOMOULD = Q.get('nomould') === '1' || Q.get('c') === 'k1b';
+const TREE = Q.get('tree');
 const ASSET = window.__ASSET || './';
 const NICHE = 102, COL = 531, WIN = 553, BEAM0 = 394, BEAM1 = 419, HN = 290; let HR = HOUSE_MODE ? 595 : 550;
 
@@ -326,6 +327,29 @@ function armchair(x, y, rot) { const g = new THREE.Group(); const prev = CUR; CU
   B(-40, -24, -38, 28, 42, 64, mat.boucle, { r: 9 }); B(24, 40, -38, 28, 42, 64, mat.boucle, { r: 9 }); B(-22, 22, -30, 14, 42, 52, mat.boucle, { r: 6 });
   CUR = prev; g.position.set(-x / 100, 0, y / 100); g.rotation.y = rot; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); CUR.add(g); }
 function pouf(x, y, r = 24, m = mat.boucle) { cyl(x, y, 0, 40, r, m, 40, r); sph(x, y, 40, r * .98, m, .12); }
+function slipperChair(x, y, rot) { const g = new THREE.Group(); const prev = CUR; CUR = g;
+  for (const [a, b] of [[-26, -22], [26, -22], [-26, 22], [26, 22]]) rodBetween([a, b, 0], [a * .95, b * .95, 26], 1.6, mat.oak);
+  B(-30, 30, -28, 28, 26, 44, mat.boucle, { r: 6 }); B(-30, 30, 18, 30, 42, 86, mat.boucle, { r: 8 }); B(-24, 24, -22, 18, 44, 50, mat.boucle, { r: 5 });
+  CUR = prev; g.position.set(-x / 100, 0, y / 100); g.rotation.y = rot; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); CUR.add(g); }
+function christmasTree(x, y, H, D, name, warn) { // H, D w cm; choinka z lampkami i bombkami
+  const g = new THREE.Group(); g.name = name; g.visible = false; const prev = CUR; CUR = g;
+  const needle = M({ color: '#2f4a33', roughness: .9 }), needle2 = M({ color: '#3b5a3d', roughness: .9 });
+  cyl(x, y, 0, 30, D * .22, M({ map: T.cane, color: '#d9c19a', roughness: 1 }), 32, D * .2); cyl(x, y, 30, 60, 5, mat.oakD, 12);
+  const tiers = 9; for (let i = 0; i < tiers; i++) { const t = i / tiers, h0 = 50 + t * (H - 70), h1 = h0 + (H - 50) / tiers * 1.9, r = (D / 2) * (1 - t * .92);
+    const c = new THREE.Mesh(new THREE.ConeGeometry(r / 100, (h1 - h0) / 100, 28), i % 2 ? needle : needle2); c.position.set(-x / 100, (h0 + h1) / 200, y / 100); c.castShadow = true; c.receiveShadow = true; g.add(c); }
+  const lm = new THREE.MeshStandardMaterial({ color: '#fff1cf', emissive: '#ffcf7a', emissiveIntensity: 3 }), orn = [M({ color: '#c9a050', metalness: .9, roughness: .25 }), M({ color: '#f1ece2', roughness: .3 }), M({ color: '#8c2f2f', roughness: .3 })];
+  for (let k = 0; k < Math.round(H * 0.9); k++) { const h = 60 + rnd() * (H - 80), r = (D / 2) * (1 - (h - 50) / (H - 50) * .92) * (.82 + rnd() * .14), a = rnd() * 6.28;
+    const m = new THREE.Mesh(new THREE.SphereGeometry((k % 3 ? 1.1 : 3.2) / 100, 8, 6), k % 3 ? lm : pick(orn)); m.position.set(-(x + Math.cos(a) * r) / 100, h / 100, (y + Math.sin(a) * r) / 100); g.add(m); }
+  const star = new THREE.Mesh(new THREE.OctahedronGeometry(.09), mat.brass); star.position.set(-x / 100, (H + 4) / 100, y / 100); g.add(star);
+  const pl = new THREE.PointLight('#ffcf8a', 1.4, 4, 2); pl.position.set(-x / 100, H * .45 / 100, y / 100); g.add(pl);
+  // obrys rzutu na podłodze: zielony = mieści się, czerwony = koliduje
+  const ring = new THREE.Mesh(new THREE.RingGeometry(D / 200 - .02, D / 200, 64), new THREE.MeshBasicMaterial({ color: warn ? '#d0352b' : '#2e9b4e', transparent: true, opacity: .85 })); ring.rotation.x = -Math.PI / 2; ring.position.set(-x / 100, .02, y / 100); g.add(ring);
+  CUR = prev; CUR.add(g); }
+// wymiary choinki 4 m: pełna Ø210, smukła (slim) Ø110, „pencil” Ø80 (wg katalogów producentów 12–14 ft)
+function treesFor(mode) {
+  const P = { P: { pencil: [495, 195, 0], slim: [482, 195, 0], full: [435, 197, 1] }, L: { pencil: [497, 46, 0], slim: [482, 56, 1], full: [435, 197, 1] }, R: { pencil: [497, 320, 0], slim: [483, 322, 0], full: [435, 290, 1] } }[mode];
+  christmasTree(P.pencil[0], P.pencil[1], 400, 80, 'TREE_pencil', P.pencil[2]); christmasTree(P.slim[0], P.slim[1], 400, 110, 'TREE_slim', P.slim[2]); christmasTree(P.full[0], P.full[1], 400, 210, 'TREE_full', P.full[2]);
+}
 function conceptK2W(mode = 'L', sideWall = false) {
   // --- ściana płd.: wypukłości (ramka szersza 1,5×) + obraz na środku, bez ramek z boku
   const cx = 316.5, Y = 101, R = Y + 16.5, G = 91, T = HR;
@@ -370,7 +394,7 @@ function conceptK2W(mode = 'L', sideWall = false) {
     B(354, 450, 126, 236, 0, 12, mat.black); B(354, 450, 126, 236, 12, 40, mat.boucle, { r: 4 }); B(356, 448, 128, 234, 40, 50, mat.boucle, { r: 6 }); B(430, 450, 126, 236, 40, 64, mat.boucle, { r: 8 });
     const ct = B(200, 330, 150, 236, 34, 40, mat.oak, { r: 6 }); uvScale(ct, 1); B(215, 315, 165, 221, 0, 34, mat.oak, { r: 4 });
     vaseFlowers(240, 190, 40, .75); B(285, 320, 200, 228, 40, 46, M({ color: '#d9cbb5' }));
-    { const tc = [265, 193]; for (const [x, y, m] of [[205, 272, mat.boucle], [265, 284, M({ color: '#d9cbb5', roughness: 1 })], [325, 272, mat.boucle]]) { pouf(x, y, 26, m); const a = Math.atan2(tc[1] - y, tc[0] - x); B(x - 3 + Math.cos(a) * 14, x + 3 + Math.cos(a) * 14, y - 3 + Math.sin(a) * 14, y + 3 + Math.sin(a) * 14, 41, 41.5, m); } } // pufy przy stoliku, zwrócone do niego
+    slipperChair(225, 290, 0); slipperChair(310, 290, 0); // dwa siedziska bez podłokietników, przodem do stolika
     B(130, 470, 20, 370, 0, 1.2, mat.rug).material = mat.rug;
   } else {
     // dwie kanapy równoległe (prostopadle do okna i TV), stolik pośrodku
@@ -381,6 +405,7 @@ function conceptK2W(mode = 'L', sideWall = false) {
     for (const y of [30, 360]) { B(410, 455, y - 22, y + 22, 0, 52, mat.oak, { r: 3 }); lamp(432, y, 52); }
   }
 
+  treesFor(mode === 'L' ? 'L' : mode === 'R' ? 'R' : 'P');
 }
 
 // ======================= K1W: koncepcja 1 bez ławy i drabiny + szafa po prawej =======================
@@ -1316,6 +1341,7 @@ const VIEWS = {
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   bok:    { pos: [300, 560, 150], look: [40, 330], up: 30, down: 26 },
   kuch:   { pos: [300, 700, 170], look: [300, 0], up: 32, down: 34 },
+  okno:   { pos: [120, 380, 160], look: [553, 120], up: 45, down: 30 },
   sufit:  { pos: [180, 197, 150], look: [0, 197], up: 50, down: 10 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
@@ -1344,12 +1370,13 @@ if (INTER) {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     kuchnia: [P3(300, 720, 165), P3(270, 1150, 120)], hol: [P3(-60, 520, 160), P3(-400, 525, 140)], garderoba: [P3(-580, 750, 165), P3(-480, 1040, 120)],
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
-  : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
+  : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], choinka: [[-1.2, 1.7, 3.8], [-5.0, 2.0, 1.6]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
   const go = k => { const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
+  window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
   window.__go = go; window.__render = () => dirty = 3; if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   const loop = () => { requestAnimationFrame(loop); ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
-} else { comp.render(); comp.render(); window.__done = true; }
+} else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__done = true; }
