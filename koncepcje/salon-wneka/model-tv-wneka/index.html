@@ -15,12 +15,12 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <div id="load">Ładowanie modelu 3D…</div>
-<div id="hd"><b>TV we wnęce – ciepła biel</b><span>Wnęka obniżona do spodu podciągu (280 cm), zabudowa TV w ciepłej bieli (wieże z plecionką, lamele, konsola). Ściana płd.: ramka +10 cm (1,5× szersza), pas cofnięty o 7 cm, panel +7 cm z obrazem na środku. Opcja: bok wnęki od strony holu zabudowany ścianką g-k 12,5 cm. Przeciągnij, żeby obracać.</span></div>
-<div id="ui"><div class="grp"><span class="lab">Kanapy</span><button data-s="p" class="on">Dwie równoległe</button><button data-s="l">Narożnik</button></div>
+<div id="hd"><b>TV we wnęce – ciepła biel</b><span>Wnęka obniżona do spodu podciągu (280 cm), zabudowa TV w ciepłej bieli (wieże z plecionką, lamele, konsola). Ściana płd.: ramka +10 cm (1,5× szersza), pas cofnięty o 7 cm, panel +7 cm z obrazem na środku. Opcja: bok wnęki od strony holu zabudowany ścianką g-k (25 cm), zlicowaną z frontem zabudowy i z licem słupa/podciągu od strony korytarza. Meble w jaśniejszej ciepłej bieli niż ściany. Przeciągnij, żeby obracać.</span></div>
+<div id="ui"><div class="grp"><span class="lab">Kanapy</span><button data-s="p" class="on">Dwie równoległe</button><button data-s="l">Narożnik</button><button data-s="r">Narożnik obrócony + fotele</button></div>
 <div class="grp"><span class="lab">Bok wnęki</span><button data-w="0" class="on">Otwarty</button><button data-w="1">Ścianka g-k</button></div>
-<div class="grp"><span class="lab">Widok</span><button data-v="wneka" class="on">Wnęka</button><button data-v="salon">Ściana z obrazem</button><button data-v="okno">Od wnęki</button><button data-v="gora">Z góry</button></div></div>
+<div class="grp"><span class="lab">Widok</span><button data-v="wneka" class="on">Wnęka</button><button data-v="salon">Ściana z obrazem</button><button data-v="okno">Od wnęki</button><button data-v="kuch">Od kuchni</button><button data-v="gora">Z góry</button></div></div>
 <script>window.__ready=()=>{document.getElementById('load').remove();window.__go('wneka');
-let sofa='p',wall='0';const apply=()=>window.__setConcept('k2w'+(sofa==='p'?'p':'')+(wall==='1'?'z':''));
+let sofa='p',wall='0';const apply=()=>window.__setConcept('k2w'+({p:'p',l:'',r:'r'}[sofa])+(wall==='1'?'z':''));
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sofa=b.dataset.s;apply();document.querySelectorAll('[data-s]').forEach(x=>x.classList.toggle('on',x===b));});
 document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{wall=b.dataset.w;apply();document.querySelectorAll('[data-w]').forEach(x=>x.classList.toggle('on',x===b));});
 document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{window.__go(b.dataset.v);document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));});};</script>
@@ -35,7 +35,7 @@ import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const Q = new URLSearchParams('i=1&c=k2wp&cs=k2wp,k2w,k2wpz,k2wz');
+const Q = new URLSearchParams('i=1&c=k2wp&cs=k2wp,k2w,k2wr,k2wpz,k2wz,k2wrz');
 const CONCEPT = Q.get('c') || '1', VIEW = Q.get('v') || 'main', INTER = Q.get('i') === '1';
 const W = +(Q.get('w') || innerWidth), H = +(Q.get('h') || innerHeight);
 let rnd = (() => { let s = 12345; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
@@ -348,6 +348,11 @@ function sofaStraight(x0, x1, y0, y1, back) { // back: 'S' (oparcie przy y0) / '
   const py = back === 'S' ? [y0 + 22, y0 + 36] : [y1 - 36, y1 - 22];
   B(x0 + 24, x0 + 66, py[0], py[1], 50, 92, M({ color: '#d8ccb8', roughness: 1 }), { r: 8 }); B(x1 - 66, x1 - 24, py[0], py[1], 50, 92, M({ color: '#bca78c', roughness: 1 }), { r: 8 });
 }
+function armchair(x, y, rot) { const g = new THREE.Group(); const prev = CUR; CUR = g;
+  B(-42, 42, -40, 40, 0, 12, mat.oak, { r: 2 }); B(-40, 40, -38, 38, 12, 42, mat.boucle, { r: 10 }); B(-40, 40, 18, 40, 42, 82, mat.boucle, { r: 12 });
+  B(-40, -24, -38, 28, 42, 64, mat.boucle, { r: 9 }); B(24, 40, -38, 28, 42, 64, mat.boucle, { r: 9 }); B(-22, 22, -30, 14, 42, 52, mat.boucle, { r: 6 });
+  CUR = prev; g.position.set(-x / 100, 0, y / 100); g.rotation.y = rot; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); CUR.add(g); }
+function pouf(x, y, r = 24, m = mat.boucle) { cyl(x, y, 0, 40, r, m, 40, r); sph(x, y, 40, r * .98, m, .12); }
 function conceptK2W(mode = 'L', sideWall = false) {
   // --- ściana płd.: wypukłości (ramka szersza 1,5×) + obraz na środku, bez ramek z boku
   const cx = 316.5, Y = 101, R = Y + 16.5, G = 91, T = HR;
@@ -360,9 +365,9 @@ function conceptK2W(mode = 'L', sideWall = false) {
   // --- wnęka obniżona do spodu podciągu (280 cm)
   const TOP = 280; B(0, NICHE + 1, 0, BEAM0, TOP, HN + 1, mat.wall);
   if (sideWall) { // zabudowa boku wnęki od strony holu: ścianka g-k 12,5 cm (CW75 + 2×12,5) do spodu podciągu
-    B(0, NICHE, BEAM0, BEAM0 + 12.5, 0, TOP, mat.wall); B(0, NICHE, BEAM0 + 12.5, BEAM0 + 13.5, 0, 10, mat.wall2); B(NICHE - 1, NICHE, BEAM0, BEAM0 + 13.5, 0, 10, mat.wall2); }
+    const FD = 41.6; B(0, FD, BEAM0, BEAM1, 0, TOP, mat.wall); B(FD - 1, FD, BEAM0, BEAM1, 0, 10, mat.wall2); } // zlicowana z frontem zabudowy i z licem słupa/podciągu od strony korytarza
   // --- wnęka: zabudowa TV w ciepłej bieli
-  const WB = mat.wall, WC = mat.wall2;
+  const WB = M({ color: '#f7f2ea', roughness: .6, name: 'mebleB' }), WC = M({ color: '#f3ede3', roughness: .6, name: 'mebleC' }); // meble jaśniejsza ciepła biel niż ściany
   for (const [a, b] of [[0, 92], [302, 394]]) {
     B(0, 40, a, b, 0, 8, WC); B(0, 40, a, b, 8, 86, WB); const m = (a + b) / 2;
     for (const [p, q] of [[a + 1.5, m - .3], [m + .3, b - 1.5]]) { B(40, 41.2, p, q, 10, 84, WC); const c = B(41.2, 41.6, p + 5, q - 5, 16, 78, mat.cane); uvScale(c, 2.2); sph(42.6, p < m ? q - 4 : p + 4, 60, 1.4, mat.brass); }
@@ -383,6 +388,14 @@ function conceptK2W(mode = 'L', sideWall = false) {
     sofa(355, 455, 90, 390, 255, 355, 290, 390, 'E', 'N');
     const ct = B(205, 320, 145, 260, 34, 40, mat.oak, { r: 6 }); uvScale(ct, 1); B(225, 300, 165, 240, 0, 34, mat.oak, { r: 4 });
     vaseFlowers(240, 200, 40, .75); B(150, 470, 70, 350, 0, 1.2, mat.rug);
+  } else if (mode === 'R') {
+    // narożnik obrócony o 90°: długi bok równolegle do ściany płd., szezlong przy oknie; fotele i puf od strony kuchni
+    sofaStraight(150, 450, 30, 126, 'S');
+    B(354, 450, 126, 236, 0, 12, mat.black); B(354, 450, 126, 236, 12, 40, mat.boucle, { r: 4 }); B(356, 448, 128, 234, 40, 50, mat.boucle, { r: 6 }); B(430, 450, 126, 236, 40, 64, mat.boucle, { r: 8 });
+    const ct = B(200, 330, 150, 236, 34, 40, mat.oak, { r: 6 }); uvScale(ct, 1); B(215, 315, 165, 221, 0, 34, mat.oak, { r: 4 });
+    vaseFlowers(240, 190, 40, .75); B(285, 320, 200, 228, 40, 46, M({ color: '#d9cbb5' }));
+    armchair(205, 320, Math.PI); armchair(325, 320, Math.PI); pouf(410, 300, 26, M({ color: '#d9cbb5', roughness: 1 }));
+    B(130, 470, 20, 370, 0, 1.2, mat.rug).material = mat.rug;
   } else {
     // dwie kanapy równoległe (prostopadle do okna i TV), stolik pośrodku
     sofaStraight(160, 400, 32, 128, 'S'); sofaStraight(160, 400, 262, 358, 'N');
@@ -1290,7 +1303,7 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true), 'k2w': () => conceptK2W('L'), 'k2wp': () => conceptK2W('P'), 'k2wz': () => conceptK2W('L', true), 'k2wpz': () => conceptK2W('P', true) }; const GS = {};
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4, 'c1': conceptCL1, 'c2': conceptCL2, 'c3': conceptCL3, 'c4': conceptCL4, 'c5': conceptCL5, 'c6': conceptCL6, 'm1': conceptM1, 'm2': conceptM2, 'm3': conceptM3, 'm4': conceptM4, 'm5': conceptM5, 'm6': conceptM6, 'k1b': conceptK1B, 'k1w': conceptK1W, 'k1w2': () => conceptK1W(true), 'k2w': () => conceptK2W('L'), 'k2wp': () => conceptK2W('P'), 'k2wz': () => conceptK2W('L', true), 'k2wpz': () => conceptK2W('P', true), 'k2wr': () => conceptK2W('R'), 'k2wrz': () => conceptK2W('R', true) }; const GS = {};
 const CS = (Q.get('cs') || '').split(',').filter(Boolean);
 for (const k in CF) if ((INTER && (!CS.length || CS.includes(k))) || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
 CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
@@ -1328,6 +1341,7 @@ const VIEWS = {
   tvside: { pos: [80, 300, 150], look: [420, 0], up: 35, down: 30 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
   bok:    { pos: [300, 560, 150], look: [40, 330], up: 30, down: 26 },
+  kuch:   { pos: [300, 700, 170], look: [300, 0], up: 32, down: 34 },
   wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   gap:    { pos: [330, 60, 160], look: [0, 200], up: 55, down: 5 },
   wide:   { pos: [40, 600, 150], look: [420, 60], up: 38, down: 32 },
@@ -1355,7 +1369,7 @@ if (INTER) {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     kuchnia: [P3(300, 720, 165), P3(270, 1150, 120)], hol: [P3(-60, 520, 160), P3(-400, 525, 140)], garderoba: [P3(-580, 750, 165), P3(-480, 1040, 120)],
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
-  : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
+  : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
   const go = k => { const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
