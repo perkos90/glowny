@@ -205,3 +205,132 @@ def plan_k(kind):
         for y in [0,49,98,147,197,247,296,345,394]: d.rect(99,y-2,4,4,fill=STEEL,stroke='none',sw=0)
         d.line(101,0,101,BEAM0,STEEL,1.6); d.text(112,300,'ściana stalowo-szklana z drzwiami',6,'#333','left',rot=90)
     return d
+
+# ======================= SERIA 2 (7–12) =======================
+PLASTER='#e9dccb'; TADEL='#d9c4a8'
+def arch(d,x0,x1,h0,h1,fill,stroke='none',sw=0,n=24):
+    r=(x1-x0)/2; cx=(x0+x1)/2; pts=[(x0,h0),(x0,h1-r)]
+    for i in range(n+1): a=math.pi-i*math.pi/n; pts.append((cx+r*math.cos(a),h1-r+r*math.sin(a)))
+    pts+= [(x1,h1-r),(x1,h0)]; d.poly(pts,fill=fill,stroke=stroke,sw=sw)
+def plant(d,x,y,s,rnd,col=('#5f7a45','#7a9a58','#4c6838','#8eae6a')):
+    for k in range(int(26*s)): a=rnd.random()*math.pi; r=rnd.random()*22*s; d.circle(x+math.cos(a)*r*1.1,y+math.sin(a)*r*1.3+6*s,(3+rnd.random()*4)*s,fill=rnd.choice(col),stroke='none',sw=0)
+def pot(d,x,y,w,h,c='#e8e0d2'): d.poly([(x-w/2*0.8,y),(x+w/2*0.8,y),(x+w/2,y+h),(x-w/2,y+h)],fill=c,stroke='#c9bfae',sw=.5)
+def elevW2(kind):
+    d=D('W'+kind); rnd=R(int(kind)*11+5)
+    if kind=='7':   # portal łukowy w tadelakcie
+        elev_base(d,TADEL)
+        d.rect(0,0,BEAM0,HT,fill=PLASTER,stroke='none',sw=0)
+        arch(d,40,354,0,HN+40,TADEL,'#bfa98c',1.2)
+        arch(d,52,342,0,HN+28,'#d3bc9e','none',0)
+        for y,c in ((14,'#efe6d6'),):
+            d.rect(60,0,274,42,fill=C['oak'],stroke=C['oak2'],sw=.8); d.rect(60,42,274,10,fill='url(#boucle)',stroke='#a99d8b',sw=.6,pattern='boucle',rx=3)
+        for x,c in ((80,'#d8ccb8'),(130,'#a88f74'),(250,'#e9e2d6'),(296,'#c8b398')): d.rect(x,52,40,30,fill=c,stroke='#bfb3a0',sw=.5,rx=6)
+        arch(d,167,227,120,250,'#c8b192','#b39a7a',.8); d.rect(178,140,38,6,fill=C['oak'],stroke='none',sw=0); d.circle(197,165,10,fill='#efe9df',stroke='#c9c0b2',sw=.4)
+        for x in (95,299): d.rect(x-2,170,4,14,fill=C['brass'],stroke='none',sw=0); d.circle(x,190,8,fill='#fff3d8',stroke=C['brass'],sw=.8)
+        # GÓRA: łuk okrągły – lustro + listwa
+        d.circle(197,470,70,fill='url(#mirror)',stroke=C['brass'],sw=3); d.rect(0,HN+40+30,BEAM0,2,fill='#d8c7ae',stroke='none',sw=0)
+        elev_frame(d,'antresola: tadelakt na całej ścianie, okrągłe lustro w mosiądzu nad łukiem')
+    if kind=='8':   # japandi: shoji + podest
+        elev_base(d,'#e9dfcf')
+        d.rect(0,0,BEAM0,24,fill=C['oak'],stroke=C['oak2'],sw=1); d.rect(10,24,BEAM0-20,6,fill='#d9cfa8',stroke='#bdb38f',sw=.6)
+        for i in range(4): d.rect(30+i*92,30,70,8,fill='#e8e0cc',stroke='#c9bfa6',sw=.5,rx=3)
+        d.rect(160,30,74,30,fill=C['oak2'],stroke='#8a6a4c',sw=.8); d.circle(180,64,5,fill='#e8e2d8',stroke='none',sw=0); d.circle(214,62,4,fill='#2f2a25',stroke='none',sw=0)
+        pot(d,40,30,26,20); plant(d,40,62,1.0,rnd,('#56703f','#6d8a4e'))
+        d.rect(200,150,60,60,fill='#f6f2ea',stroke='#3b3631',sw=1.2); d.circle(230,180,16,fill='none',stroke='#3b3631',sw=2)
+        # shoji przesuwne (2 skrzydła otwarte na bok)
+        for x0 in (0,300):
+            d.rect(x0,0,94,HN,fill='#f7f3ea',stroke=C['oak2'],sw=2)
+            for k in range(1,4): d.line(x0+k*23.5,0,x0+k*23.5,HN,C['oak2'],.8)
+            for k in range(1,9): d.line(x0,k*32,x0+94,k*32,C['oak2'],.8)
+        # GÓRA: siatka kumiko z dębu
+        d.rect(0,HN+8,BEAM0,HT-HN-16,fill='#efe7da',stroke=C['oak2'],sw=1.4)
+        for x in range(0,BEAM0+1,28): d.line(x,HN+8,x,HT-8,C['oak2'],.9)
+        for y in range(HN+8,HT-7,28): d.line(0,y,BEAM0,y,C['oak2'],.9)
+        for x in range(0,BEAM0,28):
+            for y in range(HN+8,HT-30,28): d.line(x,y,x+28,y+28,'#c9ab84',.5); d.line(x+28,y,x,y+28,'#c9ab84',.5)
+        d.rect(0,HN+8,BEAM0,HT-HN-16,fill='#fff6e0',stroke='none',sw=0,op=.25)
+        elev_frame(d,'antresola: podświetlana krata kumiko z dębu (styl japandi)')
+    if kind=='9':   # kącik kawowy z ławą + ściana talerzy
+        elev_base(d,'#efe6d8')
+        d.rect(0,0,BEAM0,110,fill='#e3d8c6',stroke='none',sw=0)
+        for x in range(0,BEAM0,12): d.line(x,0,x,110,'#d1c3ac',.8)
+        d.rect(0,110,BEAM0,4,fill=C['oak'],stroke='none',sw=0)
+        d.rect(10,0,374,44,fill=C['oak'],stroke=C['oak2'],sw=1); d.rect(10,44,374,10,fill='url(#boucle)',stroke='#a99d8b',sw=.6,pattern='boucle',rx=3)
+        for x0 in range(16,380,46): d.rect(x0,54,42,46,fill=C['linen'],stroke='#cdbfa9',sw=.5,rx=5)
+        for cx in (120,276):
+            d.rect(cx-3,0,6,74,fill=C['black'],stroke='none',sw=0); d.rect(cx-20,0,40,3,fill=C['black'],stroke='none',sw=0); d.rect(cx-36,74,72,3,fill='#e8dfd0',stroke='#c9bfae',sw=.5)
+            d.rect(cx-14,77,8,10,fill='#f4f1ec',stroke='#b9b1a3',sw=.4); d.circle(cx+12,84,5,fill='#e8e2d8',stroke='none',sw=0)
+            d.line(cx,HN,cx,215,C['black'],1); d.poly([(cx-22,215),(cx+22,215),(cx+12,232),(cx-12,232)],fill='#f3ead7',stroke=C['brass'],sw=.8)
+        for h in (150,200): d.rect(30,h,334,3,fill=C['oak'],stroke='none',sw=0)
+        for x in range(40,360,22): d.circle(x,165,8,fill=rnd.choice(['#f4f1ec','#e2d6c2','#cfc4b2']),stroke='#c9c0b2',sw=.4); d.rect(x-4,203,8,12,fill=rnd.choice(['#e8e2d8','#d9cbb5','#f4f1ec']),stroke='#c9c0b2',sw=.4)
+        # GÓRA: ściana talerzy ceramicznych
+        for i in range(26):
+            x=30+rnd.random()*334; y=320+rnd.random()*240; r=10+rnd.random()*22
+            d.circle(x,y,r,fill=rnd.choice(['#f6f3ee','#efe8dd','#e6dccd','#f2ede4']),stroke=rnd.choice(['#b9a98f','#9fb0b8','#c4a07a','#7a8a6a']),sw=1.4); d.circle(x,y,r*.6,fill='none',stroke='#d8cdbd',sw=.6)
+        elev_frame(d,'antresola: kompozycja talerzy ceramicznych (rękodzieło)')
+    if kind=='10':  # zielona alkowa (rośliny)
+        elev_base(d,'#dfd6c4')
+        for h in (60,130,200,262): d.rect(0,h,BEAM0,3,fill=C['oak'],stroke='none',sw=0); d.rect(0,h-3,BEAM0,1.5,fill='#fff2cf',stroke='none',sw=0)
+        for h in (63,133,203):
+            x=18
+            while x<380: w=18+rnd.random()*14; pot(d,x,h,w,14+rnd.random()*8,rnd.choice(['#e8e0d2','#cbb79c','#a88f74','#f2ede4'])); plant(d,x,h+30,0.7+rnd.random()*.5,rnd); x+=w+20
+        for x in (40,197,350): pot(d,x,0,46,46,'#d9cbb5'); plant(d,x,80,1.7,rnd)
+        d.rect(140,0,114,40,fill=C['oak'],stroke=C['oak2'],sw=.8); d.rect(140,40,114,8,fill='url(#boucle)',stroke='#a99d8b',sw=.5,pattern='boucle',rx=3)
+        # GÓRA: panel z mchu chrobotka + pnącza zwisające
+        d.rect(30,320,334,240,fill='#7c8f5a',stroke=C['oak2'],sw=3)
+        for i in range(500): d.circle(34+rnd.random()*326,324+rnd.random()*232,2+rnd.random()*3,fill=rnd.choice(['#6f8250','#8a9c66','#5d7044','#9aa978']),stroke='none',sw=0)
+        for x in range(10,390,26):
+            L=int((30+rnd.random()*90)/6)
+            for k in range(L): d.circle(x+math.sin(k*.7)*3,HN-4-k*6+ (0),2.5,fill=rnd.choice(['#5f7a45','#7a9a58']),stroke='none',sw=0) if False else d.circle(x+math.sin(k*.7)*3,HN-2-k*6,2.5,fill=rnd.choice(['#5f7a45','#7a9a58']),stroke='none',sw=0)
+        elev_frame(d,'antresola: panel z mchu (bez podlewania) + pnącza nad krawędzią wnęki')
+    if kind=='11':  # gabinet kolekcji – podświetlane witryny
+        elev_base(d,'#efe8dd')
+        for i in range(4):
+            a=4+i*96.5; b=a+92.5
+            d.rect(a,0,b-a,85,fill='#d9cbb5',stroke='#b9ad9b',sw=1); d.rect(a+3,8,(b-a)/2-4,72,fill='#cfc1aa',stroke='#b9ad9b',sw=.6); d.rect((a+b)/2+1,8,(b-a)/2-4,72,fill='#cfc1aa',stroke='#b9ad9b',sw=.6)
+            d.rect(a,85,b-a,HN-85,fill='#f4efe6',stroke=C['brass'],sw=2.2)
+            for h in (140,195,245): d.rect(a+4,h,b-a-8,1.6,fill='#dfe8e6',stroke='#b9c4c2',sw=.4)
+            for h in (88,141.6,196.6):
+                x=a+10
+                while x<b-14:
+                    t=rnd.random()
+                    if t<.4: d.circle(x+7,h+9,7,fill=rnd.choice(['#efe9df','#d9cbb5','#2f2a25','#c4a07a']),stroke='#b9b1a3',sw=.4); x+=18
+                    elif t<.7: d.poly([(x,h),(x+12,h),(x+9,h+26),(x+3,h+26)],fill=rnd.choice(['#e8e2d8','#c9b79c','#8a7a68']),stroke='none',sw=0); x+=16
+                    else: d.rect(x,h,14,18,fill='#f6f2ea',stroke='#3b3631',sw=.8); x+=19
+            d.rect(a+3,85,b-a-6,HN-88,fill='#fff6e0',stroke='none',sw=0,op=.18); d.line((a+b)/2,85,(a+b)/2,HN,C['brass'],1.2)
+        # GÓRA: gzyms + rytm płycin z kinkietami
+        for i in range(4):
+            a=4+i*96.5; d.rect(a+8,320,76.5,220,fill='none',stroke='#d6ccbc',sw=1.4); d.rect(a+16,328,60.5,204,fill='none',stroke='#d6ccbc',sw=1)
+            d.rect(a+44,420,4,30,fill=C['brass'],stroke='none',sw=0); d.circle(a+46,455,7,fill='#fff3d8',stroke=C['brass'],sw=.8)
+        d.rect(0,HN+4,BEAM0,10,fill='#e6dccc',stroke='#cfc3b1',sw=.8)
+        elev_frame(d,'antresola: płyciny z kinkietami w rytmie witryn + gzyms')
+    if kind=='12':  # minimalistyczna „galeria muzealna”
+        elev_base(d,'#f1ece4')
+        d.rect(150,0,94,70,fill='#e6ddd0',stroke='#cfc3b1',sw=1)
+        d.poly([(175,70),(219,70),(214,95),(225,125),(205,165),(189,165),(170,125),(181,95)],fill='#2f2a25',stroke='none',sw=0)
+        d.rect(20,0,80,30,fill=C['oak'],stroke=C['oak2'],sw=.8); d.rect(295,0,80,30,fill=C['oak'],stroke=C['oak2'],sw=.8)
+        for x in (60,335): d.circle(x,44,12,fill='#efe9df',stroke='#c9c0b2',sw=.4)
+        for x in (60,197,334): d.poly([(x-10,HN),(x+10,HN),(x+40,HN-120),(x-40,HN-120)],fill='#fff6e0',stroke='none',sw=0,op=.35); d.circle(x,HN-3,4,fill='#fff',stroke='#555',sw=.6)
+        # GÓRA: jedno duże płótno
+        d.rect(57,320,280,230,fill='#f6f2ea',stroke='#3b3631',sw=2)
+        d.rect(65,328,264,214,fill='#d8cbb6',stroke='none',sw=0); d.poly([(65,420),(150,380),(230,430),(329,370),(329,542),(65,542)],fill='#b9a68c',stroke='none',sw=0); d.circle(250,470,26,fill='#3b3631',stroke='none',sw=0)
+        picture_light(d,197,566,120)
+        elev_frame(d,'antresola: jedno wielkoformatowe płótno 280 × 230 cm z oświetleniem')
+    return d
+def plan_k2(kind):
+    d=D('P'+kind); plan_base(d)
+    sofa_L(d,(152,317,344,101),(396,141,100,176)); d.rect(204,182,148,118,fill=C['oakl'],stroke=C['oak2'],sw=.7)
+    d.rect(196,0,240,45,fill=C['black'],stroke='#000',sw=.6); d.text(316,22,'TV na ścianie płd.',7,'#ddd')
+    if kind=='7': d.rect(0,40,60,314,fill=C['oak'],stroke=C['oak2'],sw=.8); d.text(30,197,'ława pod łukiem',7,'#4e3d28',rot=90); d.rect(NICHE-8,0,8,40,fill=PLASTER,stroke='#bfa98c',sw=.6); d.rect(NICHE-8,354,8,40,fill=PLASTER,stroke='#bfa98c',sw=.6)
+    if kind=='8': d.rect(0,0,NICHE-4,BEAM0,fill='#d9cfa8',stroke='#bdb38f',sw=.6); d.text(48,197,'podest tatami h=24',7,'#5b5146',rot=90); d.rect(NICHE-4,0,4,94,fill='#f7f3ea',stroke=C['oak2'],sw=.6); d.rect(NICHE-4,300,4,94,fill='#f7f3ea',stroke=C['oak2'],sw=.6)
+    if kind=='9':
+        d.rect(0,10,50,374,fill=C['oak'],stroke=C['oak2'],sw=.8); d.text(25,197,'ława 50 cm',7,'#4e3d28',rot=90)
+        for y in (120,276): d.circle(78,y,36,fill='#e8dfd0',stroke='#c9bfae',sw=.6)
+    if kind=='10':
+        for y in (40,197,350): d.circle(26,y,23,fill='#cbb79c',stroke='#a88f74',sw=.6); d.circle(26,y,18,fill='#6f8a50',stroke='none',sw=0)
+        d.rect(0,140,40,114,fill=C['oak'],stroke=C['oak2'],sw=.6); d.text(70,300,'rośliny + oświetlenie',6,'#4c6838',rot=90)
+    if kind=='11':
+        for i in range(4): a=4+i*96.5; d.rect(0,a,45,92.5,fill='#f4efe6',stroke=C['brass'],sw=1)
+        d.text(70,197,'4 witryny 92 × 45',7,'#6e5a40',rot=90)
+    if kind=='12': d.rect(0,150,70,94,fill='#e6ddd0',stroke='#cfc3b1',sw=.8); d.text(35,197,'cokół + rzeźba',6.5,'#5b5146',rot=90)
+    return d
