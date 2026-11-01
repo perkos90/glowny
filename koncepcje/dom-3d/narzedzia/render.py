@@ -25,6 +25,7 @@ def emission(m, col, strength):
 for m in bpy.data.materials:
     b = bsdf(m); nm = m.name
     if nm == 'glow': emission(m, (1, .86, .66), 18); continue
+    if nm == 'led': emission(m, (1, .88, .7), 8); continue
     if nm == 'garden':
         n, l = nodes(m); n.clear(); o = n.new('ShaderNodeOutputMaterial'); e = n.new('ShaderNodeEmission'); e.inputs['Strength'].default_value = 2.2
         t = n.new('ShaderNodeTexImage'); t.image = bpy.data.images.load('/tmp/blend/garden.jpg'); l.new(t.outputs[0], e.inputs[0])
@@ -93,13 +94,13 @@ for o in list(sc.objects):
         ad = bpy.data.lights.new('a', 'AREA'); ad.shape = 'RECTANGLE'; ad.size = w_; ad.size_y = d_; ad.energy = e_ * 1.6; ad.color = (1, .9, .78)
         ao = bpy.data.objects.new('a', ad); sc.collection.objects.link(ao); ao.location = o.matrix_world.translation; ao.rotation_euler = (0, 0, 0)
 # kamera
-V = {'main': ((330, 525, 160), (330, 0), 41, 33), 'niche1': ((515, 120, 140), (0, 235), 30, 26), 'niche2': ((535, 240, 132), (0, 197), 28, 24)}
+V = {'wall': ((540, 205, 150), (0, 205), 42, 28), 'main': ((330, 525, 160), (330, 0), 41, 33), 'niche1': ((515, 120, 140), (0, 235), 30, 26), 'niche2': ((535, 240, 132), (0, 197), 28, 24)}
 PANO = view.startswith('pano:')
 if PANO:
     px, py, ph = map(float, view.split(':')[1].split(',')); lx, ly = px, py - 100; up, dn = 30, 30
     yaw = float(view.split(':')[2]) if view.count(':') > 1 else 0
 else:
-    vk = view if view == 'main' else ('niche1' if concept == '1' else 'niche2'); (px, py, ph), (lx, ly), up, dn = V[vk]
+    vk = view if view in ('main', 'wall') else ('niche1' if concept == '1' else 'niche2'); (px, py, ph), (lx, ly), up, dn = V[vk]
 cd = bpy.data.cameras.new('cam'); co = bpy.data.objects.new('cam', cd); sc.collection.objects.link(co); sc.camera = co
 co.location = (-px / 100, -py / 100, ph / 100)
 dx, dy = (-lx / 100) - co.location.x, (-ly / 100) - co.location.y

@@ -174,13 +174,14 @@ function livingDetails() {
   // portal wnęki
   B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2);
   // listwy na ścianie nad wnęką
-  frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
+  if (!/^[rp]/.test(String(CONCEPT))) frameRect(30, 364, 102, 330, 520, 2.2, 1.6, mat.wall2, 'y');
   // ściana TV – pas centralny + ramki
   const cx = 316.5; B(cx - 110, cx + 110, 0, 2.5, 0, HR, mat.wall2); frameRect(cx - 98, cx + 98, 2.5, 12, HR - 22);
   for (const [a, b] of [[114, cx - 124], [cx + 124, 522]]) { frameRect(a, b, 0, 315, HR - 25); }
   // listwa przypodłogowa
   B(102, 531, 0, 2, 0, 10, mat.wall2); B(0, 2, 0, 1040, 0, 10, mat.wall2);
   // żyrandol
+  if (/^[rp]/.test(String(CONCEPT))) return;
   const hz = 345, cxz = 316, cyz = 200; cyl(cxz, cyz, hz, HR, .8, mat.black, 8);
   for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, R = 55 + (i % 2) * -18; const px = cxz + Math.cos(a) * R, py = cyz + Math.sin(a) * R;
     rodBetween([cxz, cyz, hz], [px, py, hz], .9, mat.black); cyl(px, py, hz, hz + 6, 2.2, mat.black); cyl(px, py, hz + 6, hz + 32 + (i % 2) * 12, 2.6, mat.glow, 16); }
@@ -308,6 +309,292 @@ function concept2() {
 }
 
 // ---------------- build ----------------
+// ======================= SERIA „POLSKI PINTEREST” =======================
+T.nero = cv(1024, 1024, (g, w, h) => { g.fillStyle = '#1e1d1c'; g.fillRect(0, 0, w, h); for (let k = 0; k < 10; k++) { g.strokeStyle = `rgba(${pick(['210,180,120', '230,225,215', '190,160,110'])},${.35 + rnd() * .4})`; g.lineWidth = .8 + rnd() * 2.5;
+  g.beginPath(); let x = rnd() * w, y = 0; g.moveTo(x, y); for (let i = 0; i < 14; i++) { x += (rnd() - .5) * 120; y += 80; g.lineTo(x, y); } g.stroke(); } });
+T.brick = cv(1024, 1024, (g, w, h) => { g.fillStyle = '#d8d2c8'; g.fillRect(0, 0, w, h); const bw = 128, bh = 40; for (let r = 0; r * bh < h; r++) for (let c = -1; c * bw < w; c++) { const x = c * bw + (r % 2 ? bw / 2 : 0), y = r * bh; const v = 225 + rnd() * 25 | 0;
+  g.fillStyle = `rgb(${v},${v - 6 - rnd() * 14 | 0},${v - 14 - rnd() * 20 | 0})`; g.fillRect(x + 4, y + 4, bw - 8, bh - 8); if (rnd() < .45) { g.fillStyle = `rgba(${150 + rnd() * 40 | 0},${90 + rnd() * 30 | 0},${70 + rnd() * 20 | 0},${.2 + rnd() * .3})`; g.fillRect(x + 4 + rnd() * 60, y + 4, 30 + rnd() * 60, bh - 8); } } });
+T.brick.wrapS = T.brick.wrapT = THREE.RepeatWrapping;
+T.micro = cv(1024, 1024, (g, w, h) => { noiseFill(g, w, h, '#d6cbbb', .07, 30000, 6); for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(${pick(['200,188,170', '225,215,200'])},.25)`; g.beginPath(); g.ellipse(rnd() * w, rnd() * h, 60 + rnd() * 160, 30 + rnd() * 90, rnd() * 3, 0, 7); g.fill(); } });
+T.micro.wrapS = T.micro.wrapT = THREE.RepeatWrapping;
+T.mural = cv(1024, 1400, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#e9dfcf'); gr.addColorStop(1, '#d9c9b0'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let t = 0; t < 7; t++) { const x0 = 80 + t * 140 + rnd() * 40; g.strokeStyle = 'rgba(110,90,65,.75)'; g.lineWidth = 6 + rnd() * 6; g.beginPath(); g.moveTo(x0, h); let x = x0, y = h; for (let i = 0; i < 9; i++) { x += (rnd() - .5) * 70; y -= 120 + rnd() * 60; g.lineTo(x, y); } g.stroke();
+    for (let k = 0; k < 120; k++) { const yy = h - rnd() * h * .95, xx = x0 + (rnd() - .5) * 260; g.save(); g.translate(xx, yy); g.rotate(rnd() * 6.28); g.fillStyle = pick(['rgba(120,135,100,.7)', 'rgba(150,160,120,.65)', 'rgba(95,105,80,.7)', 'rgba(185,170,140,.6)', 'rgba(200,150,140,.5)']); g.beginPath(); g.ellipse(0, 0, 18 + rnd() * 26, 7 + rnd() * 9, 0, 0, 7); g.fill(); g.restore(); } }
+  for (let i = 0; i < 9; i++) { const x = rnd() * w, y = rnd() * h * .7; g.fillStyle = 'rgba(90,80,70,.55)'; g.beginPath(); g.ellipse(x, y, 10, 4, .4, 0, 7); g.ellipse(x + 12, y - 2, 10, 4, -.4, 0, 7); g.fill(); } });
+Object.assign(mat, { nero: M({ map: T.nero, roughness: .1, name: 'nero' }), brick: M({ map: T.brick, roughness: .95, name: 'brick' }), micro: M({ map: T.micro, roughness: .75, name: 'micro' }), mural: M({ map: T.mural, roughness: .9, name: 'mural' }) });
+function lamelleAbove(y0 = -2, y1 = BEAM0 + 2, h0 = HN, h1 = HR) { B(100, 102, y0, y1, h0, h1, M({ color: '#2b2622', roughness: .9 })); for (let y = y0; y < y1 - 2; y += 7) B(102, 104.5, y, y + 4.4, h0, h1, mat.oak, { cast: false }); }
+function wallFace(m, uv = .5, h0 = HN, h1 = HR) { const f = B(102, 103.5, -2, BEAM0 + 2, h0, h1, m); f.geometry.attributes.uv && uvScale(f, uv); return f; }
+// P1: ciemny spiek za TV + dębowa szafka + lamele do sufitu
+function conceptP1() {
+  livingStd(); tvSouth();
+  const bk = B(0, 1.5, 0, BEAM0, 0, HN, mat.nero); uvScale(bk, .35); B(0, NICHE, 0, 1.5, 0, HN, mat.oak); B(0, NICHE, BEAM0 - 1.5, BEAM0, 0, HN, mat.oak);
+  for (let x = 1.5; x < NICHE; x += 7) B(x, x + 4.4, 0, BEAM0, HN - 3, HN, mat.oak, { cast: false });
+  B(1.5, 5, 102, 292, 100, 208, mat.blackG); B(5, 5.3, 104, 290, 102, 206, mat.screen); ledStrip(1.5, 2.5, 100, 294, 98, 100);
+  B(1.5, 45, 20, 374, 22, 62, mat.oak); for (let y = 20; y < 374; y += 3.2) B(45, 46.2, y, y + 2.2, 24, 60, mat.oak, { cast: false }); ledStrip(2, 44, 22, 372, 20, 22);
+  B(1.5, 38, 20, 374, 62, 63, mat.oak); sph(18, 60, 74, 11, mat.cer); cyl(18, 340, 63, 95, 6, mat.black, 24, 9); vaseFlowers(20, 320, 63, .5);
+  ledStrip(96, 98, 4, BEAM0 - 4, HN - 5, HN - 3);
+  lamelleAbove(); chandelierTiers(316, 200, HR, HR - 190);
+}
+// P2: panele tapicerowane + wbudowana sofa, mikrocement na antresoli, lampy na linkach
+function conceptP2() {
+  livingStd(); tvSouth();
+  const mb = B(0, 1.5, 0, BEAM0, 0, HN, mat.micro); uvScale(mb, .4); B(0, NICHE, 0, 1.5, 0, HN, mat.micro); B(0, NICHE, BEAM0 - 1.5, BEAM0, 0, HN, mat.micro); B(0, NICHE, 0, BEAM0, HN - 1.5, HN, mat.micro, { cast: false });
+  for (let h = 50; h < 250; h += 33) B(1.5, 9, 30, 364, h, h + 32, mat.boucle, { r: 6 });
+  B(4, 92, 20, 374, 0, 10, mat.black); B(0, 92, 20, 374, 10, 42, mat.oak); B(0, 94, 20, 374, 42, 54, mat.boucle, { r: 5 });
+  for (const [y, c] of [[60, '#cdb89c'], [120, '#f0ebe2'], [250, '#a88f74'], [320, '#f0ebe2']]) B(10, 26, y - 25, y + 25, 54, 96, M({ color: c, roughness: 1 }), { r: 8 });
+  B(30, 85, 290, 350, 54, 60, M({ color: '#8b7058', roughness: 1 }), { r: 3 });
+  for (const y of [70, 324]) { B(1.5, 3, y - 4, y + 4, 250, 262, mat.brass); rodBetween([3, y, 256], [20, y, 256], .6, mat.brass); cyl(20, y, 236, 256, 7, mat.shade, 24, 10); const l = new THREE.PointLight('#ffd6a0', 1.6, 2.5, 2); l.position.set(-.2, 2.4, y / 100); CUR.add(l); }
+  wallFace(mat.micro, .35);
+  for (const y of [100, 294]) { cyl(160, y, 300, HR, .3, mat.black, 6); cyl(160, y, 270, 300, 22, mat.shade, 32, 28); const l = new THREE.PointLight('#ffdcae', 2, 5, 2); l.position.set(-1.6, 2.8, y / 100); CUR.add(l); }
+  ledStrip(96, 98, 4, BEAM0 - 4, HN - 5, HN - 3); chandelierTiers(316, 200, HR, HR - 190);
+}
+// P3: bielona cegła rozbiórkowa do sufitu + czarne stalowe półki + dębowa ława
+function conceptP3() {
+  livingStd(); tvSouth();
+  const bb = B(0, 2, 0, BEAM0, 0, HN, mat.brick); uvScale(bb, .7); const be = B(0, NICHE, 0, 2, 0, HN, mat.brick); uvScale(be, .7); const bf = B(0, NICHE, BEAM0 - 2, BEAM0, 0, HN, mat.brick); uvScale(bf, .7);
+  B(0, NICHE, 0, BEAM0, HN - 2, HN, mat.wall2, { cast: false });
+  for (const h of [120, 175, 230]) { B(2, 34, 30, 364, h, h + 3, mat.oak); for (const y of [40, 197, 354]) B(2, 34, y - 1, y + 1, h - 8, h, mat.black); shelf('y', 34, 360, h + 3, 30, 46, 2, 1); }
+  B(0, 50, 10, 384, 38, 46, mat.oak); for (const y of [20, 197, 374]) B(4, 46, y - 2, y + 2, 0, 38, mat.black);
+  for (let i = 0; i < 4; i++) { const lg = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .42, 12), M({ color: '#7a5a3e', roughness: 1 })); lg.rotation.z = Math.PI / 2; lg.position.set(-.24, .1 + (i % 2) * .14, (60 + i * 18) / 100); CUR.add(lg); }
+  B(4, 48, 250, 330, 46, 56, mat.linen, { r: 4 }); sph(18, 120, 58, 11, mat.cer);
+  const wb = wallFace(mat.brick, .7); flushBooks();
+  for (const y of [40, 354]) { B(103.5, 106, y - 3, y + 3, 380, 420, mat.black); cyl(112, y, 405, 425, 7, mat.black, 16, 9); }
+  ledStrip(96, 98, 4, BEAM0 - 4, HN - 5, HN - 3); chandelierTiers(316, 200, HR, HR - 190);
+}
+// P4: fototapeta botaniczna na antresoli + ryflowane dębowe fronty i ława we wnęce
+function conceptP4() {
+  livingStd(); tvSouth();
+  B(0, 1.5, 0, BEAM0, 0, HN, mat.greige); B(0, NICHE, 0, 1.5, 0, HN, mat.greige); B(0, NICHE, BEAM0 - 1.5, BEAM0, 0, HN, mat.greige);
+  const mw = B(0, 1.8, 0, BEAM0, 95, HN, mat.mural); { const uv = mw.geometry.attributes.uv; }
+  for (const [a, b] of [[0, 120], [274, 394]]) { B(0, 48, a, b, 0, 90, mat.oak); for (let y = a; y < b; y += 3.4) B(48, 49.4, y, y + 2.4, 4, 88, mat.oak, { cast: false }); B(0, 50, a, b, 90, 93, mat.trav); }
+  B(0, 55, 120, 274, 0, 42, mat.oak); for (let y = 120; y < 274; y += 3.4) B(55, 56.4, y, y + 2.4, 2, 40, mat.oak, { cast: false }); B(0, 56, 120, 274, 42, 52, mat.boucle, { r: 5 });
+  B(4, 20, 135, 180, 52, 92, M({ color: '#c9b79c', roughness: 1 }), { r: 8 }); B(4, 20, 215, 260, 52, 90, mat.boucle, { r: 8 });
+  sph(20, 40, 102, 12, mat.cer); cyl(20, 90, 93, 125, 6, mat.black, 24, 9); vaseFlowers(20, 330, 93, .55); lamp(22, 370, 93);
+  const mu = B(102, 103.5, -2, BEAM0 + 2, HN + 10, HR, mat.mural); B(102, 105, -2, BEAM0 + 2, HN, HN + 10, mat.wall2);
+  ledStrip(96, 98, 4, BEAM0 - 4, HN - 5, HN - 3); chandelierTiers(316, 200, HR, HR - 190);
+}
+
+// ======================= SERIA „NOWOCZESNA KLASYKA” (ru-pinterest) =======================
+T.trav = cv(1024, 1024, (g, w, h) => { g.fillStyle = '#d8c7ad'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 2) { g.fillStyle = `rgba(${pick(['190,170,140', '225,210,188', '205,188,160'])},${.15 + rnd() * .3})`; g.fillRect(0, y, w, 1 + rnd() * 3); }
+  for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(150,125,95,${.2 + rnd() * .4})`; g.beginPath(); g.ellipse(rnd() * w, rnd() * h, 2 + rnd() * 9, .6 + rnd() * 1.6, 0, 0, 7); g.fill(); } });
+T.trav.wrapS = T.trav.wrapT = THREE.RepeatWrapping;
+T.calac = cv(1024, 1024, (g, w, h) => { g.fillStyle = '#f3efe9'; g.fillRect(0, 0, w, h); for (let k = 0; k < 14; k++) { const col = pick(['176,150,120', '150,135,120', '200,180,150']); g.strokeStyle = `rgba(${col},${.25 + rnd() * .35})`; g.lineWidth = 1.5 + rnd() * 5;
+  g.beginPath(); let x = rnd() * w * .4, y = rnd() * h; g.moveTo(x, y); for (let i = 0; i < 16; i++) { x += 30 + rnd() * 50; y += (rnd() - .5) * 90; g.lineTo(x, y); } g.stroke(); g.lineWidth *= .3; g.stroke(); } });
+mat.trav = M({ map: T.trav, roughness: .55 }); mat.calac = M({ map: T.calac, roughness: .12 }); mat.trav.name = 'trav'; mat.calac.name = 'calac';
+mat.greige = M({ color: '#d9cdbb', roughness: .8 }); mat.greige.name = 'greige';
+mat.ledw = new THREE.MeshStandardMaterial({ color: '#fff3dc', emissive: '#ffe2b0', emissiveIntensity: 2.2, name: 'led' });
+function ledStrip(x0, x1, y0, y1, h0, h1) { B(x0, x1, y0, y1, h0, h1, mat.ledw, { cast: false }); }
+// boazeria (płyciny) na antresoli: ściana x=102, h 290..HR
+function boiserieAbove(cols = [[18, 120], [140, 254], [274, 376]], rows = [[318, 440], [460, HR - 40]], brass = true) {
+  B(102, 106, -2, BEAM0 + 2, HN + 2, HN + 14, mat.wall2); B(102, 108, -2, BEAM0 + 2, HN + 10, HN + 14, mat.wall2);
+  for (const [a, b] of cols) for (const [h0, h1] of rows) { frameRect(a, b, 102, h0, h1, 3, 2.2, mat.wall2, 'y'); frameRect(a + 9, b - 9, 102, h0 + 9, h1 - 9, 1.6, 1.4, mat.wall2, 'y');
+    if (brass) { B(102, 103.2, a + 14, b - 14, h0 + 14, h0 + 14.6, mat.brass); B(102, 103.2, a + 14, b - 14, h1 - 14.6, h1 - 14, mat.brass); B(102, 103.2, a + 14, a + 14.6, h0 + 14, h1 - 14, mat.brass); B(102, 103.2, b - 14.6, b - 14, h0 + 14, h1 - 14, mat.brass); } }
+}
+function portalClassic() { // szeroka opaska z profilem wokół wnęki
+  B(102, 110, -2, 14, 0, HN + 16, mat.wall2); B(102, 110, BEAM0 - 14, BEAM0 + 2, 0, HN + 16, mat.wall2); B(102, 110, -2, BEAM0 + 2, HN, HN + 16, mat.wall2);
+  B(110, 113, 2, 10, 0, HN + 12, mat.wall2); B(110, 113, BEAM0 - 10, BEAM0 - 2, 0, HN + 12, mat.wall2); B(110, 113, 2, BEAM0 - 2, HN + 4, HN + 12, mat.wall2);
+  B(102, 116, -6, 18, 0, 14, mat.wall2); B(102, 116, BEAM0 - 18, BEAM0 + 6, 0, 14, mat.wall2);
+}
+function chandelierTiers(cx, cy, hTop, hBot) { // kaskadowa, czarno-mosiężna
+  cyl(cx, cy, hBot, hTop, .8, mat.black, 8);
+  for (const [hh, R, n] of [[hBot + 70, 38, 6], [hBot + 25, 62, 10]]) { const t = new THREE.Mesh(new THREE.TorusGeometry(R / 100, .012, 8, 64), mat.black); t.rotation.x = Math.PI / 2; t.position.set(-cx / 100, hh / 100, cy / 100); CUR.add(t);
+    for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; const px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R; cyl(px, py, hh, hh + 4, 2, mat.brass); cyl(px, py, hh + 4, hh + 22, 1.6, mat.glow, 12); } }
+  const l = new THREE.PointLight('#ffe0b0', 3, 7, 2); l.position.set(-cx / 100, (hBot + 50) / 100, cy / 100); CUR.add(l);
+}
+// R1: marmurowa nisza TV z podświetleniem + boazeria z mosiężną wstawką
+function conceptR1() {
+  livingStd(); southGallery();
+  const bk = B(0, 1.5, 0, BEAM0, 0, HN, mat.calac); uvScale(bk, .45); const en = B(0, NICHE, 0, 1.5, 0, HN, mat.calac); uvScale(en, .45); B(0, NICHE, BEAM0 - 1.5, BEAM0, 0, HN, mat.calac);
+  B(0, NICHE, 0, BEAM0, HN - 1.5, HN, mat.wall2, { cast: false });
+  ledStrip(96, 98, 4, 6, 4, HN - 4); ledStrip(96, 98, BEAM0 - 6, BEAM0 - 4, 4, HN - 4); ledStrip(4, 98, 4, BEAM0 - 4, HN - 6, HN - 4);
+  // TV + konsola podwieszana
+  B(1.5, 5, 102, 292, 95, 203, mat.blackG); B(5, 5.3, 104, 290, 97, 201, mat.screen);
+  B(1.5, 46, 60, 334, 28, 58, mat.black); ledStrip(2, 44, 62, 332, 26, 28); B(46, 46.4, 60, 334, 30, 56, mat.blackG);
+  for (const y of [151, 243]) B(46, 46.3, y - .3, y + .3, 30, 56, mat.blackG);
+  sph(20, 90, 70, 12, mat.cer, 1.1); cyl(22, 300, 58, 92, 7, mat.black, 24, 10); vaseFlowers(24, 320, 58, .5);
+  for (const y of [40, 354]) { cyl(30, y, 0, 3, 18, mat.black); cyl(30, y, 3, 36, 4, mat.trav, 24, 14); sph(30, y, 52, 16, mat.trav, .9); }
+  portalClassic(); boiserieAbove();
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// R2: trzy podświetlane łukowe nisze + łukowe płyciny nad
+function archCut(cx, w, h0, h1, depthX0, depthX1, m) { // wnęka łukowa: tył + łuk z segmentów
+  const r = w / 2; const n = 14;
+  B(depthX0 - 1.5, depthX0, cx - r, cx + r, h0, h1 - r, m);
+  for (let i = 0; i < n; i++) { const a0 = Math.PI * i / n, a1 = Math.PI * (i + 1) / n; const y0 = cx - r * Math.cos(a0), y1 = cx - r * Math.cos(a1), z0 = h1 - r + r * Math.sin(a0), z1 = h1 - r + r * Math.sin(a1);
+    B(depthX0 - 1.5, depthX0, Math.min(y0, y1), Math.max(y0, y1), h1 - r, Math.max(z0, z1), m); }
+}
+function conceptR2() {
+  livingStd(); southGallery();
+  // fałszywa ściana z tynku (gł. 45) z trzema łukami
+  const FX = 45; const archs = [[70, 96, 12, 210], [197, 170, 0, 262], [324, 96, 12, 210]];
+  // wypełnienie ściany wokół łuków (pionowe pasy + nadproża)
+  B(0, FX, 0, 20, 0, HN, mat.plaster); B(0, FX, 118, 110, 0, HN, mat.plaster); B(0, FX, 284, 276, 0, HN, mat.plaster); B(0, FX, 374, BEAM0, 0, HN, mat.plaster);
+  B(0, FX, 18, 112, 0, 12, mat.plaster); B(0, FX, 276, 376, 0, 12, mat.plaster);
+  for (const [cx, w, h0, h1] of archs) { const r = w / 2;
+    B(0, FX, cx - r, cx + r, h1, HN, mat.plaster);
+    const n = 60; for (let i = 0; i < n; i++) { const a = Math.PI * (i + .5) / n; const yy = cx - r * Math.cos(a), zz = h1 - r + r * Math.sin(a); const ww = Math.PI * r / n + 1; B(0, FX, yy - ww / 2, yy + ww / 2, zz, h1, mat.plaster); }
+    B(0, 2, cx - r, cx + r, h0, h1, mat.greige); ledStrip(2, 4, cx - r + 2, cx + r - 2, h1 - r - 2, h1 - r); }
+  // dekoracje w bocznych łukach (szklane półki) + ława w środkowym
+  for (const cx of [70, 324]) for (const h of [70, 120, 165]) { B(0, 38, cx - 44, cx + 44, h, h + 1.2, M({ color: '#e6efee', roughness: .05, transparent: true, opacity: .4 })); sph(18, cx - 15, h + 9, 8, mat.cer); cyl(18, cx + 18, h + 1, h + 22, 5, mat.trav, 16); }
+  for (const cx of [70, 324]) { B(0, 45, cx - 48, cx + 48, 12, 60, mat.greige); B(45, 45.8, cx - 46, cx + 46, 14, 58, mat.greige); sph(46.5, cx - 4, 40, 1.4, mat.brass); sph(46.5, cx + 4, 40, 1.4, mat.brass); }
+  B(0, 60, 115, 279, 0, 42, mat.oak); B(0, 60, 115, 279, 42, 52, mat.boucle, { r: 5 }); B(0, 12, 120, 274, 52, 110, mat.boucle, { r: 5 });
+  B(14, 30, 130, 176, 52, 92, M({ color: '#bfa98d', roughness: 1 }), { r: 8 }); B(14, 30, 218, 264, 52, 90, mat.boucle, { r: 8 });
+  B(0, 2, 167, 227, 130, 210, mat.black); B(2, 2.4, 172, 222, 135, 205, M({ map: T.leafart, roughness: .8 }));
+  portalClassic();
+  // nad wnęką: trzy płyciny z łukiem u góry + kinkiety
+  B(102, 106, -2, BEAM0 + 2, HN + 2, HN + 14, mat.wall2);
+  for (const [cx, w] of [[70, 96], [197, 150], [324, 96]]) { const r = w / 2, h0 = 330, h1 = HR - 40;
+    frameRect(cx - r, cx + r, 102, h0, h1 - r, 3, 2.2, mat.wall2, 'y'); const n = 60; for (let i = 0; i < n; i++) { const a0 = Math.PI * i / n, a1 = Math.PI * (i + 1) / n;
+      const y0 = cx - r * Math.cos(a0), y1 = cx - r * Math.cos(a1), z0 = h1 - r + r * Math.sin(a0), z1 = h1 - r + r * Math.sin(a1); B(102, 104.2, Math.min(y0, y1) - .8, Math.max(y0, y1) + .8, Math.min(z0, z1) - .8, Math.max(z0, z1) + .8, mat.wall2); } }
+  B(102, 104.2, 196.4 - 76, 197.6 - 76, 330, 330, mat.wall2);
+  for (const y of [133, 261]) { B(102, 104, y - 4, y + 4, 420, 445, mat.brass); cyl(y > 200 ? 0 : 0, 0, 0, 0, 0, mat.brass); const sh = cyl(112, y, 445, 465, 7, mat.shade, 24, 9); sh.position.x = -1.12; }
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// R3: trawertyn + rejki (fluted) do sufitu
+function conceptR3() {
+  livingStd(); southGallery();
+  const tb = B(0, 2, 0, BEAM0, 0, HN, mat.trav); uvScale(tb, .5); const te = B(0, NICHE, 0, 2, 0, HN, mat.trav); uvScale(te, .5); B(0, NICHE, BEAM0 - 2, BEAM0, 0, HN, mat.trav);
+  B(0, NICHE, 0, BEAM0, HN - 2, HN, mat.trav, { cast: false }); ledStrip(2, 4, 4, BEAM0 - 4, HN - 8, HN - 6);
+  // ława trawertynowa podwieszana na całą długość + półka
+  const bn = B(0, 50, 2, BEAM0 - 2, 34, 44, mat.trav); uvScale(bn, .6); ledStrip(2, 48, 4, BEAM0 - 4, 32, 34);
+  const sh = B(0, 26, 40, 354, 150, 156, mat.trav); uvScale(sh, .6); ledStrip(2, 24, 42, 352, 148, 150);
+  B(4, 48, 30, 180, 44, 56, mat.boucle, { r: 4 }); B(4, 20, 40, 90, 56, 96, M({ color: '#cdb89c', roughness: 1 }), { r: 8 });
+  sph(16, 260, 58, 14, mat.cer); cyl(14, 320, 44, 90, 8, mat.black, 24, 11); cyl(14, 120, 156, 186, 6, mat.cer, 24, 9); sph(14, 200, 168, 11, mat.white); cyl(12, 280, 156, 176, 9, mat.trav, 24, 7);
+  B(0, 2, 140, 254, 190, 270, mat.black); B(2, 2.4, 146, 248, 196, 264, M({ map: photoTex(2), roughness: .6 }));
+  // rejki (fluted) na antresoli – pełna szerokość, od 2,9 do sufitu
+  B(100, 102, -2, BEAM0 + 2, HN, HR, mat.greige);
+  for (let y = -2; y < BEAM0 + 2; y += 4.2) { const c = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, (HR - HN) / 100, 10, 1, false, 0, Math.PI), mat.greige); c.rotation.y = -Math.PI / 2; c.position.set(-1.02, (HN + HR) / 200, (y + 2.1) / 100); c.castShadow = c.receiveShadow = true; CUR.add(c); }
+  ledStrip(102, 106, -2, BEAM0 + 2, HN, HN + 1.5);
+  // pionowe kinkiety
+  for (const y of [-30, BEAM0 + 30]) { }
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+// R4: klasyczna biblioteka-witryna symetryczna + gzyms i boazeria nad
+function conceptR4() {
+  livingStd(); southGallery();
+  const towers = [[0, 92], [302, 394]];
+  for (const [a, b] of towers) { B(0, 48, a, b, 0, 10, mat.wall2); B(0, 48, a, b, 10, 90, mat.cream); const m = (a + b) / 2;
+    for (const [p, q] of [[a + 2, m - .4], [m + .4, b - 2]]) { B(48, 49.5, p, q, 12, 88, mat.cream); frameRect(p + 6, q - 6, 49.5, 18, 82, 1.4, 1.2, mat.cream, 'y'); sph(51, p < m ? q - 5 : p + 5, 70, 1.6, mat.brass); }
+    B(0, 50, a, b, 90, 94, mat.trav); B(0, 40, a, b, 94, 270, mat.cream); B(0, 1, a + 3, b - 3, 96, 266, mat.greige);
+    for (const h of [140, 185, 228]) { B(0, 36, a + 3, b - 3, h, h + 1.2, M({ color: '#e6efee', roughness: .05, transparent: true, opacity: .4 })); shelf('y', a + 5, b - 5, h + 1.2, 30, 40, 0, 1); }
+    shelf('y', a + 5, b - 5, 94, 30, 44, 0, 1);
+    for (const [p, q] of [[a + 2, m - .4], [m + .4, b - 2]]) { B(40, 42, p, q, 94, 98, mat.cream); B(40, 42, p, q, 266, 270, mat.cream); B(40, 42, p, p + 4, 94, 270, mat.cream); B(40, 42, q - 4, q, 94, 270, mat.cream); B(40.6, 41, p + 4, q - 4, 98, 266, mat.glass); }
+    B(0, 52, a - 1, b + 1, 270, 290, mat.cream); ledStrip(2, 36, a + 4, b - 4, 266, 267.5); }
+  // środek: konsola + duże lustro w ramie
+  B(0, 45, 100, 294, 0, 82, mat.black); B(0, 47, 98, 296, 82, 86, mat.trav); for (const y of [148.5, 197, 245.5]) B(45, 45.3, y - .3, y + .3, 4, 80, mat.blackG);
+  B(0, 3, 117, 277, 105, 262, mat.brass); B(3, 3.4, 121, 273, 109, 258, mat.mirror);
+  lamp(18, 125, 86); lamp(18, 269, 86); vaseFlowers(20, 197, 86, .7);
+  portalClassic(); boiserieAbove([[18, 120], [140, 254], [274, 376]], [[318, HR - 40]], true);
+  for (const y of [69, 197, 325]) { B(102, 104, y - 18, y + 18, HR - 30, HR - 26, mat.brass); }
+  chandelierTiers(316, 200, HR, HR - 190);
+}
+function southGallery() { // ściana TV/płd. bez zmian (TV na płd.) – jak w koncepcji 1
+  tvSouth();
+}
+
+// ---------------- wspólne: ściana TV + strefa wypoczynkowa ----------------
+function tvSouth() {
+  B(196, 436, 0, 45, 0, 58, mat.black); for (const x of [276, 356]) B(x - .3, x + .3, 45, 45.3, 4, 54, mat.blackG);
+  B(233, 399, 3, 6, 95, 190, mat.blackG); B(235, 397, 6, 6.3, 97, 188, mat.screen);
+  lamp(225, 22, 58); sph(410, 22, 64, 6, mat.cer); B(380, 420, 10, 34, 58, 64, mat.oak);
+  for (const x of [166, 467]) { photoFrame(x, 232, 48, 58, 0); photoFrame(x, 164, 48, 58, x > 300 ? 2 : 1); photoFrame(x, 96, 48, 58, x > 300 ? 0 : 2); sconceTV(x, 302); }
+}
+function livingStd() {
+  sofa(152, 496, 317, 418, 396, 496, 141, 317, 'N', 'E');
+  B(204, 352, 182, 300, 0, 4, mat.oakD); const ct = B(204, 352, 182, 300, 34, 40, mat.oak); uvScale(ct, 1); for (const [x, y] of [[208, 186], [348, 186], [208, 296], [348, 296]]) B(x - 3, x + 3, y - 3, y + 3, 4, 34, mat.oak);
+  vaseFlowers(250, 230, 40, .8); B(290, 330, 220, 250, 40, 46, M({ color: '#d9cbb5' }));
+  B(150, 510, 110, 405, 0, 1.2, mat.rug).material = mat.rug;
+  B(180, 450, 422, 462, 76, 80, mat.oak); B(180, 450, 422, 462, 20, 23, mat.oak); for (const [x, y] of [[183, 425], [447, 425], [183, 459], [447, 459]]) B(x - 2, x + 2, y - 2, y + 2, 0, 76, mat.oak);
+  lamp(420, 442, 80); vaseFlowers(220, 442, 80, .9); B(290, 340, 428, 456, 80, 86, mat.cer);
+}
+function nicheSkin(m, ceil = true) { B(0, 1.2, 0, BEAM0, 0, HN, m); B(0, NICHE, 0, 1.2, 0, HN, m); if (ceil) B(0, NICHE, 0, BEAM0, HN - 1.2, HN, m, { cast: false }); }
+function swingSconce(y, h, flip = 1) { B(0, 2, y - 4, y + 4, h - 6, h + 6, mat.brass); rodBetween([2, y, h], [24, y + flip * 10, h + 4], .6, mat.brass); cyl(26, y + flip * 12, h - 6, h + 6, 6, mat.shade, 24, 8);
+  const l = new THREE.PointLight('#ffd6a0', 1.6, 2.5, 2); l.position.set(-.26, (h - 4) / 100, (y + flip * 12) / 100); CUR.add(l); }
+function curtainsAt(x, y0, y1, h0, h1, col = '#efe6d6') { const g = new THREE.PlaneGeometry((y1 - y0) / 100, (h1 - h0) / 100, 40, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 60) * .03);
+  const c = new THREE.Mesh(g, M({ map: T.linen, color: col, roughness: 1, side: THREE.DoubleSide })); c.rotation.y = Math.PI / 2; c.position.set(-x / 100, (h0 + h1) / 200, (y0 + y1) / 200); c.castShadow = true; c.receiveShadow = true; CUR.add(c); }
+
+// ---------------- KONCEPCJA 3: alkowa wypoczynkowa (daybed za zasłoną) ----------------
+function concept3() {
+  tvSouth(); livingStd();
+  const taupe = M({ color: '#b9a690', roughness: .95 }); nicheSkin(taupe);
+  for (const [a, b] of [[0, 92], [302, 394]]) { B(0, 45, a, b, 0, 82, M({ color: '#cbbba6', roughness: .8 })); for (const [p, q] of [[a + 1.5, (a + b) / 2 - .3], [(a + b) / 2 + .3, b - 1.5]]) { B(45, 46.2, p, q, 6, 80, M({ color: '#cbbba6', roughness: .8 })); sph(47, p < (a + b) / 2 ? q - 4 : p + 4, 62, 1.4, mat.brass); }
+    B(0, 46, a, b, 82, 85, mat.oak); for (const h of [140, 195, 245]) { B(0, 32, a + 2, b - 2, h, h + 3, mat.oak); shelf('y', a + 3, b - 3, h + 3, 30, 44, 0, 1); } }
+  // daybed
+  B(4, 96, 94, 300, 0, 10, mat.oakD); for (const [p, q] of [[94, 196], [198, 300]]) { B(0, 100, p, q, 10, 40, mat.oak); B(100, 101, p + 2, q - 2, 12, 38, mat.oak); B(101, 103, (p + q) / 2 - 8, (p + q) / 2 + 8, 25, 27, mat.brass); }
+  B(0, 100, 92, 302, 40, 58, mat.boucle, { r: 6 });
+  for (let y = 94; y < 300; y += 17) B(0, 9, y, y + 16.4, 58, 138, mat.linen, { r: 3 });
+  B(10, 28, 104, 152, 58, 100, M({ color: '#d8ccb8', roughness: 1 }), { r: 8 }); B(10, 28, 148, 196, 58, 96, mat.boucle, { r: 8 }); B(10, 28, 200, 248, 58, 98, M({ color: '#a88f74', roughness: 1 }), { r: 8 }); B(10, 28, 246, 292, 58, 94, mat.boucle, { r: 8 });
+  B(30, 96, 260, 298, 58, 64, M({ color: '#8b6a4f', roughness: 1 }), { r: 3 }); // pled
+  swingSconce(112, 150, 1); swingSconce(282, 150, -1);
+  // szyna sufitowa + zasłony
+  B(98, 101, 0, BEAM0, HN - 4, HN - 1, mat.black); curtainsAt(99, 0, 72, 0, HN - 4); curtainsAt(99, 322, 394, 0, HN - 4);
+  flushBooks();
+}
+// ---------------- KONCEPCJA 4: strefa kominkowa (biokominek w kamieniu) ----------------
+function concept4() {
+  tvSouth(); livingStd();
+  const lime = M({ color: '#e3d9c9', roughness: .95 }), stone = M({ map: T.marble, color: '#e2d6c2', roughness: .7 }); nicheSkin(lime);
+  for (let y = 40; y < BEAM0; y += 78) B(0, NICHE, y - 6, y + 6, HN - 14, HN - 1, mat.oakD); // belki
+  // obudowa kominka
+  const fc = 197; const s1 = B(0, 42, fc - 70, fc + 70, 0, 128, stone); uvScale(s1, 1.5);
+  B(42, 42.5, fc - 38, fc + 38, 20, 68, M({ color: '#141414', roughness: .9 })); B(30, 42, fc - 36, fc + 36, 20, 22, mat.black);
+  B(32, 40, fc - 30, fc + 30, 22, 24, mat.black); B(34, 38, fc - 26, fc + 26, 24, 40, new THREE.MeshStandardMaterial({ color: '#ffb35c', emissive: '#ff8a2a', emissiveIntensity: 3 }));
+  { const l = new THREE.PointLight('#ff9a4a', 2.5, 3, 2); l.position.set(-.5, .4, fc / 100); CUR.add(l); }
+  const mt = B(0, 48, fc - 80, fc + 80, 128, 136, stone); uvScale(mt, 1.5);
+  // lustro okrągłe nad kominkiem
+  { const fr = new THREE.Mesh(new THREE.TorusGeometry(.45, .025, 12, 64), mat.brass); fr.rotation.y = Math.PI / 2; fr.position.set(-.025, 1.95, fc / 100); CUR.add(fr);
+    const mr = new THREE.Mesh(new THREE.CircleGeometry(.44, 64), mat.mirror); mr.rotation.y = -Math.PI / 2; mr.position.set(-.02, 1.95, fc / 100); CUR.add(mr); }
+  vaseFlowers(16, fc - 55, 136, .6); cyl(16, fc + 55, 136, 160, 5, mat.cer);
+  // ławy z drewnem
+  for (const [a, b] of [[4, 120], [274, 390]]) { B(0, 45, a, b, 0, 40, stone); B(0, 46, a, b, 40, 44, mat.oak); B(0, 44, a + 4, b - 4, 44, 52, mat.linen, { r: 4 });
+    for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) { const y = a + 10 + k * ((b - a - 20) / 6) + 8; const lg = new THREE.Mesh(new THREE.CylinderGeometry(.055, .055, .38, 12), M({ color: pick(['#7a5a3e', '#8a6a4b', '#6b4e35']), roughness: 1 })); lg.rotation.z = Math.PI / 2; lg.position.set(-.21, .07 + r * .1 + (k % 2) * .01, y / 100); lg.castShadow = true; CUR.add(lg); } }
+  for (const [a, b] of [[10, 114], [280, 384]]) for (const h of [150, 205]) { B(0, 28, a, b, h, h + 4, mat.oak); cyl(14, a + 25, h + 4, h + 22, 6, mat.cer); sph(14, a + 60, h + 12, 8, mat.white); cyl(14, b - 18, h + 4, h + 28, 4, mat.cer, 16, 6); }
+  B(0, 40, 0, BEAM0, 0, 2, mat.wall2);
+}
+// ---------------- KONCEPCJA 5: domowy bar / kawiarnia (zielony lakier, lustro antyczne) ----------------
+function concept5() {
+  tvSouth(); livingStd();
+  const green = M({ color: '#3d4a3a', roughness: .25 }); nicheSkin(green);
+  // dół
+  B(0, 60, 8, 386, 0, 10, mat.black);
+  for (let y = 8; y < 386; y += 47.25) { B(0, 60, y, y + 47.25, 10, 88, green); B(60, 61, y + 1, y + 46.25, 12, 86, green); B(61, 62.5, y + 20, y + 27, 70, 72, mat.brass); }
+  B(60, 61.4, 38, 92, 12, 86, M({ color: '#1b2020', roughness: .05, metalness: .3 })); for (let i = 0; i < 6; i++) for (let k = 0; k < 4; k++) cyl(40, 44 + k * 13, 16 + i * 12, 24 + i * 12, 3.5, M({ color: pick(['#2a1810', '#3a2a1e', '#1f2a1a']), roughness: .2 }), 12);
+  const top = B(0, 64, 6, 388, 88, 92, M({ map: T.marble, color: '#efe6da', roughness: .2 })); uvScale(top, 1.5);
+  rodBetween([66, 6, 80], [66, 388, 80], 1, mat.brass);
+  // lustro antyczne + szklane półki
+  B(0, 1.5, 6, 388, 92, 245, M({ color: '#b9ad97', metalness: .9, roughness: .18 }));
+  for (const h of [135, 180, 222]) { B(0, 26, 10, 384, h, h + 1.2, M({ color: '#dfe8e6', roughness: .05, transparent: true, opacity: .4 })); for (let y = 30; y < 384; y += 60) B(0, 26, y - .6, y + .6, h - 4, h, mat.brass);
+    for (let y = 18; y < 378; y += 9 + rnd() * 9) { if (rnd() < .5) cyl(14, y, h + 1.2, h + 1.2 + 16 + rnd() * 14, 3.4, M({ color: pick(['#5a3a1c', '#2e4630', '#c8b16a', '#6b1f22', '#e8e2d2']), roughness: .1, metalness: .1 }), 12);
+      else cyl(14, y, h + 1.2, h + 12, 3, M({ color: '#e6efee', roughness: .02, transparent: true, opacity: .45 }), 12); } }
+  B(0, 40, 6, 388, 245, HN, green); for (let y = 6; y < 388; y += 47.75) B(40, 41, y + 1, y + 46.75, 247, HN - 2, green);
+  // ekspres + karafka + kwiaty
+  B(10, 46, 300, 334, 92, 132, mat.steel); B(12, 44, 302, 332, 132, 134, mat.black); cyl(30, 150, 92, 120, 7, M({ color: '#f1efe9', roughness: .05, transparent: true, opacity: .5 }), 16); vaseFlowers(30, 60, 92, .6);
+  for (const y of [100, 294]) { B(0, 3, y - 16, y + 16, 250, 253, mat.brass); const s = new THREE.SpotLight('#ffd49a', 2.5, 2.4, 1, .8, 2); s.position.set(-.1, 2.48, y / 100); s.target.position.set(-.2, 1, y / 100); CUR.add(s, s.target); }
+  B(0, 1.6, 6, 388, 92, 94, new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffcf8a', emissiveIntensity: 1.2 }), { cast: false });
+}
+// ---------------- KONCEPCJA 6: pracownia za stalowo-szklaną ścianą ----------------
+function concept6() {
+  tvSouth(); livingStd();
+  // biurko
+  B(0, 62, 60, 334, 72, 76, mat.oak); B(0, 60, 60, 120, 0, 72, mat.oakD); B(0, 60, 274, 334, 0, 72, mat.oakD);
+  for (const [p, q] of [[60, 120], [274, 334]]) for (const h of [4, 28, 50]) { B(60, 61, p + 1, q - 1, h, h + 20, mat.oakD); B(61, 62.5, (p + q) / 2 - 8, (p + q) / 2 + 8, h + 14, h + 15.5, mat.brass); }
+  for (const h of [130, 175, 220, 262]) { B(0, 30, 60, 334, h, h + 3, mat.oak); shelf('y', 62, 332, h + 3, 28, 40, 0, 1); }
+  for (const [a, b] of [[0, 60], [334, 394]]) { B(0, 60, a, b, 0, HN, mat.cream); B(60, 61.2, a + 1, b - 1, 10, 220, mat.cream); B(60, 61.2, a + 1, b - 1, 222, HN - 2, mat.cream); B(61.2, 63, a < 100 ? b - 9 : a + 7, a < 100 ? b - 7 : a + 9, 100, 170, mat.brass); }
+  // krzesło
+  B(70, 120, 175, 225, 42, 50, mat.boucle, { r: 5 }); B(100, 116, 175, 225, 50, 92, mat.boucle, { r: 6 }); cyl(95, 200, 0, 42, 2, mat.black); cyl(95, 200, 0, 3, 22, mat.black);
+  // lampa biurkowa + laptop + książki
+  cyl(20, 90, 76, 78, 7, mat.brass); rodBetween([20, 90, 78], [24, 104, 118], .6, mat.brass); cyl(26, 108, 112, 124, 6, mat.brass, 16, 10); { const l = new THREE.PointLight('#ffd6a0', 1.4, 2, 2); l.position.set(-.27, 1.1, 1.09); CUR.add(l); }
+  B(20, 50, 180, 214, 76, 77.5, M({ color: '#9aa0a5', metalness: .8, roughness: .3 }));
+  // ściana stalowo-szklana (Crittall) na krawędzi wnęki
+  const fx0 = 99, fx1 = 103, st = M({ color: '#1e2124', roughness: .4, metalness: .4 });
+  const ys = [0, 49, 98, 147, 197, 247, 296, 345, 394];
+  for (const y of ys) B(fx0, fx1, y - 2, y + 2, 0, HN, st);
+  for (const h of [0, 70, 140, 210, HN - 3]) B(fx0, fx1, 0, BEAM0, h, h + 3, st);
+  for (let i = 0; i < ys.length - 1; i++) { const g = plane((fx0 + fx1) / 2, (ys[i] + ys[i + 1]) / 2, HN / 2, ys[i + 1] - ys[i] - 4, HN - 4, mat.glass, Math.PI / 2); g.castShadow = false; }
+  B(fx1, fx1 + 3, 192, 194, 95, 125, mat.brass); B(fx1, fx1 + 3, 200, 202, 95, 125, mat.brass);
+  flushBooks();
+}
+
 // ======================= CAŁY PARTER =======================
 T.checker = cv(512, 512, (g, w, h) => { const n = 4, s = w / n; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const dark = (i + j) % 2; g.fillStyle = dark ? '#4a4c4e' : '#ece6dc'; g.fillRect(i * s, j * s, s, s);
   for (let k = 0; k < 18; k++) { g.strokeStyle = dark ? `rgba(220,220,220,${.05 + rnd() * .1})` : `rgba(120,110,100,${.04 + rnd() * .08})`; g.lineWidth = .6 + rnd(); g.beginPath(); g.moveTo(i * s + rnd() * s, j * s + rnd() * s); g.bezierCurveTo(i * s + rnd() * s, j * s + rnd() * s, i * s + rnd() * s, j * s + rnd() * s, i * s + rnd() * s, j * s + rnd() * s); g.stroke(); } }
@@ -575,9 +862,9 @@ async function buildHouse() {
 }
 
 if (HOUSE_MODE) await buildHouse(); else { architecture(); dining(); }
-const G1 = new THREE.Group(), G2 = new THREE.Group(); ROOT.add(G1, G2);
-if (INTER || CONCEPT === '1') { CUR = G1; concept1(); } if (INTER || CONCEPT === '2') { CUR = G2; concept2(); } CUR = ROOT;
-G1.visible = CONCEPT !== '2'; G2.visible = CONCEPT === '2'; window.G1 = G1; window.G2 = G2;
+const CF = { '1': concept1, '2': concept2, '3': concept3, '4': concept4, '5': concept5, '6': concept6, 'r1': conceptR1, 'r2': conceptR2, 'r3': conceptR3, 'r4': conceptR4, 'p1': conceptP1, 'p2': conceptP2, 'p3': conceptP3, 'p4': conceptP4 }; const GS = {};
+for (const k in CF) if (INTER || CONCEPT === k) { GS[k] = new THREE.Group(); ROOT.add(GS[k]); CUR = GS[k]; CF[k](); GS[k].visible = CONCEPT === k; }
+CUR = ROOT; const G1 = GS['1'] || new THREE.Group(), G2 = GS['2'] || new THREE.Group(); window.GS = GS;
 
 if (EXPORT) {
   const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
@@ -609,11 +896,12 @@ const VIEWS = {
   main:   { pos: [330, 525, 160], look: [330, 0], up: 41, down: 33 },
   niche1: { pos: [515, 120, 140], look: [0, 235], up: 30, down: 26 },
   niche2: { pos: [535, 240, 132], look: [0, 197], up: 28, down: 24 },
+  wall:   { pos: [540, 205, 150], look: [0, 205], up: 42, down: 28 },
   wide:   { pos: [40, 600, 150], look: [420, 60], up: 38, down: 32 },
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
-const vk = VIEW === 'niche' ? (CONCEPT === '1' ? 'niche1' : 'niche2') : VIEW; const V = VIEWS[vk];
+const vk = VIEW === 'niche' ? (CONCEPT === '2' ? 'niche2' : 'niche1') : VIEW; const V = VIEWS[vk];
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
@@ -638,7 +926,7 @@ if (INTER) {
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
   const go = k => { const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
-  window.__setConcept = c => { G1.visible = c === '1'; G2.visible = c === '2'; dirty = 3; };
+  window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__go = go; window.__render = () => dirty = 3; if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   const loop = () => { requestAnimationFrame(loop); ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
