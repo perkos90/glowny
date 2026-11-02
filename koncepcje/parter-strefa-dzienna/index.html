@@ -1969,10 +1969,10 @@ function zoneUpperExt() {
   for (const w of U.wins) { const o = w.out, d = w.d, along = w.ax === 'x';
     const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
-    // białe pole tynku wokół okna (od pasa do okapu) + opaska okienna (listwa) – wg elewacji DWG
-    R(a0 - 17, a0, o, o + d * 3.5, 330, 587, mat.ext); R(a1, a1 + 17, o, o + d * 3.5, 330, 587, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 587, mat.ext);
-    R(a0 - 7, a0, o, o + d * 6, HU0 + (w.sill || 0), HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 6, HU0 + (w.sill || 0), HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 6, HU0 + 240, HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 2, mat.ext); R(a0 - 7, a0, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); // opaska dookoła okna (także dół)
-    const SL = w.sill || 0; if (SL) { R(a0, a1, o - d * 6, o + d * 2.5, HU0, HU0 + SL, mat.brick); R(a0 - 7, a1 + 7, o, o + d * 8.5, HU0 + SL - 8, HU0 + SL, mat.ext); continue; }
+    // nad oknem klinkier aż do gzymsu; jedna opaska 10 cm dookoła okna (bez dodatkowej ramki)
+    uvScale(R(a0, a1, o - d * 6, o + d * 2.6, HU0 + 240, 600, mat.brick), 1);
+    { const S = HU0 + (w.sill || 0) - 8; R(a0 - 10, a0, o, o + d * 4, S, HU0 + 250, mat.ext); R(a1, a1 + 10, o, o + d * 4, S, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, HU0 + 240, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, S, S + 8, mat.ext); }
+    const SL = w.sill || 0; if (SL) { R(a0, a1, o - d * 6, o + d * 2.5, HU0, HU0 + SL, mat.brick); continue; }
     if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
     const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
   // mini balkon nad wejściem (wg elewacji DWG): płyta 43 cm z gzymsem, balustrada na szerokość portalu
@@ -2080,6 +2080,7 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zwtop:  { iso: true, fov: 30, pos: [-900, 430, 520], look: [-689, 535, 585], up: 40, down: 40 },
   zdkc:   { iso: true, fov: 45, pos: [900, -350, 400], look: [560, 0, 590], up: 40, down: 40 },
   zroofG: { iso: true, fov: 50, pos: [-200, 2300, 1100], look: [-700, 1400, 350], up: 40, down: 40 },
   zgar3:  { pos: [-700, 1150, 200], look: [-1250, 1500], up: 40, down: 40 },
