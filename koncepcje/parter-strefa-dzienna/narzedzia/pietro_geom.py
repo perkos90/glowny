@@ -72,7 +72,7 @@ cuts=[]
 for w in wins:
     cuts.append(box(w['x0']-1,w['out']-6,w['x1']+1,w['out']+6) if w['ax']=='x' else box(w['out']-6,w['y0']-1,w['out']+6,w['y1']+1))
 ring=ring.difference(unary_union(cuts+[box(553,-60,600,394)]))
-dark_zone=unary_union([box(-150,-80,620,-40),box(560,-80,620,507)])
+dark_zone=box(0,0,0.1,0.1)  # ciemna bryła salonu rysowana osobno (zoneDarkBlock)
 skin=[]
 for g in (ring.geoms if hasattr(ring,'geoms') else [ring]):
     for part in [g.intersection(dark_zone),g.difference(dark_zone)]:
