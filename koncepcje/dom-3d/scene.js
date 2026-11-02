@@ -1989,6 +1989,8 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
+  zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
   zbalk:  { iso: true, fov: 50, pos: [-1150, 650, 300], look: [-700, 530, 420], up: 40, down: 40 },
   zeave:  { iso: true, fov: 45, pos: [1100, 200, 500], look: [581, 700, 600], up: 40, down: 40 },
   zterr:  { iso: true, fov: 60, pos: [1000, 520, 200], look: [600, 700, 300], up: 40, down: 40 },
