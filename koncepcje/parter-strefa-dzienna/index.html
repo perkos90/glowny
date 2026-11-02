@@ -1379,6 +1379,11 @@ function zoneShell() {
   B(60, 102, -45, BEAM1, HN - 1, 340, mat.wall);
   B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, HR + 20, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
+  // podciągi wg DWG: nad przejściem jadalnia–hol 25×40 (spód ok. 265 cm wg przekroju), w garderobie 2× 25×35 (spód ok. 273 cm)
+  B(-25, 0, BEAM1, 646, 265, HN, mat.wall).name = 'BEAM';
+  B(-640, -339, 1072, 1097, 273, HN, mat.wall).name = 'BEAM'; B(-640, -339, 1137, 1162, 273, HN, mat.wall).name = 'BEAM';
+  // siłownia w parterowym skrzydle: niższy sufit ok. 256 cm (przekrój DWG, podciąg 25×51)
+  B(-339, 306, 1303, 1723, 256, HN, mat.wall).name = 'CEIL';
   // okna wg oferty Yawal: jadalnia poz. 4 HS 2700×2400, kuchnia poz. 5 HS 2400×2400 (osadzone w osi otworów z DWG)
   const D0 = 687.5 - 135, D1 = 687.5 + 135, K0 = 1085.5 - 120, K1 = 1085.5 + 120;
   B(COL, 580, 520, D0, 0, 330, mat.wall); B(COL, 580, D1, K0, 0, 330, mat.wall); B(COL, 580, K1, 1215, 0, 330, mat.wall);
