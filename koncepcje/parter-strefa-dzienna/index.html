@@ -33,6 +33,7 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <li><b>Gabinet:</b> obudowa pionu bez szczeliny, regał dosunięty do ściany, biurko szersze o 10 cm, krzesło przodem do biurka, fotel po drugiej stronie.</li>
 <li><b>Garaż</b> (wg DWG): 2 bramy, 2 okna z parapetem 143 cm, wysoka zabudowa przy ścianie, 2 auta, ładowarka EV. <b>Techniczne:</b> rozdzielnica, szafki, uzdatnianie wody, rack. <b>Kotłownia:</b> zlew, pompa ciepła, zasobnik CWU, drzwi na zewnątrz.</li>
 <li><b>Siłownia</b> (wg DWG) w kształcie litery L – od wejścia z garderoby przejście otwarte do głównej sali: podest z klatką i sztangą, ławka, hantle, lustro, bieżnia, TV.</li>
+<li><b>Instalacje wg DXF (głośniki, rekuperacja, oświetlenie):</b> 5 głośników sufitowych Ø25 (2 w kuchni, 2 w siłowni, 1 w łazience na piętrze), 19 anemostatów rekuperacji Ø20 (nawiew i wywiew) i punkty świetlne Ø10 w miejscach wypustów z projektu. W pokojach (gabinet, sypialnie) zamiast punktów jest żyrandol na środku. Salon bez zmian, żyrandol w jadalni i lampy nad wyspą zostają. Kinkiety przy lustrach w łazienkach i latarenki na elewacji w miejscach wypustów ściennych.</li>
 <li><b>Piętro (wg rzutu piętra z DWG, bez aranżacji):</b> ściany, drzwi 80–90×200, okna od podłogi 240 cm z balustradami francuskimi, poziom +3,24, sufit ok. 2,60 m. Schody poprawione wg DWG: bieg 13 + spocznik + bieg 5 stopni do holu piętra. Hol na piętrze to antresola nad salonem z czarną balustradą. Na końcu korytarza drzwi na taras na piętrze (wg DWG ok. 3,9 × 4,9 m), który jest zadaszeniem tarasu przy jadalni. Taras oparty na dwóch filarach wg DWG (słup 25×25 w obudowie ok. 40×40).</li>
 <li><b>Ciemna bryła salonu wg elewacji DWG:</b> od ogrodu tylko wokół przeszklenia, od boku pas ok. 3,35 m przy narożniku; listwy: ramy, pas w linii stropu, opaska i gzyms. Okna piętra w białych pasach tynku (od pasa międzykondygnacyjnego 3,06–3,30 do fryzu) z opaskami; pod dachem fryz, listwy schodkowe i kroksztyny. Nad wejściem mini balkon 43 cm z balustradą na szerokość portalu. Taras na piętrze na dwóch filarach, czoło z gzymsem.</li>
 <li><b>Elewacje wg DWG A-9:</b> parter tynk biały RAL 9010, piętro jasny klinkier, bryła salonu ciemna RAL 7022, dach czterospadowy ciemny, taras bez podcienia. <span class="w">Wnętrza piętra jeszcze niemodelowane.</span></li>
@@ -1266,7 +1267,7 @@ function houseWC() { // WC 0.4.1 (219×118): zabudowa dębowa za WC, szafka z ma
   B(X1 - 56, X1 - 54, Y1 - 28, Y1 - 14, 50, 86, mat.linen); vaseFlowers(X1 - 15, Y0 + 14, 86, .5); cyl(X1 - 12, Y1 - 13, 86, 102, 3, mat.marble);
   // gzyms + oprawa
   B(X0, X1, Y0, Y0 + 6, HN - 8, HN, mat.wall2); B(X0, X1, Y1 - 6, Y1, HN - 8, HN, mat.wall2); B(X0, X0 + 6, Y0, Y1, HN - 8, HN, mat.wall2); B(X1 - 6, X1, Y0, Y1, HN - 8, HN, mat.wall2);
-  cyl(-135, 335, HN - 1, HN, 5, mat.glow, 16); areaLight(-135, 335, 286, .3, .3, 20, 'AREA_WC');
+  if (!ZONE) cyl(-135, 335, HN - 1, HN, 5, mat.glow, 16); areaLight(-135, 335, 286, .3, .3, 20, 'AREA_WC');
   B(X0, X1, Y0, Y0 + 1.5, 0, 9, mat.pp); B(X0, X1, Y1 - 1.5, Y1, 0, 9, mat.pp);
 }
 function houseBoiler() { // kotłownia 0.10.1 300×200: HPL szare, żywica, pompa ciepła, zasobnik
@@ -1394,6 +1395,7 @@ function zoneShell() {
   B(60, 102, -45, BEAM1, HN - 1, 340, mat.wall);
   B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, 330, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
+  B(100, 531.2, -25, 0, HN - 1, HR, mat.wall); // ściana płd. salonu ciągła do sufitu (bez szczeliny na wys. stropu)
   // podciągi wg DWG: nad przejściem jadalnia–hol 25×40 (spód ok. 265 cm wg przekroju), w garderobie 2× 25×35 (spód ok. 273 cm)
   B(-25, 0, BEAM1, 916.3, 265, HN, mat.wall).name = 'BEAM'; // podciąg biegnie do ściany spiżarni
   B(-640, -339, 1072, 1097, 273, HN, mat.wall).name = 'BEAM'; // drugi podciąg (od strony czarnych szaf) usunięty
@@ -1468,7 +1470,6 @@ function zoneHall() {
     g.position.set(4.67, 0, (cy + 3) / 100); CUR.add(g); }
   lamp(-495, cy + 18, 86); vaseFlowers(-440, cy + 18, 86, .8);
   for (const x of [-487, -447]) B(x - 19, x + 19, cy + 8, cy + 40, 0, 40, mat.linen, { r: 0.04 });
-  for (const x of [-480, -360, -120]) cyl(x, 532, HN - 1, HN, 5, mat.glow, 16);
   areaLight(-290, 532, 285, 1.4, .6, 60, 'AREA_HOL');
 }
 
@@ -1493,7 +1494,6 @@ function zoneOffice() {
   B(-490, -420, 135, 270, 0, 40, mat.oak); B(-488, -422, 137, 268, 40, 42, mat.oak);
   armchair(-470, 50, Math.PI); armchair(-470, 345, 0);
   const rg = B(-600, -400, 60, 330, 0, 1, mat.rug); uvScale(rg, .5);
-  for (const [x, y] of [[-480, 200], [-180, 150], [-180, 330]]) cyl(x, y, HN - 1, HN, 5, mat.glow, 16);
   flushBooks(); areaLight(-330, 200, 286, 2.5, 2, 70, 'AREA_GAB');
 }
 
@@ -1559,7 +1559,6 @@ function zoneScullery() {
   B(-147, -27, 930, 975, 0, 182, mat.kCream); for (let x = -147; x < -30; x += 39.3) { B(x + .4, x + 38.9, 975, 976.2, 2, 180, mat.kCream); sph(x + 33, 977.5, 100, 1.4, mat.brass); }
   // drzwi do korytarza (zach.) + oświetlenie
   doorLeaf(-339, 980, -327, 1064, 1);
-  for (const yy of [760, 900, 1020]) cyl(-237, yy, HN - 1, HN, 5, mat.glow, 16);
   areaLight(-237, 880, 286, 1.2, 2.6, 70, 'AREA_SPIZ');
   // podłoga – płytki ośmiokątne
   tiled(-327, -147, 673, 1067, mat.octa, .5); tiled(-147, -25, 928, 1067, mat.octa, .5);
@@ -1632,7 +1631,6 @@ function zoneKitchen() {
   // lampa nad wyspą: czarna belka + 2 plisowane abażury
   cyl(255, 1035, 215, HN, .6, mat.black, 8); rodBetween([150, 1035, 214], [360, 1035, 214], 1.3, mat.black);
   for (const x of [165, 345]) { cyl(x, 1035, 200, 214, .6, mat.black, 8); const s = cyl(x, 1035, 178, 200, 21, mat.shade, 28, 13); const l = new THREE.PointLight('#ffdcae', 1.6, 3.5, 2); l.position.set(-x / 100, 1.85, 10.35); CUR.add(l); }
-  for (const [x, y] of [[60, 1160], [255, 1160], [460, 1160], [60, 1030], [460, 1030]]) cyl(x, y, HN - 1, HN, 4, mat.glow, 16);
   areaLight(255, 1150, 286, 3, 1.2, 70, 'AREA_KUCH');
 }
 
@@ -1664,7 +1662,6 @@ function zoneDining() {
   // zasłony lniane przy oknach HS
   const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, 265);
   
-  for (const [x, y] of [[120, 560], [120, 800], [450, 560], [450, 800]]) cyl(x, y, HN - 1, HN, 4, mat.glow, 16);
   areaLight(286, 690, 286, 2.5, 3.2, 55, 'AREA_JAD');
 }
 
@@ -1701,7 +1698,6 @@ function zoneWardrobe() {
   for (let k = 0; k < 45; k++) sph(-610 + (rnd() - .5) * 60, 760 + (rnd() - .5) * 60, 140 + rnd() * 70, 6 + rnd() * 6, mat.olive, .7);
   curtainsAt(-628, 775, 812, 2, 282, '#f4efe6'); curtainsAt(-628, 978, 1015, 2, 282, '#f4efe6'); B(-632, -628, 770, 1020, 282, 285, mat.black);
   for (const [y, h0] of [[1050, 175], [1050, 120]]) { B(-640, -637, y - 18, y + 18, h0, h0 + 46, mat.black); plane(-636.5, y, h0 + 23, 30, 40, mat.leafart, -Math.PI / 2); }
-  for (const [x, y] of [[-490, 800], [-490, 1000], [-490, 1170]]) cyl(x, y, HN - 1, HN, 5, mat.glow, 16);
   areaLight(-490, 990, 285, 2, 4, 90, 'AREA_GARD');
 }
 // ================= ELEWACJE (wg DWG A-9 i wizualizacji) + SIŁOWNIA =================
@@ -1844,7 +1840,6 @@ function zoneGym() {
   cyl(270, 1690, 0, 40, 18, mat.cer, 24, 14); for (let k = 0; k < 30; k++) sph(270 + (rnd() - .5) * 40, 1690 + (rnd() - .5) * 40, 70 + rnd() * 70, 7 + rnd() * 5, mat.leaf, .8);
   // TV na ścianie płd.
   B(0, 120, 1303, 1306, 120, 188, mat.screen);
-  for (const [x, y] of [[-200, 1200], [-200, 1450], [0, 1450], [180, 1450], [0, 1620], [180, 1620]]) cyl(x, y, HN - 1, HN, 5, mat.glow, 16);
   areaLight(0, 1500, 286, 4, 3, 90, 'AREA_SIL');
 }
 
@@ -1892,7 +1887,6 @@ function zoneGarage() {
   // 2 auta: Mercedes klasy G (czarny) i GLS (biały)
   carG(-1263, 1390, '#1d1f22'); carGLS(-900, 1400, '#e4e2dc');
   B(-1110, -1088, 1694, 1698, 120, 160, mat.white); B(-1106, -1092, 1692, 1694, 140, 148, mat.glow); rodBetween([-1099, 1692, 120], [-1099, 1690, 90], .8, mat.black);
-  for (const x of [-1263, -900]) for (const y of [1250, 1530]) B(x - 60, x + 60, y - 3, y + 3, 255, 256, mat.glow);
   areaLight(-1110, 1400, 250, 6, 4, 140, 'AREA_GAR');
   // drzwi: garaż → techniczne, garaż → kotłownia, kotłownia → zewnątrz (czarne)
   doorLeaf(-664, 1356, -639, 1440, 1); doorLeaf(-664, 1561, -639, 1645, 1);
@@ -1904,7 +1898,7 @@ function zoneGarage() {
   for (const x of [-410, -375]) { cyl(x, 1385, 0, 120, 13, M({ color: '#2f5b8a', roughness: .4 }), 24); cyl(x, 1385, 120, 128, 9, mat.black, 16); }
   B(-440, -425, 1350, 1420, 0, 60, M({ color: '#f1f1f0', roughness: .5 }));
   B(-540, -480, 1420, 1458, 0, 200, mat.black); for (let h = 20; h < 200; h += 18) B(-539, -481, 1419, 1420, h, h + 12, mat.blackG); B(-536, -484, 1418.5, 1419, 150, 152, mat.glow);
-  cyl(-490, 1380, HN - 1, HN, 5, mat.glow, 16); areaLight(-490, 1378, 250, 2, 1.2, 50, 'AREA_TECH');
+  areaLight(-490, 1378, 250, 2, 1.2, 50, 'AREA_TECH');
   // KOTŁOWNIA (zlew, pompa ciepła, zasobnik CWU – jak wcześniej) + niższy sufit
   tiled(-639, -339, 1460, 1673, mat.epoxy, 1); houseBoiler();
 }
@@ -1996,11 +1990,59 @@ function zoneUpperExt() {
     CUR = prev; }
   // spód wysunięcia piętra (nad wejściem i od północy)
 }
+// ---------- INSTALACJE wg DXF „Izabelin AP głośniki”: wypusty oświetleniowe, kinkiety, anemostaty rekuperacji, głośniki sufitowe ----------
+// pokoje (gabinet, sypialnie) – żyrandol na środku; pozostałe pomieszczenia (bez salonu) – punkty świetlne w miejscach wypustów z projektu
+const FIX = {"down":[["g",-1332.7,1413.1],["g",-497.7,1570.8],["g",-497.7,1370.8],["g",-577.0,966.2],["g",-240.7,1019.8],["g",-139.7,1584.6],["g",84.3,1584.6],["g",-206.6,1208.8],["g",-461.7,530.8],["g",-97.7,530.8],["g",-77.7,850.8],["g",-132.7,330.8],["g",86.0,1160.8],["g",433.0,1160.8],["u",-324.3,533.2],["u",-135.2,533.2],["u",64.8,490.8],["u",-216.2,1212.2],["u",270.8,1111.2],["u",211.3,1200.8],["u",-540.2,589.0],["u",-29.7,198.3],["g",201.6,1160.8],["g",317.2,1160.8],["g",108.9,530.8],["g",108.9,710.8],["g",108.9,890.8],["g",-1065.8,1413.1],["g",-798.9,1413.1],["g",775.3,685.7],["u",53.8,1212.2],["u",-81.2,1212.2],["u",53.8,1120.8],["u",425.8,1111.2],["u",249.9,490.8],["u",434.9,490.8],["u",-191.2,768.7],["g",-139.7,1414.1],["g",84.3,1414.1],["g",-577.0,837.1],["g",-577.0,1080.9],["g",-473.0,966.2],["g",-473.0,837.1],["g",-473.0,1080.9],["g",-315.1,530.8],["g",-95.7,1019.8],["g",-240.7,769.8],["g",-240.7,892.8],["u",-136.2,1024.3]],"wall":[["g",-655.7,603.1,180],["g",629.8,910.8,270],["g",629.8,505.8,270],["g",-487.7,1717.7,0],["u",359.8,946.7,0],["u",86.8,53.6,90],["g",-1499.6,1047.7,180],["g",-1121.5,1045.7,180],["g",-740.5,1047.7,180],["u",576.8,887.0,270],["u",574.9,614.7,270],["u",459.2,948.7,0],["u",86.8,159.4,90],["g",-26.2,372.0,90],["g",-26.2,294.7,90]],"vent":[["g",276.9,1248.1,"W"],["g",267.4,1032.7,"W"],["g",-133.0,341.6,"W"],["g",-366.6,532.3,"W"],["g",-528.2,1023.5,"W"],["g",-168.2,1019.8,"W"],["g",-226.7,1512.7,"W"],["u",350.4,1201.1,"W"],["u",-540.2,539.0,"W"],["u",-29.7,121.3,"W"],["u",-13.7,1212.2,"W"],["g",-359.1,124.7,"N"],["g",353.0,122.0,"N"],["g",89.2,288,"N"],["g",290.3,528.6,"N"],["g",169.2,1512.7,"N"],["u",-487.8,200.8,"N"],["u",170.8,761.6,"N"],["u",-384.4,922.3,"N"]],"spk":[["g",106.0,1032.7],["g",408.9,1032.7],["g",-179.6,1512.7],["g",123.3,1512.7],["u",350.3,1023.4]],"chand":[["g",-345,185],["u",-407.7,200.8],["u",-448,1055],["u",282.3,760.8]]};
+const FIX_EXT = [[-655.7, 603.1], [629.8, 910.8], [629.8, 505.8], [-487.7, 1717.7], [-1499.6, 1047.7], [-1121.5, 1045.7], [-740.5, 1047.7], [576.8, 887.0], [574.9, 614.7]];
+function zoneFixtures() {
+  const root = CUR; root.updateMatrixWorld(true);
+  const objs = []; root.traverse(o => { if (o.isMesh && !o.isInstancedMesh && o.name !== 'LABEL') objs.push(o); });
+  const rc = new THREE.Raycaster(), nrm = new THREE.Vector3();
+  const ceilAt = (fl, x, y) => { const h0 = fl === 'u' ? HU0 + 150 : 150; rc.set(new THREE.Vector3(-x / 100, h0 / 100, y / 100), new THREE.Vector3(0, 1, 0)); rc.far = 6;
+    for (const i of rc.intersectObjects(objs, false)) { if (!i.face) continue; nrm.copy(i.face.normal).transformDirection(i.object.matrixWorld); if (nrm.y < -.7) return i.point.y * 100; }
+    return fl === 'u' ? HU1 : HN; };
+  const gm = { ring: M({ color: '#f2eee8', roughness: .55 }), ring2: M({ color: '#dcd6cc', roughness: .7 }), dark: M({ color: '#bdb6aa', roughness: .8 }),
+    grill: M({ map: cv(256, 256, (g, w, h) => { g.fillStyle = '#ece7df'; g.fillRect(0, 0, w, h); g.fillStyle = '#b9b1a5'; for (let y = 4; y < h; y += 9) for (let x = (y / 9 % 2) * 4.5 + 4; x < w; x += 9) { g.beginPath(); g.arc(x, y, 2.2, 0, 6.3); g.fill(); } }), roughness: .9 }),
+    opal: new THREE.MeshStandardMaterial({ color: '#fffaf0', emissive: '#ffe2b0', emissiveIntensity: 1.6, roughness: .4 }) };
+  const ceilGrp = (fn) => { const g = new THREE.Group(); g.name = 'CEIL'; const prev = CUR; CUR.add(g); CUR = g; fn(); CUR = prev; };
+  const place = (list, fn) => { for (const it of list) { const [fl] = it; if (fl === 'u') upGroup(() => ceilGrp(() => fn(it))); else ceilGrp(() => fn(it)); } };
+  // punkt świetlny (oprawa wpuszczana Ø10)
+  place(FIX.down, ([fl, x, y]) => { const h = ceilAt(fl, x, y); cyl(x, y, h - .5, h, 5.2, gm.ring, 24); cyl(x, y, h - .9, h - .5, 3.6, mat.glow, 20); cyl(x, y, h - .7, h - .5, 4.4, gm.ring2, 24); });
+  // anemostat rekuperacji (Ø20 nawiew/wywiew)
+  place(FIX.vent, ([fl, x, y]) => { const h = ceilAt(fl, x, y); cyl(x, y, h - .6, h, 12, gm.ring, 40); cyl(x, y, h - 1.4, h - .6, 9.5, gm.ring2, 36); cyl(x, y, h - 2.2, h - 1.4, 7, gm.ring, 32); cyl(x, y, h - 3, h - 2.2, 4.5, gm.ring2, 28); cyl(x, y, h - 3.8, h - 3, 2.5, gm.ring, 20); });
+  // głośnik sufitowy (Ø25, maskownica w kolorze sufitu)
+  place(FIX.spk, ([fl, x, y]) => { const h = ceilAt(fl, x, y); cyl(x, y, h - .7, h, 13.5, gm.ring, 48); const gr = cyl(x, y, h - 1, h - .7, 12.2, gm.grill, 48); gr.rotation.y = .3; });
+  // żyrandol w pokojach: mosiężna obręcz z 6 świecami i lnianymi abażurkami
+  place(FIX.chand, ([fl, x, y]) => { const h = ceilAt(fl, x, y), hr = h - 62;
+    cyl(x, y, h - 2.5, h, 8, mat.brass, 32); cyl(x, y, hr + 6, h - 2.5, .7, mat.brass, 12); sph(x, y, hr + 4, 4.5, mat.brass);
+    const t = new THREE.Mesh(new THREE.TorusGeometry(.32, .009, 10, 64), mat.brass); t.rotation.x = Math.PI / 2; t.position.set(-x / 100, hr / 100, y / 100); CUR.add(t);
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6, px = x + Math.cos(a) * 32, py = y + Math.sin(a) * 32;
+      rodBetween([x, y, hr + 4], [px, py, hr], .5, mat.brass); cyl(px, py, hr, hr + 3, 2.6, mat.brass, 16); cyl(px, py, hr + 3, hr + 14, 1.2, mat.white, 12); cyl(px, py, hr + 14, hr + 16, .8, mat.glow, 8);
+      cyl(px, py, hr + 9, hr + 22, 4.2, mat.shade, 24, 7); }
+    cyl(x, y, hr - 6, hr + 2, 1.4, mat.brass, 12); sph(x, y, hr - 7, 2, mat.brass); });
+  // kinkiety (wypusty ścienne): w łazienkach przy lustrze mosiądz + opal, na elewacji czarne latarenki
+  for (const [fl, x, y, rot] of FIX.wall) {
+    const r = rot * Math.PI / 180, dx = Math.sin(r), dy = -Math.cos(r), ext = FIX_EXT.some(([a, b]) => Math.abs(a - x) < 1 && Math.abs(b - y) < 1);
+    const base = fl === 'u' ? HU0 : 0, hh = base + (ext ? 215 : 195);
+    rc.set(new THREE.Vector3(-(x - dx * 40) / 100, hh / 100, (y - dy * 40) / 100), new THREE.Vector3(-dx, 0, dy)); rc.far = 1.2;
+    const hit = rc.intersectObjects(objs, false).find(i => i.face && nrm.copy(i.face.normal).transformDirection(i.object.matrixWorld).dot(new THREE.Vector3(-dx, 0, dy)) < -.7);
+    if (!hit) continue;
+    const g = new THREE.Group(); g.position.copy(hit.point); g.rotation.y = Math.atan2(dx, -dy); // lokalne +z = od ściany
+    const add = (geo, m, px, py, pz) => { const me = new THREE.Mesh(geo, m); me.position.set(px, py, pz); me.castShadow = true; g.add(me); return me; };
+    if (ext) { add(new THREE.BoxGeometry(.1, .2, .02), mat.black, 0, 0, .01); add(new THREE.BoxGeometry(.03, .03, .1), mat.black, 0, -.02, .07);
+      add(new THREE.BoxGeometry(.13, .2, .13), gm.opal, 0, 0, .17); add(new THREE.BoxGeometry(.15, .02, .15), mat.black, 0, .11, .17); add(new THREE.BoxGeometry(.15, .02, .15), mat.black, 0, -.11, .17);
+      for (const [a, b] of [[-.065, .105], [.065, .105], [-.065, .235], [.065, .235]]) add(new THREE.BoxGeometry(.012, .22, .012), mat.black, a, 0, b); }
+    else { const pl = add(new THREE.CylinderGeometry(.045, .045, .012, 32), mat.brass, 0, 0, .006); pl.rotation.x = Math.PI / 2;
+      const arm = add(new THREE.CylinderGeometry(.008, .008, .09, 12), mat.brass, 0, 0, .05); arm.rotation.x = Math.PI / 2;
+      add(new THREE.CylinderGeometry(.035, .035, .2, 28), gm.opal, 0, 0, .12); add(new THREE.CylinderGeometry(.037, .037, .015, 28), mat.brass, 0, -.1, .12); add(new THREE.CylinderGeometry(.037, .037, .015, 28), mat.brass, 0, .1, .12); }
+    if (fl === 'u') upGroup(() => CUR.add(g)); else CUR.add(g);
+  }
+}
 function buildZone() {
   zoneShell(); zoneFloors();
   for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; if (Math.min(...ys) >= 1300 && Math.min(...xs) > 150) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
-  zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice(); zoneUpper();
+  zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice(); zoneUpper(); zoneFixtures();
 }
 
 async function buildHouse() {
@@ -2082,6 +2124,13 @@ const VIEWS = {
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
+  zsalS:  { iso: true, fov: 70, pos: [320, 560, 165], look: [316, 0, 260], up: 40, down: 40 },
+  zkuchC: { iso: true, fov: 70, pos: [255, 800, 150], look: [255, 1150, 300], up: 40, down: 40 },
+  zgabC:  { iso: true, fov: 70, pos: [-130, 235, 165], look: [-480, 80, 240], up: 40, down: 40 },
+  zsypgC: { iso: true, fov: 70, pos: [500, 640, 495], look: [150, 860, 540], up: 40, down: 40 },
+  zlazgC: { iso: true, fov: 70, pos: [190, 1270, 490], look: [420, 980, 560], up: 40, down: 40 },
+  zsyp2C: { iso: true, fov: 70, pos: [-300, 820, 495], look: [-520, 1200, 550], up: 40, down: 40 },
+  zgymC:  { iso: true, fov: 70, pos: [260, 1340, 160], look: [-150, 1600, 230], up: 40, down: 40 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
   zwtop:  { iso: true, fov: 30, pos: [-900, 430, 520], look: [-689, 535, 585], up: 40, down: 40 },
   zdkc:   { iso: true, fov: 45, pos: [900, -350, 400], look: [560, 0, 590], up: 40, down: 40 },
@@ -2149,7 +2198,7 @@ if (INTER) {
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
-  window.__go = go; window.__render = () => dirty = 3; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
+  window.__go = go; window.__render = () => dirty = 3; window.__probe = (x, y, h, dx, dy) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, 0, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(",")]; }); }; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   // ---------- SPACER: chodzenie po domu strzałkami (oczy ok. 1,8 m nad podłogą, wchodzenie po schodach) ----------
   const WALK = { doors: true, on: false, yaw: 0, pitch: 0, keys: {}, solids: null, eye: 1.8, floorY: 0 };
@@ -2188,6 +2237,6 @@ if (INTER) {
     if (moved || tr || Math.abs(ty - cam.position.y) > .002) dirty = 2; };
   let tPrev = performance.now();
   const loop = () => { requestAnimationFrame(loop); const t = performance.now(), dt = Math.min(.05, (t - tPrev) / 1000); tPrev = t; if (WALK.on) walkStep(dt); else ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
-} else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__done = true; }
+} else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__probe = (x, y, h, dx, dy) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, 0, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(',')]; }); }; window.__done = true; }
 
 </script>
