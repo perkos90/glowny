@@ -83,7 +83,7 @@ for g in (ring.geoms if hasattr(ring,'geoms') else [ring]):
             q['dark']=part.equals(g.intersection(dark_zone)); skin.append(q)
 eave=foot.buffer(14,join_style=2).difference(foot)
 corn=[]
-for off,h0,h1 in [(1.5,575,595),(4,595,603),(8,603,612),(12,612,622),(16,622,630),(28,642,650)]:
+for off,h0,h1 in [(1.5,587,607),(4,607,615),(8,615,624),(12,624,634),(16,634,642),(12,642,654),(28,654,662)]:
     corn.append(dict(h0=h0,h1=h1,p=polys(foot.buffer(off,join_style=2).difference(foot))))
 gut=polys(foot.buffer(31,join_style=2).difference(foot.buffer(26,join_style=2)))
 labels=[('Sypialnia 1',-400,190),('Łazienka',-30,190),('Pustka nad salonem',320,200),('Hol / antresola',230,490),('Pralnia',-540,600),

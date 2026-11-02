@@ -14,6 +14,10 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 #hd details{margin-top:6px;font-size:12px} #hd summary{cursor:pointer;color:var(--fg)} #hd ul{margin:6px 0 0;padding-left:18px;color:var(--mut)} #hd li{margin:2px 0} #hd .w{color:var(--warn)}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:18px var(--serif);color:var(--mut)}
 @media (max-width:640px){#hd details{display:none}}
+#walkhint{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));background:var(--panel);padding:8px 12px;border-radius:12px;font-size:12px;color:var(--mut);max-width:260px;z-index:6}
+#pad{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:7;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+#pad button{padding:0;font-size:20px;border-radius:12px;touch-action:none}
+body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walking #ui{max-height:20vh}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <div id="load">Ładowanie modelu 3D…</div>
@@ -33,8 +37,11 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 <li><b>Ciemna bryła salonu wg elewacji DWG:</b> od ogrodu tylko wokół przeszklenia, od boku pas ok. 3,35 m przy narożniku; listwy: ramy, pas w linii stropu, opaska i gzyms. Okna piętra w białych pasach tynku (od pasa międzykondygnacyjnego 3,06–3,30 do fryzu) z opaskami; pod dachem fryz, listwy schodkowe i kroksztyny. Nad wejściem mini balkon 43 cm z balustradą na szerokość portalu. Taras na piętrze na dwóch filarach, czoło z gzymsem.</li>
 <li><b>Elewacje wg DWG A-9:</b> parter tynk biały RAL 9010, piętro jasny klinkier, bryła salonu ciemna RAL 7022, dach czterospadowy ciemny, taras bez podcienia. <span class="w">Wnętrza piętra jeszcze niemodelowane.</span></li>
 </ul></details></div>
+<div id="walkhint"><b style="color:var(--fg)">Spacer</b> – strzałki ↑↓ idą, ←→ obracają, A/D krok w bok, Shift szybciej. Przeciągnij myszą, żeby się rozejrzeć. Esc kończy. Po schodach wchodzi się zwyczajnie, idąc do przodu.</div>
+<div id="pad"><span></span><button data-k="ArrowUp" aria-label="Do przodu">↑</button><span></span><button data-k="ArrowLeft" aria-label="Obrót w lewo">←</button><button data-k="ArrowDown" aria-label="Do tyłu">↓</button><button data-k="ArrowRight" aria-label="Obrót w prawo">→</button></div>
 <div id="ui">
 <div class="grp"><span class="lab">Parter</span><button data-v="jadalnia" class="on">Jadalnia</button><button data-v="kuchnia">Kuchnia</button><button data-v="wyspa">Wyspa</button><button data-v="schody">Schody</button><button data-v="podschodami">Pod schodami</button><button data-v="spizarnia">Spiżarnia</button><button data-v="hol">Hol</button><button data-v="hol2">Hol od wejścia</button><button data-v="garderoba">Garderoba</button><button data-v="silownia">Siłownia</button><button data-v="garaz">Garaż</button><button data-v="techniczne">Techniczne</button><button data-v="kotlownia">Kotłownia</button><button data-v="gabinet">Gabinet</button><button data-v="wc">WC</button><button data-v="salon">Salon</button></div>
+<div class="grp"><span class="lab">Spacer</span><button data-w="wejscie">Od wejścia</button><button data-w="salon">Z salonu</button><button data-w="pietro">Na piętrze</button><button data-w="stop">Zakończ</button></div>
 <div class="grp"><span class="lab">Piętro</span><button data-v="gora">Rzut piętra</button><button data-v="p_hol">Hol</button><button data-v="p_schody">Schody</button><button data-v="p_sypg">Sypialnia główna</button><button data-v="p_lazg">Łazienka główna</button><button data-v="p_gard">Garderoba</button><button data-v="p_syp1">Sypialnia 1</button><button data-v="p_lazs">Łazienka</button><button data-v="p_syp2">Sypialnia 2</button><button data-v="p_pral">Pralnia</button></div>
 <div class="grp"><span class="lab">Na zewnątrz</span><button data-v="ogrod">Od ogrodu</button><button data-v="front">Wejście</button><button data-v="bok">Od garażu</button><button data-v="dom">Z góry</button></div>
 <div class="grp"><span class="lab">Meblościanka TV</span><button data-tv="0" class="on">Ciepła biel</button><button data-tv="1">Fornir</button></div>
@@ -44,4 +51,6 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 const grp=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{fn(b);document.querySelectorAll(sel).forEach(x=>x.classList.toggle('on',x===b));});
 grp('[data-v]',b=>{const v=b.dataset.v;window.__ceil(v!=='dom'&&v!=='gora');window.__go(v);});
 grp('[data-tv]',b=>window.__tvVeneer(b.dataset.tv==='1'));
-grp('[data-ven]',b=>window.__venShade(b.dataset.ven));};</script>
+grp('[data-ven]',b=>window.__venShade(b.dataset.ven));
+document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const w=b.dataset.w;document.querySelectorAll('[data-v]').forEach(x=>x.classList.remove('on'));if(w==='stop')window.__walk(false);else window.__walk(true,w);b.blur();});
+document.querySelectorAll('#pad [data-k]').forEach(b=>{const k=b.dataset.k;const on=e=>{e.preventDefault();window.__walkKey(k,true);},off=()=>window.__walkKey(k,false);b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off);});};</script>

@@ -1493,6 +1493,8 @@ function zoneScullery() {
   for (const h of [10, 50, 90, 125, 160, 195, 230, 265]) B(sx0, sx1, sy0, sy1, h, h + 2.5, mat.kOak);
   for (const h of [12.5, 52.5]) for (let yy = sy0 + 6; yy < sy1 - 40; yy += 42) B(sx0 + 4, sx1 - 2, yy, yy + 36, h, h + 26, mat.rattan, { r: 0.02 });
   for (const h of [92.5, 127.5, 162.5, 197.5]) for (let yy = sy0 + 10; yy < sy1 - 10; yy += 16) { const t = rnd(); cyl(sx0 + 20, yy, h, h + 14 + t * 12, 5.5, t < .5 ? mat.glass : mat.cer, 16); if (t < .5) cyl(sx0 + 20, yy, h + 14 + t * 12, h + 17 + t * 12, 5.6, mat.oak, 16); }
+  // ścianka pod końcem biegu 1 (od salonu wolna przestrzeń pod schodami), skośna góra pod spodem biegu
+  sideShape(-136, -25.5, [[916, 0], [930, 0], [930, 164], [916, 155]], mat.wall);
   // szafa pod spocznikiem (wg DWG)
   B(-147, -27, 930, 975, 0, 182, mat.kCream); for (let x = -147; x < -30; x += 39.3) { B(x + .4, x + 38.9, 975, 976.2, 2, 180, mat.kCream); sph(x + 33, 977.5, 100, 1.4, mat.brass); }
   // drzwi do korytarza (zach.) + oświetlenie
@@ -1714,7 +1716,7 @@ function zoneExterior() {
   for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
   // gzyms pod dachem wg DWG: fryz, listwy schodkowe, kroksztyny (ząbki), płyta okapu i rynna
   for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
-  for (const q of H.UP.gut) nm(extrude(q, 650, 658, mat.black));
+  for (const q of H.UP.gut) nm(extrude(q, 662, 670, mat.black));
   { const o = H.UP.foot.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
       const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
       // strona zewnętrzna: sprawdź punkt odsunięty od krawędzi
@@ -1723,17 +1725,20 @@ function zoneExterior() {
       const sg = inside(mx + nx * 5, my + ny * 5) ? -1 : 1;
       const n = Math.floor((L - 20) / 30), a0 = Math.min(ax ? xa : ya, ax ? xb : yb) + (L - n * 30) / 2;
       for (let k = 0; k <= n; k++) { const a = a0 + k * 30; const c0 = (ax ? ya : xa) + sg * 2, c1 = (ax ? ya : xa) + sg * 24;
-        const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 630, 642, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 630, 642, mat.ext); m.name = 'CEIL'; } } }
+        const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 642, 654, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 642, 654, mat.ext); m.name = 'CEIL'; } } }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
-  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick); }
+  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick);
+    if (f === 'Wr') continue; // opaski okien parteru wg elewacji DWG: płaski panel (+15 cm) i wąska opaska 7 cm przy oknie
+    fbox(f, a0 - 17, a0, 0, 255, mat.ext, 0, 4); fbox(f, a1, a1 + 17, 0, 255, mat.ext, 0, 4); fbox(f, a0, a1, 248, 255, mat.ext, 0, 4);
+    fbox(f, a0 - 7, a0, 0, 248, mat.ext, 0, 6.5); fbox(f, a1, a1 + 7, 0, 248, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, 240, 248, mat.ext, 0, 6.5); }
   // ciemna rama przeszklenia salonu (nad szkłem do gzymsu)
   zoneDarkBlock();
   // okna piętra wg elewacji (południowa DWG = od ogrodu): 3 otwory + drzwi na balkon; od wejścia 3 okna; od zachodu 2 okna z balkonikami francuskimi
   // okna piętra – wg rzutu piętra z DWG (zoneUpperExt)
   zoneUpperExt();
   // dachy czterospadowe (blachodachówka ciemnoszara RAL 8022)
-  hipRoof(-720, 612, -82, 1409, 650, 30, mat.roofM);
+  hipRoof(-720, 612, -82, 1409, 662, 30, mat.roofM);
   hipRoof(-1624, -624, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1263, 1763, 334, 30, mat.roofM);
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
@@ -1870,13 +1875,13 @@ function zoneUpper() {
 }
 function zoneUpperExt() {
   const U = HOUSE.UP, nm = (m, n = 'CEIL') => { m.name = n; return m; };
-  for (const s of U.skin) nm(extrude(s, HU0, 640, s.dark ? mat.dark : mat.brick));
+  for (const s of U.skin) nm(extrude(s, HU0, 660, s.dark ? mat.dark : mat.brick));
   for (const w of U.wins) { const o = w.out, d = w.d, along = w.ax === 'x';
     const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
     // białe pole tynku wokół okna (od pasa do okapu) + opaska okienna (listwa) – wg elewacji DWG
-    R(a0 - 30, a0, o, o + d * 3.5, 330, 575, mat.ext); R(a1, a1 + 30, o, o + d * 3.5, 330, 575, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 575, mat.ext);
-    R(a0 - 10, a0, o, o + d * 5.5, HU0, HU0 + 250, mat.ext); R(a1, a1 + 10, o, o + d * 5.5, HU0, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 5.5, HU0 + 240, HU0 + 252, mat.ext);
+    R(a0 - 17, a0, o, o + d * 3.5, 330, 587, mat.ext); R(a1, a1 + 17, o, o + d * 3.5, 330, 587, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 587, mat.ext);
+    R(a0 - 7, a0, o, o + d * 6, HU0, HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 6, HU0, HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 6, HU0 + 240, HU0 + 248, mat.ext);
     if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
     const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
   // mini balkon nad wejściem (wg elewacji DWG): płyta 43 cm z gzymsem, balustrada na szerokość portalu
@@ -2032,11 +2037,46 @@ if (INTER) {
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
   : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], choinka: [[-1.2, 1.7, 3.8], [-5.0, 2.0, 1.6]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
-  const go = k => { const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
+  const go = k => { if (window.__walkStop) window.__walkStop(); const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
   window.__go = go; window.__render = () => dirty = 3; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
-  const loop = () => { requestAnimationFrame(loop); ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
+  // ---------- SPACER: chodzenie po domu strzałkami (oczy ok. 1,8 m nad podłogą, wchodzenie po schodach) ----------
+  const WALK = { on: false, yaw: 0, pitch: 0, keys: {}, solids: null, eye: 1.8, floorY: 0 };
+  const rc = new THREE.Raycaster(); const DOWN = new THREE.Vector3(0, -1, 0);
+  const buildSolids = () => { const arr = []; scene.updateMatrixWorld(true);
+    scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.name === 'LABEL' || o.name === 'GARDEN') return; let p = o, vis = true; while (p) { if (!p.visible) { vis = false; break; } p = p.parent; } if (!vis) return;
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); arr.push({ o, bb }); });
+    WALK.solids = arr; };
+  const near = (p, r) => { const out = []; for (const s of WALK.solids) { const b = s.bb; if (p.x > b.min.x - r && p.x < b.max.x + r && p.z > b.min.z - r && p.z < b.max.z + r && p.y + 2.2 > b.min.y && p.y - 3 < b.max.y) out.push(s.o); } return out; };
+  const groundAt = (x, z, fromY, objs) => { rc.set(new THREE.Vector3(x, fromY, z), DOWN); rc.far = 3; const h = rc.intersectObjects(objs, false).find(i => i.face && i.face.normal && Math.abs(i.face.normal.clone().transformDirection(i.object.matrixWorld).y) > .5); return h ? h.point.y : null; };
+  const blocked = (pos, dir, objs) => { for (const hh of [.45, .9, 1.6]) { rc.set(new THREE.Vector3(pos.x, WALK.floorY + hh, pos.z), dir); rc.far = .38; const hit = rc.intersectObjects(objs, false); if (hit.length && !(hit[0].object.material && hit[0].object.material.opacity < .2 && hh > 2)) return true; } return false; };
+  const walkStart = (x, y, yaw) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, 2, y / 100), 1);
+    const gy = groundAt(-x / 100, y / 100, 3, objs); WALK.floorY = gy == null ? 0 : gy; cam.position.set(-x / 100, WALK.floorY + WALK.eye, y / 100); cam.fov = 70; cam.updateProjectionMatrix(); dirty = 3; document.body.classList.add('walking'); };
+  const walkStop = () => { WALK.on = false; ctl.enabled = true; cam.fov = 62; cam.updateProjectionMatrix(); const d = new THREE.Vector3(); cam.getWorldDirection(d); ctl.target.copy(cam.position).addScaledVector(d, 1.5); ctl.update(); dirty = 3; document.body.classList.remove('walking'); };
+  window.__walkStop = () => { if (WALK.on) walkStop(); };
+  window.__walk = (on, at) => { if (on) { const P = { schody: [-80, 600, Math.PI], wejscie: [-470, 535, Math.PI / 2], salon: [330, 300, Math.PI], pietro: [200, 490, -Math.PI / 2] }[at || 'wejscie']; walkStart(...P); } else walkStop(); };
+  window.__walkKey = (k, down) => { WALK.keys[k] = down; };
+  window.__walkSim = (k, n) => { WALK.keys[k] = true; for (let i = 0; i < n; i++) walkStep(.05); WALK.keys[k] = false; return [cam.position.x, cam.position.y, cam.position.z, WALK.floorY].map(v => +v.toFixed(2)); };
+  addEventListener('keydown', e => { if (!WALK.on) return; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'q', 'e', 'Shift'].includes(e.key)) { WALK.keys[e.key] = true; e.preventDefault(); } if (e.key === 'Escape') walkStop(); });
+  addEventListener('keyup', e => { WALK.keys[e.key] = false; });
+  { let drag = null; const el = renderer.domElement;
+    el.addEventListener('pointerdown', e => { if (WALK.on) { drag = [e.clientX, e.clientY]; el.setPointerCapture(e.pointerId); } });
+    el.addEventListener('pointermove', e => { if (!WALK.on || !drag) return; WALK.yaw -= (e.clientX - drag[0]) * .004; WALK.pitch = Math.max(-1.2, Math.min(1.2, WALK.pitch - (e.clientY - drag[1]) * .004)); drag = [e.clientX, e.clientY]; dirty = 2; });
+    el.addEventListener('pointerup', () => { drag = null; }); }
+  const walkStep = dt => { const K = WALK.keys; const fw = (K.ArrowUp || K.w ? 1 : 0) - (K.ArrowDown || K.s ? 1 : 0), st = (K.d ? 1 : 0) - (K.a ? 1 : 0), tr = (K.ArrowLeft || K.q ? 1 : 0) - (K.ArrowRight || K.e ? 1 : 0);
+    if (tr) WALK.yaw += tr * 1.6 * dt;
+    const sp = (K.Shift ? 2.6 : 1.4) * dt; const f = new THREE.Vector3(-Math.sin(WALK.yaw), 0, -Math.cos(WALK.yaw)), r = new THREE.Vector3(-f.z, 0, f.x);
+    const mv = f.multiplyScalar(fw).add(r.multiplyScalar(st)); let moved = false;
+    if (mv.lengthSq() > 0) { mv.normalize(); const objs = near(cam.position, 1.2); const pos = cam.position;
+      for (const [dx, dz] of [[mv.x, mv.z], [mv.x, 0], [0, mv.z]]) { if (!dx && !dz) continue; const d = new THREE.Vector3(dx, 0, dz).normalize(); if (blocked(pos, d, objs)) continue;
+        const nx = pos.x + d.x * sp * Math.hypot(dx, dz), nz = pos.z + d.z * sp * Math.hypot(dx, dz); const gy = groundAt(nx, nz, WALK.floorY + .5, objs);
+        if (gy == null || gy < WALK.floorY - .6 || gy > WALK.floorY + .3) continue; pos.x = nx; pos.z = nz; WALK.floorY = gy; moved = true; break; } }
+    const ty = WALK.floorY + WALK.eye; cam.position.y += (ty - cam.position.y) * Math.min(1, dt * 10);
+    const look = new THREE.Vector3(-Math.sin(WALK.yaw) * Math.cos(WALK.pitch), Math.sin(WALK.pitch), -Math.cos(WALK.yaw) * Math.cos(WALK.pitch)); cam.lookAt(cam.position.clone().add(look));
+    if (moved || tr || Math.abs(ty - cam.position.y) > .002) dirty = 2; };
+  let tPrev = performance.now();
+  const loop = () => { requestAnimationFrame(loop); const t = performance.now(), dt = Math.min(.05, (t - tPrev) / 1000); tPrev = t; if (WALK.on) walkStep(dt); else ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
 } else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__done = true; }
