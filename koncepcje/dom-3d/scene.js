@@ -1330,9 +1330,9 @@ function zoneShell() {
   for (const p of H.slabP) extrude(p, HN, 330, mat.wall).name = 'CEIL';
   for (const p of H.upP) extrude(p, 330, 600, mat.wall).name = 'CEIL'; // bryła piętra (niemodelowane) z szybem schodów
   // pustka salonu – ściany do góry
-  B(76, 102, -45, BEAM0, 330, HR, mat.wall); B(-45, 600, BEAM0, BEAM1, 280, HR + 20, mat.wall); B(76, 580, -45, 0, 290, HR + 20, mat.wall);
+  B(76, 102, -45, BEAM0, 330, HR, mat.wall); B(-45, 600, BEAM0, BEAM1, 280, 330, mat.wall); // antresola – nad podciągiem otwarte B(76, 580, -45, 0, 290, HR + 20, mat.wall);
   B(60, 102, -45, BEAM1, HN - 1, 340, mat.wall);
-  B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, HR + 20, mat.wall);
+  B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, 330, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
   // podciągi wg DWG: nad przejściem jadalnia–hol 25×40 (spód ok. 265 cm wg przekroju), w garderobie 2× 25×35 (spód ok. 273 cm)
   B(-25, 0, BEAM1, 916.3, 265, HN, mat.wall).name = 'BEAM'; // podciąg biegnie do ściany spiżarni
@@ -1799,13 +1799,13 @@ function zoneCornice() {
   B(528, 553, 0, BEAM0, HR - 25, HR, mat.wall).name = 'BEAM';   // salon – zabudowa karnisza pod stropem pustki
   B(506, 531, BEAM1, DE, HN - 25, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza (jak podciąg)
   // salon (sufit pustki)
-  crown('x', 102, 528, 0, 1, HR); crown('x', 102, 528, BEAM0, -1, HR); crown('y', 0, BEAM0, 102, 1, HR);
+  crown('x', 102, 528, 0, 1, HR); crown('y', 0, BEAM0, 102, 1, HR);
   // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
   crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, 977, 0, 1, HN, 9); crown('y', 977, DE, 2, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
 }
 
 // ======================= PIĘTRO (wg rzutu piętra z DWG; poziom +3,24 ≈ 330, sufit ok. 590) =======================
-const HU0 = 330, HU1 = 590;
+const HU0 = 330, HU1 = HR;
 function upGroup(fn) { const g = new THREE.Group(); g.name = 'UPPER'; const prev = CUR; CUR.add(g); CUR = g; fn(); CUR = prev; return g; }
 function labelDecal(txt, x, y, h) { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d');
   g.fillStyle = 'rgba(255,255,255,.88)'; g.beginPath(); g.roundRect(8, 8, 1008, 144, 40); g.fill(); g.fillStyle = '#3a2f26'; g.font = '600 82px Helvetica, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 512, 82);
@@ -1828,6 +1828,7 @@ function zoneUpper() {
       for (const w of U.wins) windowUnit(Object.assign({ name: 'U ' + w.f, sill: 0, top: 240, div: (w.ax === 'x' ? w.x1 - w.x0 : w.y1 - w.y0) > 120 ? 2 : 1, ceil: HU1 - HU0 }, w));
       CUR = prev; }
     // balustrada przy pustce nad salonem i przy otworze schodów
+    railing('x', 106, 530, 404, HU0, 100, 11); // antresola nad salonem – czarna balustrada
     railing('x', -133, -27, 667, HU0, 100, 11); railing('y', 667, 860, -134, HU0, 100, 11);
     // podpisy pomieszczeń (widoczne w widoku „Piętro z góry”)
     for (const [t, x, y] of U.labels) labelDecal(t, x, y, HU0);
@@ -1842,7 +1843,14 @@ function zoneUpperExt() {
     const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
     R(a0, a1, o - d * 6, o + d * 2.5, HU0 + 240, 640, mat.brick); // nadproże w okładzinie
+    if (w.terr) continue;
     const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
+  // taras na piętrze (wg DWG), wspornikowy – bez słupów i podcienia; czarna balustrada
+  { const t = U.terr, g = new THREE.Group(); g.name = 'UPPER'; CUR.add(g); const prev = CUR; CUR = g;
+    B(t.x0, t.x1, t.y0, t.y1, HU0 - 30, HU0 - 2, mat.ext); const f = B(t.x0, t.x1 - 2, t.y0 + 2, t.y1 - 2, HU0 - 2, HU0 + 1, mat.terr, { cast: false }); uvScale(f, .5);
+    B(t.x1 - 4, t.x1, t.y0, t.y1, HU0 - 30, HU0 - 22, mat.black); B(t.x0, t.x1, t.y0, t.y0 + 4, HU0 - 30, HU0 - 22, mat.black); B(t.x0, t.x1, t.y1 - 4, t.y1, HU0 - 30, HU0 - 22, mat.black);
+    railing('y', t.y0 + 4, t.y1 - 4, t.x1 - 6, HU0 + 1, 100, 11); railing('x', t.x0 + 4, t.x1 - 6, t.y0 + 6, HU0 + 1, 100, 11); railing('x', t.x0 + 4, t.x1 - 6, t.y1 - 6, HU0 + 1, 100, 11);
+    CUR = prev; }
   // spód wysunięcia piętra (nad wejściem i od północy)
 }
 function buildZone() {
@@ -1931,6 +1939,9 @@ const VIEWS = {
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zterr:  { iso: true, fov: 60, pos: [1000, 520, 200], look: [600, 700, 300], up: 40, down: 40 },
+  zsalA:  { iso: true, fov: 70, pos: [380, 60, 150], look: [250, 500, 380], up: 40, down: 40 },
+  zuant:  { iso: true, fov: 70, pos: [180, 520, 500], look: [420, 60, 250], up: 40, down: 40 },
   zusch:  { pos: [-60, 590, 490], look: [-190, 980], up: 40, down: 40 },
   zusypg: { pos: [470, 600, 490], look: [60, 880], up: 38, down: 34 },
   zulazg: { pos: [470, 960, 490], look: [200, 1250], up: 38, down: 34 },

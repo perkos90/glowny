@@ -11,6 +11,8 @@ ins=unary_union([P(p) for p in L[OC] if len(p)>3]).difference(mas)
 # zaślepki szachtów / kanałów (nie są drzwiami)
 fills=[box(295,1278,367,1302),box(-154,1072,-99,1096),box(150,-26,171,-1),box(-165,240,-132,279),box(-483,393,-445,418)]
 mas=unary_union([mas]+fills)
+# antresola: podciąg nad salonem nie jest ścianą na piętrze
+mas=mas.difference(box(103,380,531,430))
 allw=unary_union([mas,ins])
 foot=allw.buffer(300,join_style=2).buffer(-300,join_style=2)
 foot=Polygon(foot.exterior)
@@ -45,7 +47,9 @@ for f,ax,a0,a1 in W:
         col=allw.intersection(LineString([(c_out if f=='W' else c_out-120,a0-12),(c_out+120 if f=='W' else c_out,a0-12)]))
         b=col.bounds; c0,c1=b[0],b[2]
         wins.append(dict(f=f,ax='y',y0=a0,y1=a1,x0=c0,x1=c1,out=c_out,d=-1 if f=='W' else 1))
-for w in wins: print(w)
+for w in wins:
+    if w['f']=='E' and w['y0']>=442 and w['y1']<=932: w['terr']=True
+    print(w)
 # okna przecinają całą grubość ściany (także wysunięcie nad wejściem)
 ob=unary_union([box(w['x0'],w['y0'],w['x1'],w['y1']) for w in wins])
 mas=mas.difference(ob); ins=ins.difference(ob); allw=unary_union([mas,ins])
@@ -75,10 +79,10 @@ for g in (ring.geoms if hasattr(ring,'geoms') else [ring]):
         for q in polys(part):
             q['dark']=part.equals(g.intersection(dark_zone)); skin.append(q)
 eave=foot.buffer(14,join_style=2).difference(foot)
-labels=[('Sypialnia 1',-400,190),('Łazienka',-30,190),('Pustka nad salonem',320,200),('Hol / galeria',230,490),('Pralnia ?',-540,600),
+labels=[('Sypialnia 1',-400,190),('Łazienka',-30,190),('Pustka nad salonem',320,200),('Hol / antresola',230,490),('Pralnia',-540,600),
         ('Sypialnia 2',-480,1000),('Schody',-140,960),('Sypialnia główna',260,750),('Garderoba',-100,1200),('Łazienka główna',350,1110)]
 Z['UP']=dict(walls=polys(mas),ins=polys(ins),doors=doors,wins=wins,floorOak=polys(floorOak),floorBath=polys(floorBath),ceil=polys(ceil),
-             skin=skin,eave=polys(eave),foot=polys(foot)[0],labels=labels,stair=[list(c) for c in stair.exterior.coords])
+             skin=skin,eave=polys(eave),foot=polys(foot)[0],labels=labels,terr=dict(x0=581,x1=975,y0=442,y1=932),stair=[list(c) for c in stair.exterior.coords])
 Z['slabP']=polys(slab)
 Z['upP']=[]
 for s in Z['skin']: pass
