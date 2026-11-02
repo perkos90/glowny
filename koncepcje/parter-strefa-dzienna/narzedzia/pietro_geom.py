@@ -84,7 +84,7 @@ for g in (ring.geoms if hasattr(ring,'geoms') else [ring]):
             q['dark']=part.equals(g.intersection(dark_zone)); skin.append(q)
 eave=foot.buffer(14,join_style=2).difference(foot)
 corn=[]
-for off,h0,h1 in [(1.5,587,607),(4,607,615),(8,615,624),(12,624,634),(16,634,642),(12,642,654),(28,654,662)]:
+for off,h0,h1 in [(3.5,587,607),(5.5,607,615),(8,615,624),(12,624,634),(16,634,642),(12,642,654),(28,654,662)]:
     ring=foot.buffer(off,join_style=2).difference(foot)
     DK=unary_union([box(230,-90,640,-44),box(575,-90,640,452)])  # ciemna bryła salonu – biały gzyms nie nachodzi na jej opaskę (do 6,02)
     if h0<602:
