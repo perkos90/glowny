@@ -1821,6 +1821,8 @@ const VIEWS = {
   zogr:   { pos: [2100, 250, 380], look: [300, 650], up: 30, down: 20 },
   zfront: { pos: [-1900, 250, 330], look: [-600, 600], up: 30, down: 18 },
   zbok:   { pos: [500, -1700, 420], look: [-200, 700], up: 30, down: 18 },
+  zgymE:  { pos: [-200, 1500, 150], look: [332, 1500], up: 40, down: 36 },
+  zgymN:  { pos: [100, 1350, 150], look: [100, 1723], up: 40, down: 36 },
   zgar:   { pos: [-490, 700, 160], look: [-490, 1280], up: 36, down: 36 },
   zpod:   { pos: [200, 690, 140], look: [-135, 800], up: 40, down: 30 },
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
