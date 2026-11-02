@@ -51,6 +51,7 @@ for f,ax,a0,a1 in W:
         b=col.bounds; c0,c1=b[0],b[2]
         wins.append(dict(f=f,ax='y',y0=a0,y1=a1,x0=c0,x1=c1,out=c_out,d=-1 if f=='W' else 1))
 for w in wins:
+    if w['f']=='N': w['sill']=180  # O10 140×60 wg DWG (Hp=0 na rzucie to błąd – okno nad łóżkiem, nad dachem parteru)
     if w['f']=='E' and w['y0']>=442 and w['y1']<=932: w['terr']=True
     print(w)
 # okna przecinają całą grubość ściany (także wysunięcie nad wejściem)

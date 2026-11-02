@@ -1662,12 +1662,12 @@ const FACE = { E: { ax: 'y', c: 581, d: 1 }, W: { ax: 'y', c: -689, d: -1 }, Wr:
 function fbox(f, a0, a1, h0, h1, m, d0 = 0, d1 = 2.5) { const F = FACE[f], p = F.c + F.d * d0, q = F.c + F.d * d1, c0 = Math.min(p, q), c1 = Math.max(p, q);
   return F.ax === 'y' ? B(c0, c1, a0, a1, h0, h1, m) : B(a0, a1, c0, c1, h0, h1, m); }
 function fplane(f, a0, a1, h0, h1, m, d) { const F = FACE[f], c = F.c + F.d * d; const p = F.ax === 'y' ? plane(c, (a0 + a1) / 2, (h0 + h1) / 2, a1 - a0, h1 - h0, m, F.d > 0 ? -Math.PI / 2 : Math.PI / 2) : plane((a0 + a1) / 2, c, (h0 + h1) / 2, a1 - a0, h1 - h0, m, F.d > 0 ? 0 : Math.PI); p.castShadow = false; return p; }
-function hipRoof(x0, x1, y0, y1, hE, pitch, m) {
+function hipRoof(x0, x1, y0, y1, hE, pitch, m, noWest) {
   const W = x1 - x0, L = y1 - y0, t = Math.tan(pitch * Math.PI / 180), P = (x, y, h) => [-x / 100, h / 100, y / 100], v = [];
   const tri = (a, b, c) => v.push(...a, ...b, ...c), quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
   const A = P(x0, y0, hE), Bq = P(x1, y0, hE), C = P(x1, y1, hE), D = P(x0, y1, hE);
   if (L >= W) { const r = W / 2, hr = hE + r * t, R1 = P(x0 + r, y0 + r, hr), R2 = P(x0 + r, y1 - r, hr); tri(A, Bq, R1); tri(C, D, R2); quad(Bq, C, R2, R1); quad(D, A, R1, R2); }
-  else { const r = L / 2, hr = hE + r * t, R1 = P(x0 + r, y0 + r, hr), R2 = P(x1 - r, y0 + r, hr); tri(D, A, R1); tri(Bq, C, R2); quad(A, Bq, R2, R1); quad(C, D, R1, R2); }
+  else { const r = L / 2, hr = hE + r * t, R1 = P(noWest ? x0 : x0 + r, y0 + r, hr), R2 = P(x1 - r, y0 + r, hr); tri(D, A, R1); tri(Bq, C, R2); quad(A, Bq, R2, R1); quad(C, D, R1, R2); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals();
   const uv = []; for (let i = 0; i < v.length; i += 3) uv.push(v[i] * .8, v[i + 2] * .8 + v[i + 1] * .8); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   const me = new THREE.Mesh(g, m); me.castShadow = true; me.receiveShadow = true; me.name = 'CEIL'; CUR.add(me); return me; }
@@ -1718,7 +1718,7 @@ function zoneExterior() {
   for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
   for (const q of H.UP.soff) nm(extrude(q, 659, 662, mat.ext));
   for (const [x0, x1, y0, y1] of [[-722, 614, -84, -79], [-722, 614, 1406, 1411], [-722, -717, -84, 1411], [609, 614, -84, 1411]]) nm(B(x0, x1, y0, y1, 659, 668, mat.black)); // rynna wzdłuż krawędzi dachu
-  { const o = H.UP.footS.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
+  if (false) { const o = H.UP.footS.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
       const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
       // strona zewnętrzna: sprawdź punkt odsunięty od krawędzi
       const nx = ax ? 0 : 1, ny = ax ? 1 : 0, mx = (xa + xb) / 2, my = (ya + yb) / 2;
@@ -1729,10 +1729,10 @@ function zoneExterior() {
         const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 642, 654, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 642, 654, mat.ext); m.name = 'CEIL'; } } }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
-  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick);
+  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { const TT = f === 'WN' || f === 'WE' ? 256 : 240; fbox(f, a0, a1, TT, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick);
     if (f === 'Wr') continue; // opaski okien parteru wg elewacji DWG: płaski panel (+15 cm) i wąska opaska 7 cm przy oknie
-    fbox(f, a0 - 17, a0, 0, 255, mat.ext, 0, 4); fbox(f, a1, a1 + 17, 0, 255, mat.ext, 0, 4); fbox(f, a0, a1, 248, 255, mat.ext, 0, 4);
-    fbox(f, a0 - 7, a0, 0, 248, mat.ext, 0, 6.5); fbox(f, a1, a1 + 7, 0, 248, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, 240, 248, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, -6, 2, mat.ext, 0, 6.5); fbox(f, a0 - 17, a1 + 17, -12, -6, mat.ext, 0, 4); }
+    fbox(f, a0 - 17, a0, 0, TT + 15, mat.ext, 0, 4); fbox(f, a1, a1 + 17, 0, TT + 15, mat.ext, 0, 4); fbox(f, a0, a1, TT + 8, TT + 15, mat.ext, 0, 4);
+    fbox(f, a0 - 7, a0, 0, TT + 8, mat.ext, 0, 6.5); fbox(f, a1, a1 + 7, 0, TT + 8, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, TT, TT + 8, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, -6, 2, mat.ext, 0, 6.5); fbox(f, a0 - 17, a1 + 17, -12, -6, mat.ext, 0, 4); }
   // ciemna rama przeszklenia salonu (nad szkłem do gzymsu)
   zoneDarkBlock();
   // okna piętra wg elewacji (południowa DWG = od ogrodu): 3 otwory + drzwi na balkon; od wejścia 3 okna; od zachodu 2 okna z balkonikami francuskimi
@@ -1740,7 +1740,7 @@ function zoneExterior() {
   zoneUpperExt();
   // dachy czterospadowe (blachodachówka ciemnoszara RAL 8022)
   hipRoof(-720, 612, -82, 1409, 662, 30, mat.roofM);
-  hipRoof(-1624, -662, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1380, 1763, 334, 30, mat.roofM); // dach skrzydła zaczyna się za ścianą piętra (wcześniej wchodził do pokoju)
+  hipRoof(-1624, -662, 1003, 1764, 334, 30, mat.roofM); hipRoof(-1143, 372, 1380, 1763, 334, 30, mat.roofM, true); // dach skrzydła zaczyna się za ścianą piętra (wcześniej wchodził do pokoju)
   nm(B(206, 372, 1303, 1382, 330, 336, mat.roofM));
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
@@ -1794,6 +1794,33 @@ function car(cx, cy, col) { const P = M({ color: col, roughness: .25, metalness:
   sideShape(cx - 76, cx + 76, [[cy - 75, 84], [cy - 10, 132], [cy + 95, 134], [cy + 128, 90], [cy + 128, 84]], G); sideShape(cx - 70, cx + 70, [[cy - 6, 132], [cy + 92, 134], [cy + 92, 140], [cy - 2, 138]], P);
   for (const [dx, dy] of [[-82, -150], [82, -150], [-82, 150], [82, 150]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(.34, .34, .24, 28), M({ color: '#151515', roughness: .8 })); w.rotation.z = Math.PI / 2; w.position.set(-(cx + dx) / 100, .34, (cy + dy) / 100); w.castShadow = true; CUR.add(w); }
   for (const s of [-1, 1]) { B(cx + s * 60 - 14, cx + s * 60 + 14, cy - 232, cy - 229, 58, 66, mat.glow); B(cx + s * 60 - 14, cx + s * 60 + 14, cy + 229, cy + 232, 58, 66, M({ color: '#7a1010', emissive: '#300', roughness: .3 })); } }
+
+function wheel(x, y, r = 40, w = 26) { const m = new THREE.Mesh(new THREE.CylinderGeometry(r / 100, r / 100, w / 100, 28), M({ color: '#141414', roughness: .8 })); m.rotation.z = Math.PI / 2; m.position.set(-x / 100, r / 100, y / 100); m.castShadow = true; CUR.add(m);
+  const h = new THREE.Mesh(new THREE.CylinderGeometry(r * .55 / 100, r * .55 / 100, (w + 1) / 100, 20), M({ color: '#9ea2a6', metalness: .8, roughness: .3 })); h.rotation.z = Math.PI / 2; h.position.copy(m.position); CUR.add(h); }
+// Mercedes klasy G: kanciasta bryła, płaskie szyby, koło zapasowe na tylnych drzwiach (przód auta od strony bramy, y mniejsze)
+function carG(cx, cy, col) { const P = M({ color: col, roughness: .3, metalness: .55 }), G = M({ color: '#1a2026', roughness: .05, metalness: .4 }), C = mat.steel;
+  const L = 470, Wd = 193; const y0 = cy - L / 2, y1 = cy + L / 2;
+  B(cx - Wd / 2, cx + Wd / 2, y0 + 10, y1 - 10, 38, 112, P, { r: .02 });
+  B(cx - Wd / 2 + 4, cx + Wd / 2 - 4, y0 + 110, y1 - 14, 112, 196, P, { r: .02 });
+  B(cx - Wd / 2 + 3, cx + Wd / 2 - 3, y0 + 112, y0 + 116, 118, 188, G); B(cx - Wd / 2 + 3, cx + Wd / 2 - 3, y1 - 16, y1 - 12, 125, 188, G);
+  for (const sx of [-1, 1]) { B(cx + sx * (Wd / 2 - 3.5), cx + sx * (Wd / 2 - 2.5), y0 + 125, y1 - 30, 125, 188, G); B(cx + sx * Wd / 2 - 2, cx + sx * Wd / 2 + 2, y0 + 20, y1 - 20, 42, 52, P); }
+  B(cx - Wd / 2 - 6, cx + Wd / 2 + 6, y0 + 40, y0 + 105, 80, 92, P); B(cx - Wd / 2 - 6, cx + Wd / 2 + 6, y1 - 105, y1 - 40, 80, 92, P); // błotniki
+  B(cx - 70, cx + 70, y0 + 4, y0 + 10, 60, 100, M({ color: '#111', roughness: .4 })); for (const sx of [-1, 1]) cyl(cx + sx * 76, y0 + 6, 82, 98, 9, mat.glow, 20).rotation.x = Math.PI / 2;
+  B(cx - Wd / 2, cx + Wd / 2, y0, y0 + 10, 30, 50, C); B(cx - Wd / 2, cx + Wd / 2, y1 - 10, y1, 30, 50, C);
+  const sp = new THREE.Mesh(new THREE.CylinderGeometry(.38, .38, .24, 28), M({ color: '#151515', roughness: .8 })); sp.rotation.x = Math.PI / 2; sp.position.set(-cx / 100, 1.05, (y1 + 12) / 100); CUR.add(sp);
+  for (const [dx, dy] of [[-82, 85], [82, 85], [-82, L - 85], [82, L - 85]]) wheel(cx + dx, y0 + dy, 40, 28);
+}
+// Mercedes GLS: duży SUV, opływowa linia dachu
+function carGLS(cx, cy, col) { const P = M({ color: col, roughness: .25, metalness: .6 }), G = M({ color: '#1d2329', roughness: .05, metalness: .4 });
+  const L = 521, Wd = 196, y0 = cy - L / 2, y1 = cy + L / 2;
+  B(cx - Wd / 2, cx + Wd / 2, y0, y1, 34, 105, P, { r: .08 });
+  sideShape(cx - Wd / 2 + 6, cx + Wd / 2 - 6, [[y0 + 95, 105], [y0 + 195, 175], [y1 - 70, 180], [y1 - 15, 150], [y1 - 15, 105]], G);
+  sideShape(cx - Wd / 2 + 10, cx + Wd / 2 - 10, [[y0 + 200, 175], [y1 - 72, 180], [y1 - 72, 184], [y0 + 205, 179]], P);
+  for (const sx of [-1, 1]) B(cx + sx * (Wd / 2 - 8) - 1, cx + sx * (Wd / 2 - 8) + 1, y0 + 230, y1 - 120, 108, 178, P);
+  B(cx - 60, cx + 60, y0 - 1, y0 + 4, 62, 92, M({ color: '#111', roughness: .3 })); for (const sx of [-1, 1]) B(cx + sx * 80 - 14, cx + sx * 80 + 14, y0 - 1, y0 + 4, 88, 96, mat.glow);
+  B(cx - 90, cx + 90, y1 - 2, y1 + 1, 92, 100, M({ color: '#7a1010', emissive: '#300', roughness: .3 }));
+  for (const [dx, dy] of [[-84, 100], [84, 100], [-84, L - 105], [84, L - 105]]) wheel(cx + dx, y0 + dy, 39, 27);
+}
 function zoneGarage() {
   const X0 = -1560, X1 = -664, Y0 = 1093, Y1 = 1698;
   tiled(X0, X1, Y0, Y1, M({ color: '#9a9b9c', roughness: .35, metalness: .05 }), 1);
@@ -1801,8 +1828,9 @@ function zoneGarage() {
   // wysoka zabudowa wzdłuż ściany zach. (wg DWG 60×580): szafy białe HPL + półki
   B(X0, X0 + 58, 1098, 1680, 0, 8, mat.wallG); B(X0, X0 + 58, 1098, 1680, 8, 250, mat.white);
   for (let y = 1098; y < 1680; y += 58.2) { B(X0 + 58, X0 + 59, y + .4, y + 57.8, 10, 248, mat.white); B(X0 + 59, X0 + 62, y + 50, y + 52, 100, 160, mat.steel); }
-  // 2 auta (wg DWG), ładowarka EV, oświetlenie liniowe
-  car(-1263, 1390, '#3b4148'); car(-900, 1390, '#d9d6cf');
+  B(-1177, -977, 1673, 1698, 0, 256, mat.wall); // ściana między oknami zamiast wystających filarów
+  // 2 auta: Mercedes klasy G (czarny) i GLS (biały)
+  carG(-1263, 1390, '#1d1f22'); carGLS(-900, 1400, '#e4e2dc');
   B(-1110, -1088, 1694, 1698, 120, 160, mat.white); B(-1106, -1092, 1692, 1694, 140, 148, mat.glow); rodBetween([-1099, 1692, 120], [-1099, 1690, 90], .8, mat.black);
   for (const x of [-1263, -900]) for (const y of [1250, 1530]) B(x - 60, x + 60, y - 3, y + 3, 255, 256, mat.glow);
   areaLight(-1110, 1400, 250, 6, 4, 140, 'AREA_GAR');
@@ -1864,7 +1892,7 @@ function zoneUpper() {
     for (const c of U.ceil) extrude(c, HU1, 646, mat.wall).name = 'CEIL';
     // okna – wszystkie od podłogi (Hp = 0), wys. 240, RAL 7016, balustrady francuskie na zewnątrz
     { const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g;
-      for (const w of U.wins) windowUnit(Object.assign({ name: 'U ' + w.f, sill: 0, top: 240, div: (w.ax === 'x' ? w.x1 - w.x0 : w.y1 - w.y0) > 120 ? 2 : 1, ceil: HU1 - HU0 }, w));
+      for (const w of U.wins) windowUnit(Object.assign({ name: 'U ' + w.f, sill: 0, top: 240 }, w, { div: (w.ax === 'x' ? w.x1 - w.x0 : w.y1 - w.y0) > 120 ? 2 : 1, ceil: HU1 - HU0 }));
       CUR = prev; }
     // balustrada przy pustce nad salonem i przy otworze schodów
     railing('x', 106, 530, 404, HU0, 100, 11); // antresola nad salonem – czarna balustrada
@@ -1883,7 +1911,8 @@ function zoneUpperExt() {
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
     // białe pole tynku wokół okna (od pasa do okapu) + opaska okienna (listwa) – wg elewacji DWG
     R(a0 - 17, a0, o, o + d * 3.5, 330, 587, mat.ext); R(a1, a1 + 17, o, o + d * 3.5, 330, 587, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 587, mat.ext);
-    R(a0 - 7, a0, o, o + d * 6, HU0, HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 6, HU0, HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 6, HU0 + 240, HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 2, mat.ext); R(a0 - 7, a0, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); // opaska dookoła okna (także dół)
+    R(a0 - 7, a0, o, o + d * 6, HU0 + (w.sill || 0), HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 6, HU0 + (w.sill || 0), HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 6, HU0 + 240, HU0 + 248, mat.ext); R(a0 - 7, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 2, mat.ext); R(a0 - 7, a0, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); R(a1, a1 + 7, o, o + d * 8.5, HU0 - 6, HU0 + 248, mat.ext); // opaska dookoła okna (także dół)
+    const SL = w.sill || 0; if (SL) { R(a0, a1, o - d * 6, o + d * 2.5, HU0, HU0 + SL, mat.brick); R(a0 - 7, a1 + 7, o, o + d * 8.5, HU0 + SL - 8, HU0 + SL, mat.ext); continue; }
     if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
     const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
   // mini balkon nad wejściem (wg elewacji DWG): płyta 43 cm z gzymsem, balustrada na szerokość portalu
@@ -1906,7 +1935,7 @@ function zoneUpperExt() {
 }
 function buildZone() {
   zoneShell(); zoneFloors();
-  for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
+  for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; if (Math.min(...ys) >= 1300 && Math.min(...xs) > 150) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
   zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice(); zoneUpper();
 }
@@ -1991,6 +2020,11 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zroofG: { iso: true, fov: 50, pos: [-200, 2300, 1100], look: [-700, 1400, 350], up: 40, down: 40 },
+  zgar3:  { pos: [-700, 1150, 200], look: [-1250, 1500], up: 40, down: 40 },
+  zgymE2: { pos: [-100, 1450, 165], look: [330, 1550], up: 40, down: 40 },
+  zgymN2: { pos: [100, 1400, 165], look: [100, 1730], up: 40, down: 40 },
+  zgar2:  { pos: [-1060, 1250, 170], look: [-1060, 1730], up: 40, down: 30 },
   zwin1:  { iso: true, fov: 40, pos: [-1050, 300, 430], look: [-689, 180, 450], up: 40, down: 40 },
   zwall:  { iso: true, fov: 60, pos: [-1300, 700, 400], look: [-689, 700, 550], up: 40, down: 40 },
   zgwin:  { iso: true, fov: 45, pos: [-1100, 895, 200], look: [-689, 895, 250], up: 40, down: 40 },
