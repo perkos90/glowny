@@ -1381,7 +1381,7 @@ function zoneShell() {
   B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, HR + 20, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
   // podciągi wg DWG: nad przejściem jadalnia–hol 25×40 (spód ok. 265 cm wg przekroju), w garderobie 2× 25×35 (spód ok. 273 cm)
-  B(-25, 0, BEAM1, 646, 265, HN, mat.wall).name = 'BEAM';
+  B(-25, 0, BEAM1, 916.3, 265, HN, mat.wall).name = 'BEAM'; // podciąg biegnie do ściany spiżarni
   B(-640, -339, 1072, 1097, 273, HN, mat.wall).name = 'BEAM'; // drugi podciąg (od strony czarnych szaf) usunięty
   // siłownia w parterowym skrzydle: niższy sufit ok. 256 cm (przekrój DWG, podciąg 25×51)
   B(-339, 306, 1303, 1723, 256, HN, mat.wall).name = 'CEIL';
