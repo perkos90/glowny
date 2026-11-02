@@ -2020,6 +2020,7 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zdkc:   { iso: true, fov: 45, pos: [900, -350, 400], look: [560, 0, 590], up: 40, down: 40 },
   zroofG: { iso: true, fov: 50, pos: [-200, 2300, 1100], look: [-700, 1400, 350], up: 40, down: 40 },
   zgar3:  { pos: [-700, 1150, 200], look: [-1250, 1500], up: 40, down: 40 },
   zgymE2: { pos: [-100, 1450, 165], look: [330, 1550], up: 40, down: 40 },
