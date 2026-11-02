@@ -1739,7 +1739,8 @@ function zoneExterior() {
   zoneUpperExt();
   // dachy czterospadowe (blachodachówka ciemnoszara RAL 8022)
   hipRoof(-720, 612, -82, 1409, 662, 30, mat.roofM);
-  hipRoof(-1624, -624, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1263, 1763, 334, 30, mat.roofM);
+  hipRoof(-1624, -662, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1380, 1763, 334, 30, mat.roofM); // dach skrzydła zaczyna się za ścianą piętra (wcześniej wchodził do pokoju)
+  nm(B(206, 372, 1303, 1382, 330, 336, mat.roofM));
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
   // garaż: nadproża nad bramami i okna z parapetem 143 cm (bramy i okna rysuje windowUnit wg DWG)
@@ -2046,13 +2047,13 @@ if (INTER) {
   window.__go = go; window.__render = () => dirty = 3; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   // ---------- SPACER: chodzenie po domu strzałkami (oczy ok. 1,8 m nad podłogą, wchodzenie po schodach) ----------
-  const WALK = { on: false, yaw: 0, pitch: 0, keys: {}, solids: null, eye: 1.8, floorY: 0 };
+  const WALK = { doors: true, on: false, yaw: 0, pitch: 0, keys: {}, solids: null, eye: 1.8, floorY: 0 };
   const rc = new THREE.Raycaster(); const DOWN = new THREE.Vector3(0, -1, 0);
   const buildSolids = () => { const arr = []; scene.updateMatrixWorld(true);
     scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.name === 'LABEL' || o.name === 'GARDEN') return; let p = o, vis = true; while (p) { if (!p.visible) { vis = false; break; } p = p.parent; } if (!vis) return;
-      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); arr.push({ o, bb }); });
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); const sz = bb.getSize(new THREE.Vector3()); arr.push({ o, bb, door: Math.min(sz.x, sz.z) < .075 && sz.y > 1.7 && sz.y < 2.4 && Math.max(sz.x, sz.z) > .3 && Math.max(sz.x, sz.z) < 1.9 }); });
     WALK.solids = arr; };
-  const near = (p, r) => { const out = []; for (const s of WALK.solids) { const b = s.bb; if (p.x > b.min.x - r && p.x < b.max.x + r && p.z > b.min.z - r && p.z < b.max.z + r && p.y + 2.2 > b.min.y && p.y - 3 < b.max.y) out.push(s.o); } return out; };
+  const near = (p, r, coll) => { const out = []; for (const s of WALK.solids) { const b = s.bb; if (coll && WALK.doors && s.door) continue; if (p.x > b.min.x - r && p.x < b.max.x + r && p.z > b.min.z - r && p.z < b.max.z + r && p.y + 2.2 > b.min.y && p.y - 3 < b.max.y) out.push(s.o); } return out; };
   const groundAt = (x, z, fromY, objs) => { rc.set(new THREE.Vector3(x, fromY, z), DOWN); rc.far = 3; const h = rc.intersectObjects(objs, false).find(i => i.face && i.face.normal && Math.abs(i.face.normal.clone().transformDirection(i.object.matrixWorld).y) > .5); return h ? h.point.y : null; };
   const blocked = (pos, dir, objs) => { for (const hh of [.45, .9, 1.6]) { rc.set(new THREE.Vector3(pos.x, WALK.floorY + hh, pos.z), dir); rc.far = .38; const hit = rc.intersectObjects(objs, false); if (hit.length && !(hit[0].object.material && hit[0].object.material.opacity < .2 && hh > 2)) return true; } return false; };
   const walkStart = (x, y, yaw) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, 2, y / 100), 1);
@@ -2061,6 +2062,7 @@ if (INTER) {
   window.__walkStop = () => { if (WALK.on) walkStop(); };
   window.__walk = (on, at) => { if (on) { const P = { schody: [-80, 600, Math.PI], wejscie: [-470, 535, Math.PI / 2], salon: [330, 300, Math.PI], pietro: [200, 490, -Math.PI / 2] }[at || 'wejscie']; walkStart(...P); } else walkStop(); };
   window.__walkKey = (k, down) => { WALK.keys[k] = down; };
+  window.__walkDoors = on => { WALK.doors = on; };
   window.__walkSim = (k, n) => { WALK.keys[k] = true; for (let i = 0; i < n; i++) walkStep(.05); WALK.keys[k] = false; return [cam.position.x, cam.position.y, cam.position.z, WALK.floorY].map(v => +v.toFixed(2)); };
   addEventListener('keydown', e => { if (!WALK.on) return; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'q', 'e', 'Shift'].includes(e.key)) { WALK.keys[e.key] = true; e.preventDefault(); } if (e.key === 'Escape') walkStop(); });
   addEventListener('keyup', e => { WALK.keys[e.key] = false; });
@@ -2072,8 +2074,8 @@ if (INTER) {
     if (tr) WALK.yaw += tr * 1.6 * dt;
     const sp = (K.Shift ? 2.6 : 1.4) * dt; const f = new THREE.Vector3(-Math.sin(WALK.yaw), 0, -Math.cos(WALK.yaw)), r = new THREE.Vector3(-f.z, 0, f.x);
     const mv = f.multiplyScalar(fw).add(r.multiplyScalar(st)); let moved = false;
-    if (mv.lengthSq() > 0) { mv.normalize(); const objs = near(cam.position, 1.2); const pos = cam.position;
-      for (const [dx, dz] of [[mv.x, mv.z], [mv.x, 0], [0, mv.z]]) { if (!dx && !dz) continue; const d = new THREE.Vector3(dx, 0, dz).normalize(); if (blocked(pos, d, objs)) continue;
+    if (mv.lengthSq() > 0) { mv.normalize(); const objs = near(cam.position, 1.2), cobj = near(cam.position, 1.2, true); const pos = cam.position;
+      for (const [dx, dz] of [[mv.x, mv.z], [mv.x, 0], [0, mv.z]]) { if (!dx && !dz) continue; const d = new THREE.Vector3(dx, 0, dz).normalize(); if (blocked(pos, d, cobj)) continue;
         const nx = pos.x + d.x * sp * Math.hypot(dx, dz), nz = pos.z + d.z * sp * Math.hypot(dx, dz); const gy = groundAt(nx, nz, WALK.floorY + .5, objs);
         if (gy == null || gy < WALK.floorY - .6 || gy > WALK.floorY + .3) continue; pos.x = nx; pos.z = nz; WALK.floorY = gy; moved = true; break; } }
     const ty = WALK.floorY + WALK.eye; cam.position.y += (ty - cam.position.y) * Math.min(1, dt * 10);
