@@ -1729,7 +1729,7 @@ function zoneExterior() {
         const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 642, 654, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 642, 654, mat.ext); m.name = 'CEIL'; } } }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
-  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { const TT = f === 'WN' || f === 'WE' ? 256 : 240; fbox(f, a0, a1, TT, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick);
+  for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { const TT = f === 'WN' || f === 'WE' ? 256 : 240; fbox(f, a0 - 1, a1 + 1, TT, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick);
     if (f === 'Wr') continue; // opaski okien parteru wg elewacji DWG: płaski panel (+15 cm) i wąska opaska 7 cm przy oknie
     fbox(f, a0 - 17, a0, 0, TT + 15, mat.ext, 0, 4); fbox(f, a1, a1 + 17, 0, TT + 15, mat.ext, 0, 4); fbox(f, a0, a1, TT + 8, TT + 15, mat.ext, 0, 4);
     fbox(f, a0 - 7, a0, 0, TT + 8, mat.ext, 0, 6.5); fbox(f, a1, a1 + 7, 0, TT + 8, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, TT, TT + 8, mat.ext, 0, 6.5); fbox(f, a0 - 7, a1 + 7, -6, 2, mat.ext, 0, 6.5); fbox(f, a0 - 17, a1 + 17, -12, -6, mat.ext, 0, 4); }
@@ -1910,7 +1910,10 @@ function zoneUpperExt() {
     const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
     // nad oknem klinkier aż do gzymsu; jedna opaska 10 cm dookoła okna (bez dodatkowej ramki)
-    uvScale(R(a0, a1, o - d * 6, o + d * 2.6, HU0 + 240, 600, mat.brick), 1);
+    { const c0 = o, c1 = o + d * 2.5, q0 = a0 - 1, q1 = a1 + 1; // klinkier nad oknem w tej samej płaszczyźnie i z tym samym układem cegieł co ściana
+      const poly = { o: along ? [[q0, c0], [q1, c0], [q1, c1], [q0, c1]] : [[c0, q0], [c1, q0], [c1, q1], [c0, q1]], h: [] };
+      const m = nm(extrude(poly, HU0 + 240, 600, mat.brick)); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) - 2.4); uv.needsUpdate = true;
+      R(a0, a1, o - d * 6, o, HU0 + 240, 600, mat.wall); }
     { const S = HU0 + (w.sill || 0) - 8; R(a0 - 10, a0, o, o + d * 4, S, HU0 + 250, mat.ext); R(a1, a1 + 10, o, o + d * 4, S, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, HU0 + 240, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, S, S + 8, mat.ext); }
     const SL = w.sill || 0; if (SL) { R(a0, a1, o - d * 6, o + d * 2.5, HU0, HU0 + SL, mat.brick); continue; }
     if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
