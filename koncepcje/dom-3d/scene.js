@@ -1718,7 +1718,7 @@ function zoneExterior() {
   for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
   for (const q of H.UP.soff) nm(extrude(q, 659, 662, mat.ext));
   for (const [x0, x1, y0, y1] of [[-722, 614, -84, -79], [-722, 614, 1406, 1411], [-722, -717, -84, 1411], [609, 614, -84, 1411]]) nm(B(x0, x1, y0, y1, 659, 668, mat.black)); // rynna wzdłuż krawędzi dachu
-  { const o = H.UP.foot.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
+  { const o = H.UP.footS.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
       const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
       // strona zewnętrzna: sprawdź punkt odsunięty od krawędzi
       const nx = ax ? 0 : 1, ny = ax ? 1 : 0, mx = (xa + xb) / 2, my = (ya + yb) / 2;
@@ -1991,6 +1991,8 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zwall:  { iso: true, fov: 60, pos: [-1300, 700, 400], look: [-689, 700, 550], up: 40, down: 40 },
+  zgwin:  { iso: true, fov: 45, pos: [-1100, 895, 200], look: [-689, 895, 250], up: 40, down: 40 },
   zcornNW: { iso: true, fov: 45, pos: [-1000, 1700, 450], look: [-640, 1250, 620], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },

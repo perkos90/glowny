@@ -89,7 +89,7 @@ gut=polys(foot.buffer(31,join_style=2).difference(foot.buffer(26,join_style=2)))
 soff=polys(box(-720,-82,612,1409).difference(foot))  # podsufitka okapu pod całym dachem (bez szczelin przy uskokach)
 labels=[('Sypialnia 1',-400,190),('Łazienka',-30,190),('Pustka nad salonem',320,200),('Hol / antresola',230,490),('Pralnia',-540,600),
         ('Sypialnia 2',-480,1000),('Schody',-140,960),('Sypialnia główna',260,750),('Garderoba',-100,1200),('Łazienka główna',350,1110)]
-Z['UP']=dict(corn=corn,gut=gut,soff=soff,walls=polys(mas),ins=polys(ins),doors=doors,wins=wins,floorOak=polys(floorOak),floorBath=polys(floorBath),ceil=polys(ceil),
+Z['UP']=dict(footS=polys(foot.simplify(3))[0],corn=corn,gut=gut,soff=soff,walls=polys(mas),ins=polys(ins),doors=doors,wins=wins,floorOak=polys(floorOak),floorBath=polys(floorBath),ceil=polys(ceil),
              skin=skin,eave=polys(eave),foot=polys(foot)[0],labels=labels,terr=dict(x0=581,x1=975,y0=442,y1=932),balk=dict(x0=-732,x1=-689,y0=382,y1=689),stair=[list(c) for c in stair.exterior.coords])
 Z['slabP']=polys(slab)
 Z['upP']=[]
