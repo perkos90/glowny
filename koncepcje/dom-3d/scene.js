@@ -171,9 +171,9 @@ function livingDetails() {
   // gzyms
   if (!/^k2w/.test(String(CONCEPT))) { B(102, 553, 0, 12, HR - 12, HR, mat.wall2); B(102, 115, 0, BEAM0, HR - 12, HR, mat.wall2); }
   // zasłony
-  for (const [y0, y1] of [[2, 70], [324, 392]]) { const g = new THREE.PlaneGeometry((y1 - y0) / 100, (HR - 12) / 100, 60, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 55) * .035);
-    const c = new THREE.Mesh(g, M({ map: T.linen, color: '#efe6d6', roughness: 1, side: THREE.DoubleSide })); c.rotation.y = Math.PI / 2; c.position.set(-(WIN - 14) / 100, (HR - 12) / 200, (y0 + y1) / 200); c.castShadow = true; c.receiveShadow = true; CUR.add(c); }
-  B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
+  for (const [y0, y1] of [[2, 70], [324, 392]]) { const CT = ZONE ? HR - 25 : HR - 12; const g = new THREE.PlaneGeometry((y1 - y0) / 100, CT / 100, 60, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 55) * .035);
+    const c = new THREE.Mesh(g, M({ map: T.linen, color: '#efe6d6', roughness: 1, side: THREE.DoubleSide })); c.rotation.y = Math.PI / 2; c.position.set(-(WIN - 14) / 100, CT / 200, (y0 + y1) / 200); c.castShadow = true; c.receiveShadow = true; CUR.add(c); }
+  if (!ZONE) B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
   if (NOMOULD) { builtUps(); }
   // portal wnęki
   if (!NOMOULD && !/^k[12]w/.test(String(CONCEPT))) { B(96, 108, -2, BEAM0, 280, 292, mat.wall2); B(96, 108, 0, 8, 0, 292, mat.wall2); }
@@ -1592,8 +1592,8 @@ function zoneDining() {
   vaseFlowers(cx, 690, 76, 1.1); for (const y of [610, 770]) { cyl(cx, y, 76, 78, 4, mat.brass, 16); cyl(cx, y, 78, 100, 1.2, mat.white, 12); }
   candleChandelier(cx, 688, 190);
   // zasłony lniane przy oknach HS
-  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, 282);
-  B(518, 522, Wn.D0 - 50, Wn.D1 + 50, 282, 285, mat.black); B(518, 522, Wn.K0 - 45, Wn.K1 + 2, 282, 285, mat.black);
+  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, a < Wn.K0 - 50 ? 265 : 282);
+  B(518, 522, Wn.K0 - 45, Wn.K1 + 2, 282, 285, mat.black);
   for (const [x, y] of [[120, 560], [120, 800], [450, 560], [450, 800]]) cyl(x, y, HN - 1, HN, 4, mat.glow, 16);
   areaLight(286, 690, 286, 2.5, 3.2, 55, 'AREA_JAD');
 }
@@ -1779,11 +1779,28 @@ window.__venShade = hex => { mat.ven.color.set(hex); mat.venTV && mat.venTV.colo
 window.__tvVeneer = on => { if (!mat.venTV) { mat.venTV = mat.ven.clone(); mat.venTV.color.copy(mat.ven.color); mat.venTV.name = 'fornirTV'; }
   scene.traverse(o => { if (!o.isMesh) return; if (o.userData.origMat === undefined && o.material && /^meble[BC]$/.test(o.material.name)) o.userData.origMat = o.material;
     if (o.userData.origMat) o.material = on ? mat.venTV : o.userData.origMat; }); window.__render && window.__render(); };
+
+// zabudowa karniszy w profilu podciągu (25×25) + listwy przysufitowe wokół salonu i jadalni (bez kuchni)
+function crown(ax, a0, a1, face, dir, top, H = 10.5) {
+  for (const [p, h] of [[2, H], [4, H * .66], [6.5, H * .33]]) {
+    if (ax === 'x') B(a0, a1, face, face + dir * p, top - h, top, mat.wall2, { cast: false });
+    else B(face, face + dir * p, a0, a1, top - h, top, mat.wall2, { cast: false });
+  }
+}
+function zoneCornice() {
+  const DE = 880; // koniec strefy jadalni (dalej kuchnia)
+  B(528, 553, 0, BEAM0, HR - 25, HR, mat.wall).name = 'BEAM';   // salon – zabudowa karnisza pod stropem pustki
+  B(506, 531, BEAM1, DE, HN - 25, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza (jak podciąg)
+  // salon (sufit pustki)
+  crown('x', 102, 528, 0, 1, HR); crown('x', 102, 528, BEAM0, -1, HR); crown('y', 0, BEAM0, 102, 1, HR);
+  // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
+  crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, DE, 0, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
+}
 function buildZone() {
   zoneShell(); zoneFloors();
   for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
-  zoneGym(); zoneGarage(); zoneExterior(); livingDetails();
+  zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice();
 }
 
 async function buildHouse() {
@@ -1862,6 +1879,7 @@ const VIEWS = {
   zpod:   { pos: [200, 690, 140], look: [-135, 800], up: 40, down: 30 },
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
   ztop:   { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 640, 2600] },
+  zsal:   { iso: true, fov: 70, pos: [120, 380, 200], look: [540, 120, 470], up: 40, down: 40 },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
 const vk = VIEW === 'niche' ? ((CONCEPT === '2' || /^k2w/.test(String(CONCEPT))) ? 'niche2' : (String(CONCEPT).startsWith('k1w') ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
