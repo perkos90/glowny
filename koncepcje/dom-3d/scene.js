@@ -1113,7 +1113,7 @@ function windowUnit(w) {
   const R = (p, q, r, s, h0, h1, m) => along ? B(p, q, r, s, h0, h1, m) : B(r, s, p, q, h0, h1, m);
   if (w.sill > 0) R(a0, a1, c0, c1, 0, w.sill, mat.wall);
   if (w.top < 330) R(a0, a1, c0, c1, w.top, 330, mat.wall);
-  if (w.name.startsWith('G1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.ral); for (let h = 50; h < w.top; h += 50) R(a0, a1, cm + 3, cm + 3.4, h - .4, h + .4, M({ color: '#2a2e31' })); return; }
+  if (w.name.startsWith('G1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.gdoor || mat.ral); for (let h = 50; h < w.top; h += 50) R(a0, a1, cm + 3, cm + 3.4, h - .4, h + .4, M({ color: '#2a2e31' })); return; }
   if (w.name.startsWith('D1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.black); R(a0 + 10, a1 - 10, cm - 3.8, cm - 3, 25, w.top - 25, mat.black); R(a0 + 13, a1 - 13, cm - 4.2, cm - 3.8, 28, w.top - 28, mat.black);
     const hx = a1 - 12; R(hx - 1, hx + 1, cm - 8, cm + 8, 100, 125, mat.brass); return; }
   const f = 5; R(a0, a1, cm - 4, cm + 4, w.sill, w.sill + f, mat.ral); R(a0, a1, cm - 4, cm + 4, w.top - f, w.top, mat.ral); R(a0, a0 + f, cm - 4, cm + 4, w.sill, w.top, mat.ral); R(a1 - f, a1, cm - 4, cm + 4, w.sill, w.top, mat.ral);
@@ -1211,7 +1211,7 @@ function houseWC() { // WC 0.4.1 (219×118): zabudowa dębowa za WC, szafka z ma
 }
 function houseBoiler() { // kotłownia 0.10.1 300×200: HPL szare, żywica, pompa ciepła, zasobnik
   const X0 = -637, X1 = -337, Y0 = 1474, Y1 = 1673;
-  B(X0, X0 + 1, Y0, Y1, 0, HN, mat.hpl).material = mat.hpl; B(X1 - 1, X1, Y0, Y1, 0, HN, mat.hpl); B(X0, X1, Y0, Y0 + 1, 0, HN, mat.hpl); B(X0, X1, Y1 - 1, Y1, 0, HN, mat.hpl);
+  B(X0, X0 + 1, Y0, Y1, 0, HN, mat.hpl).material = mat.hpl; B(X1 - 1, X1, Y0, Y1, 0, HN, mat.hpl); B(X0, X1, Y0, Y0 + 1, 0, HN, mat.hpl); if (ZONE) { B(X0, -629, Y1 - 1, Y1, 0, HN, mat.hpl); B(-539, X1, Y1 - 1, Y1, 0, HN, mat.hpl); B(-629, -539, Y1 - 1, Y1, 205, HN, mat.hpl); } else B(X0, X1, Y1 - 1, Y1, 0, HN, mat.hpl);
   for (const m of CUR.children.slice(-4)) uvScale(m, 1);
   B(X0, X1, Y0, Y1, HN - 1, HN, M({ color: '#6c6d6f', roughness: .7 })); B(X0 + 60, X1 - 60, (Y0 + Y1) / 2 - 1.5, (Y0 + Y1) / 2 + 1.5, HN - 2.5, HN - 1, mat.glow);
   areaLight((X0 + X1) / 2, (Y0 + Y1) / 2, 286, 1.8, .1, 70, 'AREA_KOT');
@@ -1336,7 +1336,7 @@ function zoneShell() {
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
   // podciągi wg DWG: nad przejściem jadalnia–hol 25×40 (spód ok. 265 cm wg przekroju), w garderobie 2× 25×35 (spód ok. 273 cm)
   B(-25, 0, BEAM1, 646, 265, HN, mat.wall).name = 'BEAM';
-  B(-640, -339, 1072, 1097, 273, HN, mat.wall).name = 'BEAM'; B(-640, -339, 1137, 1162, 273, HN, mat.wall).name = 'BEAM';
+  B(-640, -339, 1072, 1097, 273, HN, mat.wall).name = 'BEAM'; // drugi podciąg (od strony czarnych szaf) usunięty
   // siłownia w parterowym skrzydle: niższy sufit ok. 256 cm (przekrój DWG, podciąg 25×51)
   B(-339, 306, 1303, 1723, 256, HN, mat.wall).name = 'CEIL';
   // okna wg oferty Yawal: jadalnia poz. 4 HS 2700×2400, kuchnia poz. 5 HS 2400×2400 (osadzone w osi otworów z DWG)
@@ -1648,7 +1648,7 @@ Object.assign(mat, {
   roofM: M({ map: T.roof, roughness: .7, side: THREE.DoubleSide, name: 'dach' }), glassD: M({ color: '#2b343a', roughness: .06, metalness: .55, name: 'szybaZew' }),
   gdoor: M({ color: '#3a302a', roughness: .6, name: 'bramaGaraz' }),
 });
-const FACE = { E: { ax: 'y', c: 581, d: 1 }, W: { ax: 'y', c: -689, d: -1 }, Wr: { ax: 'y', c: -580, d: -1 }, S: { ax: 'x', c: -50, d: -1 }, WN: { ax: 'x', c: 1723, d: 1 }, WE: { ax: 'y', c: 332, d: 1 }, GS: { ax: 'x', c: 1043, d: -1 } };
+const FACE = { E: { ax: 'y', c: 581, d: 1 }, W: { ax: 'y', c: -689, d: -1 }, Wr: { ax: 'y', c: -580, d: -1 }, S: { ax: 'x', c: -50, d: -1 }, WN: { ax: 'x', c: 1723, d: 1 }, WE: { ax: 'y', c: 332, d: 1 }, GS: { ax: 'x', c: 1043, d: -1 }, GN: { ax: 'x', c: 1724, d: 1 } };
 function fbox(f, a0, a1, h0, h1, m, d0 = 0, d1 = 2.5) { const F = FACE[f], p = F.c + F.d * d0, q = F.c + F.d * d1, c0 = Math.min(p, q), c1 = Math.max(p, q);
   return F.ax === 'y' ? B(c0, c1, a0, a1, h0, h1, m) : B(a0, a1, c0, c1, h0, h1, m); }
 function fplane(f, a0, a1, h0, h1, m, d) { const F = FACE[f], c = F.c + F.d * d; const p = F.ax === 'y' ? plane(c, (a0 + a1) / 2, (h0 + h1) / 2, a1 - a0, h1 - h0, m, F.d > 0 ? -Math.PI / 2 : Math.PI / 2) : plane((a0 + a1) / 2, c, (h0 + h1) / 2, a1 - a0, h1 - h0, m, F.d > 0 ? 0 : Math.PI); p.castShadow = false; return p; }
@@ -1685,7 +1685,6 @@ function zoneExterior() {
   for (const b of H.band) nm(extrude(b, 330, 346, mat.ext));
   for (const b of H.eave) { nm(extrude(b, 618, 640, mat.ext)); nm(extrude(b, 640, 648, mat.black)); }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
-  for (const m of H.mass) nm(extrude(m, -12, 312, mat.wall), 'MASS');
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
   for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick); }
   // ciemna rama przeszklenia salonu (nad szkłem do gzymsu)
@@ -1699,9 +1698,10 @@ function zoneExterior() {
   hipRoof(-1624, -624, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1263, 1763, 334, 30, mat.roofM);
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
-  // garaż: 2 bramy segmentowe + okna (masa skrzydła bez wnętrza – kolejny krok)
-  for (const [a, b] of [[-1458, -1164], [-1083, -789]]) { fbox('GS', a, b, 0, 250, mat.gdoor, 2.5, 4); for (let h = 50; h < 250; h += 50) fbox('GS', a, b, h - .6, h + .6, mat.blackG, 4, 4.4); fbox('GS', a - 12, b + 12, 250, 262, mat.ext, 2.5, 6); }
-  for (const [a, b] of [[-1344, -1177], [-977, -808]]) { fplane('WN', a, b, 143, 203, mat.glassD, 3); fbox('WN', a, a + 5, 143, 203, mat.ral, 2.5, 4); fbox('WN', b - 5, b, 143, 203, mat.ral, 2.5, 4); fbox('WN', a, b, 143, 148, mat.ral, 2.5, 4); fbox('WN', a, b, 198, 203, mat.ral, 2.5, 4); }
+  // garaż: nadproża nad bramami i okna z parapetem 143 cm (bramy i okna rysuje windowUnit wg DWG)
+  for (const [a, b] of [[-1458, -1164], [-1083, -789]]) fbox('GS', a, b, 250, 330, mat.ext);
+  for (const [a, b] of [[-1344, -1177], [-977, -808]]) { fbox('GN', a, b, -12, 16, mat.brick); fbox('GN', a, b, 16, 143, mat.ext); fbox('GN', a, b, 203, 330, mat.ext); }
+  fbox('GN', -629, -539, 205, 330, mat.ext); fbox('GN', -629, -539, -12, 0, mat.brick);
   // TARAS (wg DWG): płyta x 581…1000, y -50…1355, stopnie – bez podcienia
   const tr = B(581, 1000, -50, 1355, -12, -2, mat.terr, { cast: false }); uvScale(tr, .5);
   B(1000, 1034, -50, 1355, -12, -7, mat.terr); B(581, 1034, -84, -50, -12, -7, mat.terr); B(581, 1034, 1355, 1389, -12, -7, mat.terr);
@@ -1742,6 +1742,39 @@ function zoneGym() {
   areaLight(0, 1500, 286, 4, 3, 90, 'AREA_SIL');
 }
 
+// ---------- GARAŻ (2 stanowiska, bramy i okna wg DWG) + POMIESZCZENIE TECHNICZNE + KOTŁOWNIA ----------
+function car(cx, cy, col) { const P = M({ color: col, roughness: .25, metalness: .6 }), G = M({ color: '#1d2329', roughness: .05, metalness: .4 });
+  B(cx - 91, cx + 91, cy - 232, cy + 232, 22, 70, P, { r: .06 }); B(cx - 89, cx + 89, cy - 225, cy - 60, 66, 84, P, { r: .05 }); B(cx - 89, cx + 89, cy + 120, cy + 228, 66, 90, P, { r: .05 });
+  sideShape(cx - 76, cx + 76, [[cy - 75, 84], [cy - 10, 132], [cy + 95, 134], [cy + 128, 90], [cy + 128, 84]], G); sideShape(cx - 70, cx + 70, [[cy - 6, 132], [cy + 92, 134], [cy + 92, 140], [cy - 2, 138]], P);
+  for (const [dx, dy] of [[-82, -150], [82, -150], [-82, 150], [82, 150]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(.34, .34, .24, 28), M({ color: '#151515', roughness: .8 })); w.rotation.z = Math.PI / 2; w.position.set(-(cx + dx) / 100, .34, (cy + dy) / 100); w.castShadow = true; CUR.add(w); }
+  for (const s of [-1, 1]) { B(cx + s * 60 - 14, cx + s * 60 + 14, cy - 232, cy - 229, 58, 66, mat.glow); B(cx + s * 60 - 14, cx + s * 60 + 14, cy + 229, cy + 232, 58, 66, M({ color: '#7a1010', emissive: '#300', roughness: .3 })); } }
+function zoneGarage() {
+  const X0 = -1560, X1 = -664, Y0 = 1093, Y1 = 1698;
+  tiled(X0, X1, Y0, Y1, M({ color: '#9a9b9c', roughness: .35, metalness: .05 }), 1);
+  B(X0, X1, Y0, Y1, 256, HN, mat.wall).name = 'CEIL';
+  // wysoka zabudowa wzdłuż ściany zach. (wg DWG 60×580): szafy białe HPL + półki
+  B(X0, X0 + 58, 1098, 1680, 0, 8, mat.wallG); B(X0, X0 + 58, 1098, 1680, 8, 250, mat.white);
+  for (let y = 1098; y < 1680; y += 58.2) { B(X0 + 58, X0 + 59, y + .4, y + 57.8, 10, 248, mat.white); B(X0 + 59, X0 + 62, y + 50, y + 52, 100, 160, mat.steel); }
+  // 2 auta (wg DWG), ładowarka EV, oświetlenie liniowe
+  car(-1263, 1390, '#3b4148'); car(-900, 1390, '#d9d6cf');
+  B(-1110, -1088, 1694, 1698, 120, 160, mat.white); B(-1106, -1092, 1692, 1694, 140, 148, mat.glow); rodBetween([-1099, 1692, 120], [-1099, 1690, 90], .8, mat.black);
+  for (const x of [-1263, -900]) for (const y of [1250, 1530]) B(x - 60, x + 60, y - 3, y + 3, 255, 256, mat.glow);
+  areaLight(-1110, 1400, 250, 6, 4, 140, 'AREA_GAR');
+  // drzwi: garaż → techniczne, garaż → kotłownia, kotłownia → zewnątrz (czarne)
+  doorLeaf(-664, 1356, -639, 1440, 1); doorLeaf(-664, 1561, -639, 1645, 1);
+  B(-626, -542, 1693, 1699, 0, 205, mat.black); B(-551, -547, 1688, 1693, 98, 102, mat.brass);
+  // POMIESZCZENIE TECHNICZNE (x -640…-339, y 1295…1460): rozdzielnica, szafki, stacja uzdatniania wody, rack
+  tiled(-639, -339, 1295, 1460, mat.epoxy, 1); B(-639, -339, 1295, 1460, 256, HN, mat.wall).name = 'CEIL';
+  B(-636, -345, 1297, 1340, 0, 8, mat.wallG); B(-636, -345, 1297, 1340, 8, 90, M({ color: '#d7d8d6', roughness: .5 })); B(-636, -345, 1297, 1342, 90, 93, mat.steel);
+  B(-628, -572, 1297, 1312, 120, 230, M({ color: '#e7e8e6', roughness: .4 })); B(-627, -573, 1312, 1313, 122, 228, M({ color: '#cfd1cf', roughness: .4 })); B(-578, -575, 1313, 1316, 170, 180, mat.black);
+  for (const x of [-410, -375]) { cyl(x, 1385, 0, 120, 13, M({ color: '#2f5b8a', roughness: .4 }), 24); cyl(x, 1385, 120, 128, 9, mat.black, 16); }
+  B(-440, -425, 1350, 1420, 0, 60, M({ color: '#f1f1f0', roughness: .5 }));
+  B(-540, -480, 1420, 1458, 0, 200, mat.black); for (let h = 20; h < 200; h += 18) B(-539, -481, 1419, 1420, h, h + 12, mat.blackG); B(-536, -484, 1418.5, 1419, 150, 152, mat.glow);
+  cyl(-490, 1380, HN - 1, HN, 5, mat.glow, 16); areaLight(-490, 1378, 250, 2, 1.2, 50, 'AREA_TECH');
+  // KOTŁOWNIA (zlew, pompa ciepła, zasobnik CWU – jak wcześniej) + niższy sufit
+  tiled(-639, -339, 1460, 1673, mat.epoxy, 1); houseBoiler();
+}
+
 window.__venShade = hex => { mat.ven.color.set(hex); mat.venTV && mat.venTV.color.set(hex); window.__render && window.__render(); };
 window.__tvVeneer = on => { if (!mat.venTV) { mat.venTV = mat.ven.clone(); mat.venTV.color.copy(mat.ven.color); mat.venTV.name = 'fornirTV'; }
   scene.traverse(o => { if (!o.isMesh) return; if (o.userData.origMat === undefined && o.material && /^meble[BC]$/.test(o.material.name)) o.userData.origMat = o.material;
@@ -1750,7 +1783,7 @@ function buildZone() {
   zoneShell(); zoneFloors();
   for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
-  zoneGym(); zoneExterior(); livingDetails();
+  zoneGym(); zoneGarage(); zoneExterior(); livingDetails();
 }
 
 async function buildHouse() {
@@ -1820,9 +1853,11 @@ const VIEWS = {
   zsil:   { pos: [-250, 1330, 165], look: [250, 1650], up: 36, down: 36 },
   zogr:   { pos: [2100, 250, 380], look: [300, 650], up: 30, down: 20 },
   zfront: { pos: [-1900, 250, 330], look: [-600, 600], up: 30, down: 18 },
-  zbok:   { pos: [500, -1700, 420], look: [-200, 700], up: 30, down: 18 },
+  zbok:   { pos: [-650, -650, 420], look: [-1050, 1200], up: 30, down: 22 },
   zgymE:  { pos: [-200, 1500, 150], look: [332, 1500], up: 40, down: 36 },
   zgymN:  { pos: [100, 1350, 150], look: [100, 1723], up: 40, down: 36 },
+  zgaraz: { pos: [-720, 1660, 170], look: [-1450, 1150], up: 36, down: 38 },
+  ztech:  { pos: [-360, 1445, 165], look: [-640, 1300], up: 40, down: 40 },
   zgar:   { pos: [-490, 700, 160], look: [-490, 1280], up: 36, down: 36 },
   zpod:   { pos: [200, 690, 140], look: [-135, 800], up: 40, down: 30 },
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
@@ -1850,8 +1885,8 @@ if (INTER) {
   const PRE = ZONE ? {
     jadalnia: [P3(330, 330, 165), P3(270, 900, 120)], kuchnia: [P3(260, 760, 165), P3(255, 1250, 140)], wyspa: [P3(500, 880, 160), P3(120, 1120, 110)],
     schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
-    gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)],
-    ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(500, -1700, 420), P3(-200, 700, 330)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
+    gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
+    ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     dom: [P3(-60, 120, 1900), P3(-60, 660, 0)] } : HOUSE_MODE ? {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     kuchnia: [P3(300, 720, 165), P3(270, 1150, 120)], hol: [P3(-60, 520, 160), P3(-400, 525, 140)], garderoba: [P3(-580, 750, 165), P3(-480, 1040, 120)],
