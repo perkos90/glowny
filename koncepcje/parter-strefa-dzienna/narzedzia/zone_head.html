@@ -1,0 +1,37 @@
+<title>Parter – strefa dzienna</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* pełnoekranowy model 3D, pływające panele */
+:root{--bg:#efe9df;--panel:rgba(251,248,243,.93);--fg:#2f2a25;--mut:#7a6f63;--line:#d9cfbf;--btn:#ffffff;--on:#2f2a25;--onfg:#fbf8f3;--warn:#9a5b1e;--serif:Georgia,'Times New Roman',serif;--sans:Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1f1c19;--panel:rgba(36,32,28,.92);--fg:#efe8dd;--mut:#b3a796;--line:#4a4239;--btn:#2b2621;--on:#efe8dd;--onfg:#1f1c19;--warn:#e0a55f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1f1c19;--panel:rgba(36,32,28,.92);--fg:#efe8dd;--mut:#b3a796;--line:#4a4239;--btn:#2b2621;--on:#efe8dd;--onfg:#1f1c19;--warn:#e0a55f;color-scheme:dark}
+html,body{height:100%;overflow:hidden} body{background:var(--bg);color:var(--fg);font:14px/1.4 var(--sans)} canvas{display:block}
+#ui{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;background:var(--panel);padding:10px 12px;border-radius:14px;box-shadow:0 4px 20px rgba(60,45,30,.15);width:max-content;max-width:calc(100% - 32px);z-index:5}
+.grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center} .lab{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border-radius:999px;padding:7px 12px;font:inherit;cursor:pointer} button.on{background:var(--on);color:var(--onfg);border-color:var(--on)} button:focus-visible{outline:2px solid var(--mut);outline-offset:2px}
+#hd{position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));background:var(--panel);padding:10px 14px;border-radius:12px;max-width:min(430px,calc(100% - 32px));z-index:5}
+#hd b{font:400 19px var(--serif);display:block} #hd p{margin:4px 0 0;font-size:12px;color:var(--mut)}
+#hd details{margin-top:6px;font-size:12px} #hd summary{cursor:pointer;color:var(--fg)} #hd ul{margin:6px 0 0;padding-left:18px;color:var(--mut)} #hd li{margin:2px 0} #hd .w{color:var(--warn)}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:18px var(--serif);color:var(--mut)}
+@media (max-width:640px){#hd details{display:none}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<div id="load">Ładowanie modelu 3D…</div>
+<div id="hd"><b>Parter – strefa dzienna (krok 1)</b><p>Salon z TV we wnęce, jadalnia, kuchnia z wyspą, schody, spiżarnia z drugą kuchnią, hol i gabinet. Ściany i otwory z DWG. Przeciągnij, żeby obracać, kółkiem przybliżaj.</p>
+<details><summary>Co jest w modelu</summary><ul>
+<li><b>Okna wg oferty Yawal:</b> jadalnia – poz. 4 HS DP 180, 2700×2400; kuchnia – poz. 5 HS DP 180, 2400×2400; od podłogi, RAL 7016.</li>
+<li class="w">W DWG otwór w jadalni ma ok. 325 cm, a okno z oferty 270 cm. Okno osadziłem w osi otworu, a po bokach dałem po ok. 28 cm muru.</li>
+<li><b>Kuchnia jak na wizualizacji (nie jak na rzucie):</b> przy ścianie dębowe słupki do sufitu po obu stronach; pośrodku blat z szufladami, czarna kuchnia 100 cm, biały tynkowany okap i kamienny pas do sufitu. Lodówka i zamrażarka w kremowej zabudowie we wnęce przy ścianie zachodniej.</li>
+<li><b>Wyspa 350×110</b> (jak w DWG): dąb z ramkami, kamienny blat z nawisem 30 cm od jadalni, zlew z mosiężną baterią, 4 hokery.</li>
+<li><b>Jadalnia:</b> stół dębowy 100×300, 8 krzeseł lnianych w czarnej ramie, fotel u szczytu, dywan, żyrandol świecowy, lniane zasłony.</li>
+<li><b>Schody:</b> bieg wzdłuż jadalni, od strony jadalni zabudowany gładko (jak na wizualizacji); czarne tralki, dębowa poręcz, pierwszy stopień marmurowy z zaokrągleniem.</li>
+<li class="w">Górny bieg (nad spiżarnią) jest orientacyjny – w DWG widać dokładnie tylko dolny bieg.</li>
+<li><b>Spiżarnia z drugą kuchnią</b> (za ścianą schodów, wejście z kuchni): blat 300 cm wzdłuż ściany schodów z ceramicznym zlewem i płytą domino, kremowe fronty, zellige, półki dębowe; na ścianie naprzeciw regał od podłogi do sufitu.</li>
+<li><b>Hol:</b> fornir dębowy z frezami na ścianach, szachownica, czarne drzwi wejściowe z doświetlami, przeszklone drzwi dębowe dzielące hol, drzwi do gabinetu i WC ukryte w fornirze.</li>
+<li><b>Gabinet</b> obejmuje także część pod WC, aż do ściany salonu (biurko, szafy, regał, sofa i fotele wg DWG).</li>
+</ul></details></div>
+<div id="ui">
+<div class="grp"><span class="lab">Widok</span><button data-v="jadalnia" class="on">Jadalnia</button><button data-v="kuchnia">Kuchnia</button><button data-v="wyspa">Wyspa</button><button data-v="schody">Schody</button><button data-v="spizarnia">Spiżarnia</button><button data-v="hol">Hol</button><button data-v="hol2">Hol od wejścia</button><button data-v="gabinet">Gabinet</button><button data-v="salon">Salon</button><button data-v="dom">Z góry</button></div>
+</div>
+<script>window.__ready=()=>{document.getElementById('load').remove();
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=b.dataset.v;window.__ceil(v!=='dom');window.__go(v);document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));});};</script>
