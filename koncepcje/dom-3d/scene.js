@@ -1849,6 +1849,10 @@ function zoneUpperExt() {
   { const t = U.terr, g = new THREE.Group(); g.name = 'UPPER'; CUR.add(g); const prev = CUR; CUR = g;
     B(t.x0, t.x1, t.y0, t.y1, HU0 - 30, HU0 - 2, mat.ext); const f = B(t.x0, t.x1 - 2, t.y0 + 2, t.y1 - 2, HU0 - 2, HU0 + 1, mat.terr, { cast: false }); uvScale(f, .5);
     B(t.x1 - 4, t.x1, t.y0, t.y1, HU0 - 30, HU0 - 22, mat.black); B(t.x0, t.x1, t.y0, t.y0 + 4, HU0 - 30, HU0 - 22, mat.black); B(t.x0, t.x1, t.y1 - 4, t.y1, HU0 - 30, HU0 - 22, mat.black);
+    // filary wg DWG: słup żelbetowy 25×25 w obudowie ok. 40×40 (x 935…975), tynk biały, cokół i głowica
+    for (const yc of [465, 910]) { const x0 = 935, x1 = 975, y0 = yc - 20, y1 = yc + 20;
+      B(x0 - 3, x1 + 3, y0 - 3, y1 + 3, -12, 6, mat.ext); B(x0, x1, y0, y1, 6, HU0 - 42, mat.ext);
+      B(x0 - 3, x1 + 3, y0 - 3, y1 + 3, HU0 - 42, HU0 - 36, mat.ext); B(x0 - 1.5, x1 + 1.5, y0 - 1.5, y1 + 1.5, HU0 - 36, HU0 - 30, mat.ext); }
     railing('y', t.y0 + 4, t.y1 - 4, t.x1 - 6, HU0 + 1, 100, 11); railing('x', t.x0 + 4, t.x1 - 6, t.y0 + 6, HU0 + 1, 100, 11); railing('x', t.x0 + 4, t.x1 - 6, t.y1 - 6, HU0 + 1, 100, 11);
     CUR = prev; }
   // spód wysunięcia piętra (nad wejściem i od północy)
