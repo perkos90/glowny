@@ -22,7 +22,7 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 <li><b>Okna wg oferty Yawal:</b> jadalnia – poz. 4 HS 2700×2400, kuchnia – poz. 5 HS 2400×2400. <span class="w">W DWG otwór jadalni ma ok. 325 cm – okno osadzone w osi.</span></li>
 <li><b>Kuchnia jak na wizualizacji:</b> dębowe słupki po bokach, pośrodku blat, czarna kuchnia, biały okap. Kremowa zabudowa lodówki przechodzi w ukryte drzwi do spiżarni.</li>
 <li><b>Jadalnia:</b> stół 100×300, krzesła przodem do stołu, fotel u szczytu.</li>
-<li><b>Zabudowa karniszy</b> w profilu podciągu (25×25 cm) nad oknem salonu i nad oknem HS jadalni (bez kuchni), zasłony wychodzą spod zabudowy. <b>Listwy przysufitowe</b> wokół salonu i jadalni.</li>
+<li><b>Zabudowa karniszy</b> w profilu podciągu (25×25 cm) nad oknem salonu i wzdłuż okien jadalni i kuchni aż do dębowych słupków, zasłony wychodzą spod zabudowy. <b>Listwy przysufitowe</b> w salonie oraz po obu stronach jadalni do zabudowy kuchni.</li>
 <li><b>Schody:</b> pod pierwszym biegiem wolna przestrzeń, ściana dopiero pod spocznikiem; stopnie lekko wysunięte poza bok, bez listwy. <span class="w">Górny bieg orientacyjny.</span></li>
 <li><b>Hol:</b> fornir, drobna szachownica, ukryta szafa we wnęce, ukryte drzwi do garderoby, konsola z lustrem przy wejściu, przeszklone drzwi dębowe.</li>
 <li><b>Garderoba</b> obejmuje drzwi do garażu i siłowni (podciąg tylko w linii ściany kuchni): czarne szafy na końcu, dębowe szafki z koszami przy ścianie, zielona pufa.</li>
@@ -1639,8 +1639,8 @@ function zoneDining() {
   vaseFlowers(cx, 690, 76, 1.1); for (const y of [610, 770]) { cyl(cx, y, 76, 78, 4, mat.brass, 16); cyl(cx, y, 78, 100, 1.2, mat.white, 12); }
   candleChandelier(cx, 688, 190);
   // zasłony lniane przy oknach HS
-  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, a < Wn.K0 - 50 ? 265 : 282);
-  B(518, 522, Wn.K0 - 45, Wn.K1 + 2, 282, 285, mat.black);
+  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, 265);
+  
   for (const [x, y] of [[120, 560], [120, 800], [450, 560], [450, 800]]) cyl(x, y, HN - 1, HN, 4, mat.glow, 16);
   areaLight(286, 690, 286, 2.5, 3.2, 55, 'AREA_JAD');
 }
@@ -1835,13 +1835,13 @@ function crown(ax, a0, a1, face, dir, top, H = 10.5) {
   }
 }
 function zoneCornice() {
-  const DE = 880; // koniec strefy jadalni (dalej kuchnia)
+  const DE = 1214; // do frontu dębowych słupków kuchni
   B(528, 553, 0, BEAM0, HR - 25, HR, mat.wall).name = 'BEAM';   // salon – zabudowa karnisza pod stropem pustki
   B(506, 531, BEAM1, DE, HN - 25, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza (jak podciąg)
   // salon (sufit pustki)
   crown('x', 102, 528, 0, 1, HR); crown('x', 102, 528, BEAM0, -1, HR); crown('y', 0, BEAM0, 102, 1, HR);
   // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
-  crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, DE, 0, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
+  crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, 977, 0, 1, HN, 9); crown('y', 977, DE, 2, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
 }
 function buildZone() {
   zoneShell(); zoneFloors();
@@ -1909,6 +1909,8 @@ const VIEWS = {
   top:    { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0] },
   zjad:   { pos: [400, 300, 160], look: [200, 1200], up: 36, down: 34 },
   zkuch:  { pos: [255, 760, 160], look: [255, 1278], up: 38, down: 36 },
+  zkarE:  { pos: [150, 700, 160], look: [560, 1150], up: 45, down: 20 },
+  zkarW:  { pos: [380, 700, 160], look: [-20, 1150], up: 45, down: 20 },
   zwys:   { pos: [505, 870, 160], look: [60, 1180], up: 36, down: 36 },
   zsch:   { pos: [380, 640, 160], look: [-135, 820], up: 40, down: 34 },
   zspi:   { pos: [-165, 1050, 160], look: [-300, 690], up: 38, down: 36 },
