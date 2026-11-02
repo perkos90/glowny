@@ -1686,7 +1686,7 @@ function upWin(f, a0, a1, sill, top, french) {
 // ciemna bryła salonu (tynk RAL 7022) wg elewacji DWG: od ogrodu y -50…440 (wokół przeszklenia), od strony gabinetu x 246…581;
 // listwy: ramy boczne, pas w linii stropu, opaska i gzyms pod okapem
 function zoneDarkBlock() {
-  const D = mat.dark, T0 = 572, T1 = 588, T2 = 602, R0 = 330, R1 = 346;
+  const D = mat.dark, T0 = 572, T1 = 588, T2 = 602, R0 = 306, R1 = 330;
   // elewacja boczna (y = -50): płyta + ramy + pas
   B(246, 583.5, -53.5, -50, 0, T0, D);
   B(246, 298, -56, -53.5, 0, T0, D); B(536, 583.5, -56, -53.5, 0, T0, D);
@@ -1701,7 +1701,7 @@ function zoneDarkBlock() {
   B(240, 592, -62, -50, T1, T1 + 4, D); B(553, 592, -62, 446, T1, T1 + 4, D);
   B(237, 595, -65, -50, T1 + 4, T2, D); B(553, 595, -65, 449, T1 + 4, T2, D);
   // pas międzykondygnacyjny dociągnięty do ciemnej bryły
-  B(60, 246, -57, -50, 330, 346, mat.ext); B(581, 588, 440, 455, 330, 346, mat.ext);
+  B(60, 246, -57, -50, 306, 330, mat.ext); B(581, 588, 440, 455, 306, 330, mat.ext); B(60, 246, -59, -50, 326, 330, mat.ext);
 }
 function zoneExterior() {
   const H = HOUSE, nm = (m, n = 'CEIL') => { m.name = n; return m; };
@@ -1710,8 +1710,20 @@ function zoneExterior() {
     if (s.lev === 'U') { nm(extrude(s, 330, 640, mat.brick)); continue; }
     extrude(s, -12, 16, mat.brick); extrude(s, 16, 330, mat.ext);
   }
-  for (const b of H.band) nm(extrude(b, 330, 346, mat.ext));
-  for (const b of H.UP.eave) { nm(extrude(b, 600, 640, mat.ext)); nm(extrude(b, 640, 648, mat.black)); } // gzyms okapu ok. 40 cm (DWG)
+  // pas międzykondygnacyjny wg DWG (ok. 3,06–3,30): gładki pas + listwa górna
+  for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
+  // gzyms pod dachem wg DWG: fryz, listwy schodkowe, kroksztyny (ząbki), płyta okapu i rynna
+  for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
+  for (const q of H.UP.gut) nm(extrude(q, 650, 658, mat.black));
+  { const o = H.UP.foot.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
+      const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
+      // strona zewnętrzna: sprawdź punkt odsunięty od krawędzi
+      const nx = ax ? 0 : 1, ny = ax ? 1 : 0, mx = (xa + xb) / 2, my = (ya + yb) / 2;
+      const inside = (px, py) => { let c = false; for (let j = 0, k = o.length - 1; j < o.length; k = j++) { const [xi, yi] = o[j], [xk, yk] = o[k]; if ((yi > py) !== (yk > py) && px < (xk - xi) * (py - yi) / (yk - yi) + xi) c = !c; } return c; };
+      const sg = inside(mx + nx * 5, my + ny * 5) ? -1 : 1;
+      const n = Math.floor((L - 20) / 30), a0 = Math.min(ax ? xa : ya, ax ? xb : yb) + (L - n * 30) / 2;
+      for (let k = 0; k <= n; k++) { const a = a0 + k * 30; const c0 = (ax ? ya : xa) + sg * 2, c1 = (ax ? ya : xa) + sg * 24;
+        const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 630, 642, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 630, 642, mat.ext); m.name = 'CEIL'; } } }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
   for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick); }
@@ -1721,7 +1733,7 @@ function zoneExterior() {
   // okna piętra – wg rzutu piętra z DWG (zoneUpperExt)
   zoneUpperExt();
   // dachy czterospadowe (blachodachówka ciemnoszara RAL 8022)
-  hipRoof(-772, 621, -91, 1418, 646, 30, mat.roofM);
+  hipRoof(-720, 612, -82, 1409, 650, 30, mat.roofM);
   hipRoof(-1624, -624, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1263, 1763, 334, 30, mat.roofM);
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
@@ -1863,10 +1875,17 @@ function zoneUpperExt() {
     const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
     const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
     // białe pole tynku wokół okna (od pasa do okapu) + opaska okienna (listwa) – wg elewacji DWG
-    R(a0 - 30, a0, o, o + d * 3.5, 346, 600, mat.ext); R(a1, a1 + 30, o, o + d * 3.5, 346, 600, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 600, mat.ext);
+    R(a0 - 30, a0, o, o + d * 3.5, 330, 575, mat.ext); R(a1, a1 + 30, o, o + d * 3.5, 330, 575, mat.ext); R(a0, a1, o - d * 6, o + d * 3.5, HU0 + 240, 575, mat.ext);
     R(a0 - 10, a0, o, o + d * 5.5, HU0, HU0 + 250, mat.ext); R(a1, a1 + 10, o, o + d * 5.5, HU0, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 5.5, HU0 + 240, HU0 + 252, mat.ext);
-    if (w.terr) continue;
+    if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
     const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
+  // mini balkon nad wejściem (wg elewacji DWG): płyta 43 cm z gzymsem, balustrada na szerokość portalu
+  { const b = U.balk, g = new THREE.Group(); g.name = 'UPPER'; CUR.add(g); const prev = CUR; CUR = g;
+    B(b.x0, b.x1, b.y0, b.y1, 306, 318, mat.ext); B(b.x0 - 3, b.x1, b.y0 - 3, b.y1 + 3, 318, 324, mat.ext); B(b.x0 - 5, b.x1, b.y0 - 5, b.y1 + 5, 324, 330, mat.ext);
+    const f = B(b.x0, b.x1, b.y0, b.y1, 330, 331, mat.terr, { cast: false }); uvScale(f, .5);
+    railing('y', b.y0 + 2, b.y1 - 2, b.x0 + 4, 331, 92, 11); railing('x', b.x0 + 4, b.x1, b.y0 + 3, 331, 92, 11); railing('x', b.x0 + 4, b.x1, b.y1 - 3, 331, 92, 11);
+    for (const y of [b.y0 + 3, (b.y0 + b.y1) / 2, b.y1 - 3]) B(b.x0 + 1, b.x0 + 7, y - 3, y + 3, 331, 425, mat.black);
+    CUR = prev; }
   // taras na piętrze (wg DWG), wspornikowy – bez słupów i podcienia; czarna balustrada
   { const t = U.terr, g = new THREE.Group(); g.name = 'UPPER'; CUR.add(g); const prev = CUR; CUR = g;
     B(t.x0, t.x1, t.y0, t.y1, 272, HU0 - 12, mat.ext); B(t.x0, t.x1 + 3, t.y0 - 3, t.y1 + 3, HU0 - 12, HU0 - 6, mat.ext); B(t.x0, t.x1 + 5, t.y0 - 5, t.y1 + 5, HU0 - 6, HU0 - 2, mat.ext); // czoło tarasu z gzymsem (wg DWG) const f = B(t.x0, t.x1 - 2, t.y0 + 2, t.y1 - 2, HU0 - 2, HU0 + 1, mat.terr, { cast: false }); uvScale(f, .5);
@@ -1965,6 +1984,8 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zbalk:  { iso: true, fov: 50, pos: [-1150, 650, 300], look: [-700, 530, 420], up: 40, down: 40 },
+  zeave:  { iso: true, fov: 45, pos: [1100, 200, 500], look: [581, 700, 600], up: 40, down: 40 },
   zterr:  { iso: true, fov: 60, pos: [1000, 520, 200], look: [600, 700, 300], up: 40, down: 40 },
   zsalA:  { iso: true, fov: 70, pos: [380, 60, 150], look: [250, 500, 380], up: 40, down: 40 },
   zuant:  { iso: true, fov: 70, pos: [180, 520, 500], look: [420, 60, 250], up: 40, down: 40 },

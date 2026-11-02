@@ -13,6 +13,9 @@ fills=[box(295,1278,367,1302),box(-154,1072,-99,1096),box(150,-26,171,-1),box(-1
 mas=unary_union([mas]+fills)
 # antresola: podciąg nad salonem nie jest ścianą na piętrze
 mas=mas.difference(box(103,380,531,430))
+# wysunięcie przed fasadą nad wejściem = płyta mini balkonu (nie ściana)
+BALK=box(-735,380,-689,692)
+ins=ins.difference(BALK)
 allw=unary_union([mas,ins])
 foot=allw.buffer(300,join_style=2).buffer(-300,join_style=2)
 foot=Polygon(foot.exterior)
@@ -79,10 +82,14 @@ for g in (ring.geoms if hasattr(ring,'geoms') else [ring]):
         for q in polys(part):
             q['dark']=part.equals(g.intersection(dark_zone)); skin.append(q)
 eave=foot.buffer(14,join_style=2).difference(foot)
+corn=[]
+for off,h0,h1 in [(1.5,575,595),(4,595,603),(8,603,612),(12,612,622),(16,622,630),(28,642,650)]:
+    corn.append(dict(h0=h0,h1=h1,p=polys(foot.buffer(off,join_style=2).difference(foot))))
+gut=polys(foot.buffer(31,join_style=2).difference(foot.buffer(26,join_style=2)))
 labels=[('Sypialnia 1',-400,190),('Łazienka',-30,190),('Pustka nad salonem',320,200),('Hol / antresola',230,490),('Pralnia',-540,600),
         ('Sypialnia 2',-480,1000),('Schody',-140,960),('Sypialnia główna',260,750),('Garderoba',-100,1200),('Łazienka główna',350,1110)]
-Z['UP']=dict(walls=polys(mas),ins=polys(ins),doors=doors,wins=wins,floorOak=polys(floorOak),floorBath=polys(floorBath),ceil=polys(ceil),
-             skin=skin,eave=polys(eave),foot=polys(foot)[0],labels=labels,terr=dict(x0=581,x1=975,y0=442,y1=932),stair=[list(c) for c in stair.exterior.coords])
+Z['UP']=dict(corn=corn,gut=gut,walls=polys(mas),ins=polys(ins),doors=doors,wins=wins,floorOak=polys(floorOak),floorBath=polys(floorBath),ceil=polys(ceil),
+             skin=skin,eave=polys(eave),foot=polys(foot)[0],labels=labels,terr=dict(x0=581,x1=975,y0=442,y1=932),balk=dict(x0=-732,x1=-689,y0=382,y1=689),stair=[list(c) for c in stair.exterior.coords])
 Z['slabP']=polys(slab)
 Z['upP']=[]
 for s in Z['skin']: pass
