@@ -1716,14 +1716,15 @@ function zoneExterior() {
   for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
   // gzyms pod dachem wg DWG: fryz, listwy schodkowe, kroksztyny (ząbki), płyta okapu i rynna
   for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
-  for (const q of H.UP.gut) nm(extrude(q, 662, 670, mat.black));
+  for (const q of H.UP.soff) nm(extrude(q, 659, 662, mat.ext));
+  for (const [x0, x1, y0, y1] of [[-722, 614, -84, -79], [-722, 614, 1406, 1411], [-722, -717, -84, 1411], [609, 614, -84, 1411]]) nm(B(x0, x1, y0, y1, 659, 668, mat.black)); // rynna wzdłuż krawędzi dachu
   { const o = H.UP.foot.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
       const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
       // strona zewnętrzna: sprawdź punkt odsunięty od krawędzi
       const nx = ax ? 0 : 1, ny = ax ? 1 : 0, mx = (xa + xb) / 2, my = (ya + yb) / 2;
       const inside = (px, py) => { let c = false; for (let j = 0, k = o.length - 1; j < o.length; k = j++) { const [xi, yi] = o[j], [xk, yk] = o[k]; if ((yi > py) !== (yk > py) && px < (xk - xi) * (py - yi) / (yk - yi) + xi) c = !c; } return c; };
       const sg = inside(mx + nx * 5, my + ny * 5) ? -1 : 1;
-      const n = Math.floor((L - 20) / 30), a0 = Math.min(ax ? xa : ya, ax ? xb : yb) + (L - n * 30) / 2;
+      const n = Math.floor((L - 50) / 30), a0 = Math.min(ax ? xa : ya, ax ? xb : yb) + (L - n * 30) / 2; if (n < 1) continue;
       for (let k = 0; k <= n; k++) { const a = a0 + k * 30; const c0 = (ax ? ya : xa) + sg * 2, c1 = (ax ? ya : xa) + sg * 24;
         const m = ax ? B(a - 5, a + 5, Math.min(c0, c1), Math.max(c0, c1), 642, 654, mat.ext) : B(Math.min(c0, c1), Math.max(c0, c1), a - 5, a + 5, 642, 654, mat.ext); m.name = 'CEIL'; } } }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
@@ -1990,6 +1991,8 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zcornNW: { iso: true, fov: 45, pos: [-1000, 1700, 450], look: [-640, 1250, 620], up: 40, down: 40 },
+  zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
   zbalk:  { iso: true, fov: 50, pos: [-1150, 650, 300], look: [-700, 530, 420], up: 40, down: 40 },
