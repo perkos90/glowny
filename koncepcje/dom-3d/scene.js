@@ -1112,7 +1112,7 @@ function windowUnit(w) {
   const along = w.ax === 'x', a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1, c0 = along ? w.y0 : w.x0, c1 = along ? w.y1 : w.x1, cm = (c0 + c1) / 2;
   const R = (p, q, r, s, h0, h1, m) => along ? B(p, q, r, s, h0, h1, m) : B(r, s, p, q, h0, h1, m);
   if (w.sill > 0) R(a0, a1, c0, c1, 0, w.sill, mat.wall);
-  if (w.top < 330) R(a0, a1, c0, c1, w.top, 330, mat.wall);
+  const WC = w.ceil || 330; if (w.top < WC) R(a0, a1, c0, c1, w.top, WC, mat.wall);
   if (w.name.startsWith('G1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.gdoor || mat.ral); for (let h = 50; h < w.top; h += 50) R(a0, a1, cm + 3, cm + 3.4, h - .4, h + .4, M({ color: '#2a2e31' })); return; }
   if (w.name.startsWith('D1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.black); R(a0 + 10, a1 - 10, cm - 3.8, cm - 3, 25, w.top - 25, mat.black); R(a0 + 13, a1 - 13, cm - 4.2, cm - 3.8, 28, w.top - 28, mat.black);
     const hx = a1 - 12; R(hx - 1, hx + 1, cm - 8, cm + 8, 100, 125, mat.brass); return; }
@@ -1439,27 +1439,35 @@ function zoneOffice() {
 
 // ---------- SCHODY (bieg 1 zabudowany, balustrada czarna, poręcz dębowa, marmurowy pierwszy stopień) ----------
 function zoneStairs() {
-  const X0 = -135, X1 = -25, y0 = 646, n1 = 10, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS;
-  // bieg 1 jako płyta schodkowa ze skośnym spodem – pod schodami wolna przestrzeń (ściana dopiero pod spocznikiem)
+  // wg DWG: bieg 1 – 13×18,3 / 27 (x -136…-25, w górę na północ), spocznik y 970…1072, bieg 2 – 5×18,3 / 27 (x -243…-136, z powrotem na południe do holu piętra)
+  const X0 = -135, X1 = -25, y0 = 646, n1 = 12, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS, YN = 1072, XW = -243, XM = -136;
+  // bieg 1 jako płyta schodkowa ze skośnym spodem – pod schodami wolna przestrzeń
   const pts = []; for (let i = 1; i < n1; i++) pts.push([y0 + i * GS_, (i + 1) * RS - 3], [y0 + (i + 1) * GS_, (i + 1) * RS - 3]);
   pts.push([yL, n1 * RS - 30], [y0 + GS_, 0]);
   sideShape(X0, X1, pts, mat.wall);
-  // stopnie dębowe lekko wysunięte poza bok schodów (jak na wizualizacji), podstopnie białe
   for (let i = 1; i < n1; i++) { const y = y0 + i * GS_, h = (i + 1) * RS; B(X0, X1, y, y + 1.5, h - RS - 3, h - 3, mat.pp); B(X0, X1 + 2.5, y - 2.5, y + GS_, h - 3, h, mat.oak); }
-  // spocznik + bieg 2 (nad spiżarnią – orientacyjnie, piętro niemodelowane)
-  B(X0, X1, yL, 977, hL - 18, hL - 3, mat.wall); B(X0, X1, yL - 2.5, 977, hL - 3, hL, mat.oak);
-  for (let k = 0; k < 6; k++) { const xa = X0 - (k + 1) * GS_, xb = X0 - k * GS_, h = hL + (k + 1) * RS; B(xa, xb + 2.5, 916, 977, h - 3, h, mat.oak); B(xb - 1.5, xb, 916, 977, h - RS - 3, h - 3, mat.pp); }
-  frontShape(916, 977, [[X0, hL - 18], [X0 - 6 * GS_, hL - 18 + 6 * RS], [X0 - 6 * GS_, hL + 6 * RS - 3], [X0, hL - 3]], mat.wall);
-  const slope = RS / GS_, top = y => RS + (y - y0) * slope + 14;
+  B(X0, X1, yL, yL + 1.5, hL - RS - 3, hL - 3, mat.pp);
+  // spocznik na całą szerokość klatki
+  B(XW, X1, yL, YN, hL - 20, hL - 3, mat.wall); B(XW, X1, yL - 2.5, YN, hL - 3, hL, mat.oak);
+  // bieg 2: 4 stopnie w stronę holu (ostatni podstopień na krawędzi stropu y 862)
+  const p2 = [[yL, hL - 20]]; for (let k = 1; k <= 4; k++) { const ya = yL - (k - 1) * GS_, yb = yL - k * GS_, h = hL + k * RS;
+    B(XW, XM, ya - 1.5, ya, h - RS - 3, h - 3, mat.pp); B(XW, XM, yb, ya + 2.5, h - 3, h, mat.oak); }
+  const yT = yL - 4 * GS_; B(XW, XM, yT - 1.5, yT, 330 - RS, 330, mat.pp);
+  sideShape(XW, XM, [[yL, hL - 3], [yL - GS_, hL - 3], [yL - GS_, hL + RS - 3], [yL - 2 * GS_, hL + RS - 3], [yL - 2 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 3 * RS - 3], [yT, hL + 3 * RS - 3], [yT, 300], [yL, hL - 20]], mat.wall);
+  const top = y => RS + (y - y0) * RS / GS_ + 14;
   // pierwszy stopień marmurowy z zaokrąglonym końcem
   B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
   { const s = new THREE.Mesh(new THREE.CylinderGeometry((GS_ + 6) / 200, (GS_ + 6) / 200, RS / 100, 32, 1, false, 0, Math.PI), mat.marble); s.position.set(.12, RS / 200, (y0 - 6 + GS_ + 6 + y0 - 6) / 200); s.rotation.y = Math.PI; s.castShadow = s.receiveShadow = true; CUR.add(s); }
-  // balustrada: czarne tralki, słupek, poręcz dębowa
-  const xb = X1 - 3, hr = 92; let y = y0 + GS_ / 2;
+  // balustrada biegu 1: czarne tralki, słupek, poręcz dębowa
+  const xb = X1 - 3, hr = 92;
   for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS; rodBetween([xb, yy, h], [xb, yy, h + hr + (d + 6) / GS_ * RS - 4], .7, mat.black); }
   cyl(-10, y0 + 8, RS, RS + 98, 3, mat.black, 16); cyl(-10, y0 + 8, RS + 98, RS + 104, 4.2, mat.black, 16); sph(-10, y0 + 8, RS + 106, 3.6, mat.black);
   rodBetween([-10, y0 + 8, RS + 100], [xb, y0 + GS_ * 1.5, 2 * RS + hr], 2.4, mat.oak);
   rodBetween([xb, y0 + GS_ * 1.5, 2 * RS + hr], [xb, 914, top(914) - 14 + hr - RS + 2], 2.4, mat.oak);
+  // balustrada biegu 2 i krawędzi otworu na piętrze (od strony biegu 1)
+  const xr = XM + 2; for (let k = 1; k <= 4; k++) for (const d of [-6, 6]) { const yy = yL - k * GS_ + GS_ / 2 + d, h = hL + k * RS; rodBetween([xr, yy, h], [xr, yy, h + hr], .7, mat.black); }
+  rodBetween([xr, yL, hL + hr], [xr, yT, 330 + hr], 2.4, mat.oak);
+  cyl(xr, yL - 2, hL, hL + hr + 6, 3, mat.black, 16);
   // chodnik na stopniach
   for (let i = 1; i < n1; i++) { const yy = y0 + i * GS_, h = (i + 1) * RS; B(X0 + 22, X1 - 22, yy - 2.6, yy + GS_, h, h + .6, mat.runner); B(X0 + 22, X1 - 22, yy - 2.6, yy - 2, h - RS + 1, h, mat.runner); }
 }
@@ -1683,18 +1691,17 @@ function zoneExterior() {
     extrude(s, -12, 16, mat.brick); extrude(s, 16, 330, mat.ext);
   }
   for (const b of H.band) nm(extrude(b, 330, 346, mat.ext));
-  for (const b of H.eave) { nm(extrude(b, 618, 640, mat.ext)); nm(extrude(b, 640, 648, mat.black)); }
+  for (const b of H.UP.eave) { nm(extrude(b, 618, 640, mat.ext)); nm(extrude(b, 640, 648, mat.black)); }
   for (const b of H.eaveW) { nm(extrude(b, 312, 330, mat.ext)); nm(extrude(b, 330, 336, mat.black)); }
   // nadproża / cokoły przy oknach parteru (otwory przecinają okładzinę)
   for (const [f, a0, a1] of [['S', -295, -106], ['W', 87, 267], ['W', 800, 989], ['Wr', 438, 625], ['E', 552.5, 822.5], ['E', 965.5, 1205.5], ['WN', -40, 232], ['WE', 1380, 1652]]) { fbox(f, a0, a1, 240, 330, mat.ext); fbox(f, a0, a1, -12, 0, mat.brick); }
   // ciemna rama przeszklenia salonu (nad szkłem do gzymsu)
   nm(B(553, 583.5, -50, 394, 572, 640, mat.dark), 'X'); B(553, 583.5, -52.5, 0, -12, 640, mat.dark); B(553, 583.5, 394, 455, -12, 640, mat.dark);
   // okna piętra wg elewacji (południowa DWG = od ogrodu): 3 otwory + drzwi na balkon; od wejścia 3 okna; od zachodu 2 okna z balkonikami francuskimi
-  upWin('E', 507, 587, 400, 600, true); upWin('E', 627, 787, 400, 600, true); upWin('E', 987, 1127, 400, 600, true);
-  upWin('S', -560, -470, 400, 600, true); upWin('S', -240, -150, 400, 600, true);
-  upWin('W', 120, 235, 400, 600, true); upWin('Wr', 470, 595, 400, 600, true); upWin('W', 840, 950, 400, 600, true);
+  // okna piętra – wg rzutu piętra z DWG (zoneUpperExt)
+  zoneUpperExt();
   // dachy czterospadowe (blachodachówka ciemnoszara RAL 8022)
-  hipRoof(-729, 621, -92, 1345, 646, 30, mat.roofM);
+  hipRoof(-772, 621, -91, 1418, 646, 30, mat.roofM);
   hipRoof(-1624, -624, 1003, 1764, 334, 30, mat.roofM); hipRoof(-689, 372, 1263, 1763, 334, 30, mat.roofM);
   // rynny – rury spustowe
   for (const [x, y] of [[586, -55], [586, 1300], [-694, -55], [-694, 1296], [337, 1655]]) nm(cyl(x, y, -12, y > 1290 && x > 0 && x < 400 ? 330 : 640, 4, mat.black, 12));
@@ -1796,11 +1803,53 @@ function zoneCornice() {
   // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
   crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, 977, 0, 1, HN, 9); crown('y', 977, DE, 2, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
 }
+
+// ======================= PIĘTRO (wg rzutu piętra z DWG; poziom +3,24 ≈ 330, sufit ok. 590) =======================
+const HU0 = 330, HU1 = 590;
+function upGroup(fn) { const g = new THREE.Group(); g.name = 'UPPER'; const prev = CUR; CUR.add(g); CUR = g; fn(); CUR = prev; return g; }
+function labelDecal(txt, x, y, h) { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d');
+  g.fillStyle = 'rgba(255,255,255,.88)'; g.beginPath(); g.roundRect(8, 8, 1008, 144, 40); g.fill(); g.fillStyle = '#3a2f26'; g.font = '600 82px Helvetica, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 512, 82);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const me = new THREE.Mesh(new THREE.PlaneGeometry(1.9, .3), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
+  me.rotation.x = -Math.PI / 2; me.rotation.z = Math.PI; me.position.set(-x / 100, (h + 2) / 100, y / 100); me.name = 'LABEL'; me.visible = false; me.renderOrder = 5; CUR.add(me); return me; }
+function zoneUpper() {
+  const U = HOUSE.UP;
+  upGroup(() => {
+    // posadzki: dąb, łazienki – jasny kamień
+    for (const f of U.floorOak) { const m = extrude(f, HU0 - 1, HU0 + .6, mat.floor, { cast: false }); const uv = m.geometry.attributes.uv, p = m.geometry.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) * .25, p.getZ(i) * .25); }
+    for (const f of U.floorBath) { const m = extrude(f, HU0 - 1, HU0 + .6, mat.cer, { cast: false }); }
+    // ściany, ocieplenie, nadproża drzwi (drzwi 80–90 × 200), sufit
+    for (const w of U.walls) extrude(w, HU0, HU1, mat.wall);
+    for (const w of U.ins) extrude(w, HU0, HU1, mat.wall2);
+    for (const d of U.doors) { B(d.x0, d.x1, d.y0, d.y1, HU0 + 202, HU1, mat.wall);
+      const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g; casing(d.x0, d.y0, d.x1, d.y1, 202); CUR = prev; }
+    for (const c of U.ceil) extrude(c, HU1, 646, mat.wall).name = 'CEIL';
+    // okna – wszystkie od podłogi (Hp = 0), wys. 240, RAL 7016, balustrady francuskie na zewnątrz
+    { const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g;
+      for (const w of U.wins) windowUnit(Object.assign({ name: 'U ' + w.f, sill: 0, top: 240, div: (w.ax === 'x' ? w.x1 - w.x0 : w.y1 - w.y0) > 120 ? 2 : 1, ceil: HU1 - HU0 }, w));
+      CUR = prev; }
+    // balustrada przy pustce nad salonem i przy otworze schodów
+    railing('x', -133, -27, 667, HU0, 100, 11); railing('y', 667, 860, -134, HU0, 100, 11);
+    // podpisy pomieszczeń (widoczne w widoku „Piętro z góry”)
+    for (const [t, x, y] of U.labels) labelDecal(t, x, y, HU0);
+    // oświetlenie robocze
+    for (const [, x, y] of U.labels) { const l = new THREE.PointLight('#ffe9cf', .9, 7, 2); l.position.set(-x / 100, (HU1 - 25) / 100, y / 100); CUR.add(l); }
+  });
+}
+function zoneUpperExt() {
+  const U = HOUSE.UP, nm = (m, n = 'CEIL') => { m.name = n; return m; };
+  for (const s of U.skin) nm(extrude(s, HU0, 640, s.dark ? mat.dark : mat.brick));
+  for (const w of U.wins) { const o = w.out, d = w.d, along = w.ax === 'x';
+    const R = (a0, a1, c0, c1, h0, h1, m) => nm(along ? B(a0, a1, Math.min(c0, c1), Math.max(c0, c1), h0, h1, m) : B(Math.min(c0, c1), Math.max(c0, c1), a0, a1, h0, h1, m));
+    const a0 = along ? w.x0 : w.y0, a1 = along ? w.x1 : w.y1;
+    R(a0, a1, o - d * 6, o + d * 2.5, HU0 + 240, 640, mat.brick); // nadproże w okładzinie
+    const g0 = CUR.children.length; railing(along ? 'x' : 'y', a0 + 4, a1 - 4, o + d * 10, HU0, 100, 11); for (let i = g0; i < CUR.children.length; i++) CUR.children[i].name = 'CEIL'; }
+  // spód wysunięcia piętra (nad wejściem i od północy)
+}
 function buildZone() {
   zoneShell(); zoneFloors();
   for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
-  zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice();
+  zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice(); zoneUpper();
 }
 
 async function buildHouse() {
@@ -1880,12 +1929,22 @@ const VIEWS = {
   zgar:   { pos: [-490, 700, 160], look: [-490, 1280], up: 36, down: 36 },
   zpod:   { pos: [200, 690, 140], look: [-135, 800], up: 40, down: 30 },
   zgab:   { pos: [-105, 15, 160], look: [-640, 320], up: 36, down: 36 },
+  zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
+  zuhol:  { pos: [480, 500, 490], look: [-400, 520], up: 40, down: 30 },
+  zusch:  { pos: [-60, 590, 490], look: [-190, 980], up: 40, down: 40 },
+  zusypg: { pos: [470, 600, 490], look: [60, 880], up: 38, down: 34 },
+  zulazg: { pos: [470, 960, 490], look: [200, 1250], up: 38, down: 34 },
+  zugard: { pos: [70, 960, 490], look: [-250, 1250], up: 38, down: 34 },
+  zusyp1: { pos: [-200, 360, 490], look: [-600, 60], up: 38, down: 34 },
+  zusyp2: { pos: [-300, 720, 490], look: [-600, 1300], up: 38, down: 34 },
   ztop:   { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 640, 2600] },
   zsal:   { iso: true, fov: 70, pos: [120, 380, 200], look: [540, 120, 470], up: 40, down: 40 },
   iso:    { iso: true, fov: 38, pos: [700, -900, 1500], look: [-450, 850, 0], up: 10, down: 10 },
 };
 const vk = VIEW === 'niche' ? ((CONCEPT === '2' || /^k2w/.test(String(CONCEPT))) ? 'niche2' : (String(CONCEPT).startsWith('k1w') ? 'niche1w' : 'niche1')) : VIEW; const V = VIEWS[vk];
 if (/^z(ogr|front|bok)$/.test(VIEW)) scene.traverse(o => { if (o.name === 'GARDEN') o.visible = false; });
+if (Q.get('up') === '0') scene.traverse(o => { if (o.name === 'UPPER') o.visible = false; });
+if (Q.get('lab') === '1') scene.traverse(o => { if (o.name === 'LABEL') o.visible = true; });
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
@@ -1907,13 +1966,15 @@ if (INTER) {
     schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
     gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
     ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
-    dom: [P3(-60, 120, 1900), P3(-60, 660, 0)] } : HOUSE_MODE ? {
+    dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
+    p_hol: [P3(480, 500, 490), P3(-400, 520, 460)], p_schody: [P3(-60, 590, 490), P3(-190, 980, 400)], p_sypg: [P3(470, 600, 490), P3(60, 880, 440)], p_lazg: [P3(470, 960, 490), P3(200, 1250, 430)],
+    p_gard: [P3(70, 960, 490), P3(-250, 1250, 430)], p_syp1: [P3(-200, 360, 490), P3(-600, 60, 440)], p_lazs: [P3(-110, 370, 490), P3(60, 30, 430)], p_syp2: [P3(-300, 720, 490), P3(-600, 1300, 440)], p_pral: [P3(-470, 560, 490), P3(-640, 420, 440)] } : HOUSE_MODE ? {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     kuchnia: [P3(300, 720, 165), P3(270, 1150, 120)], hol: [P3(-60, 520, 160), P3(-400, 525, 140)], garderoba: [P3(-580, 750, 165), P3(-480, 1040, 120)],
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
   : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], choinka: [[-1.2, 1.7, 3.8], [-5.0, 2.0, 1.6]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
-  const go = k => { const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
+  const go = k => { const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
