@@ -623,7 +623,7 @@ function lampsOn(list, trees) {
     const from = new THREE.Vector3(wx(x), yb + .1, wz(y)), to = new THREE.Vector3(wx(aim[0]), aim[2], wz(aim[1]));
     const len = from.distanceTo(to), bm = new THREE.MeshBasicMaterial({ color: '#ffe2a8', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
     const cone = new THREE.Mesh(new THREE.ConeGeometry(len * .32, len, 20, 1, true).translate(0, -len / 2, 0), bm);
-    cone.position.copy(to); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), from.clone().sub(to).normalize()); cone.renderOrder = 5; target.add(cone); beams.push(bm);
+    cone.position.copy(to); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), from.clone().sub(to).normalize()); cone.renderOrder = 5; cone.visible = false; target.add(cone); beams.push(bm);
     const gm = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
     const gl = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6).rotateX(-Math.PI / 2), gm); gl.position.set(wx(x), yb + .045, wz(y)); target.add(gl); glows.push(gm);
     (groups.get(key) || groups.set(key, { aim, pts: [] }).get(key)).pts.push([x, y, yb]);

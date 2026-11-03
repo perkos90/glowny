@@ -2158,6 +2158,8 @@ const VIEWS = {
   zcornC: { iso: true, fov: 40, pos: [-900, 1600, 560], look: [-500, 1380, 610], up: 40, down: 40 },
   zband: { iso: true, fov: 40, pos: [-880, 820, 250], look: [-690, 1000, 322], up: 40, down: 40 },
   zband2: { iso: true, fov: 40, pos: [-100, -330, 250], look: [150, -55, 322], up: 40, down: 40 },
+  zgymOut: { iso: true, fov: 50, pos: [950, 1000, 420], look: [380, 1350, 300], up: 40, down: 40 },
+  zgymOut2: { iso: true, fov: 22, pos: [950, 1000, 420], look: [585, 1250, 320], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },

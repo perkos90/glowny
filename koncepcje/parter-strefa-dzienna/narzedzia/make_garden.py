@@ -29,6 +29,8 @@ rep = [
   ("slab(rect(14.71, 62.65, 18.02, 63.25), 0, .15, mStone, false);", "/* stopień wejścia – z modelu domu (DWG) */"),
   ("const PLANTERS = [rect(11.8, 63.05, 14.6, 63.65),", "const PLANTERS = [rect(11.8, 63.05, 14.35, 63.65),"),
   ("const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;", ""),
+  # stożki światła z lamp (efekt wieczorny) dawały trójkątne smugi na elewacji – wyłączone
+  ("cone.renderOrder = 5; target.add(cone);", "cone.renderOrder = 5; cone.visible = false; target.add(cone);"),
 ]
 for a, b in rep:
     assert a in js, a; js = js.replace(a, b)
