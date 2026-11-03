@@ -1452,14 +1452,15 @@ function zoneOffice() {
 // ---------- SCHODY (bieg 1 zabudowany, balustrada czarna, poręcz dębowa, marmurowy pierwszy stopień) ----------
 function zoneStairs() {
   // dwa warianty do wyboru: A – wg DWG, B – bieg 1 poszerzony łagodnym łukiem o 30 cm u dołu, poręcz kończy się na schodach
-  for (const v of ['A', 'B']) { const g = new THREE.Group(); g.name = 'STAIR_' + v; g.visible = v === (Q.get('st') || 'A'); const prev = CUR; CUR.add(g); CUR = g; stairsVariant(v); CUR = prev; }
-  window.__stairs = v => { scene.traverse(o => { if (o.name === 'STAIR_A' || o.name === 'STAIR_B') o.visible = o.name === 'STAIR_' + v; }); if (window.__render) window.__render(); };
+  const SV = ['A', 'B', 'B50', 'B70'], st0 = Q.get('st') || 'A';
+  for (const v of SV) { const g = new THREE.Group(); g.name = 'STAIR_' + v; g.visible = v === st0; const prev = CUR; CUR.add(g); CUR = g; stairsVariant(v); CUR = prev; }
+  window.__stairs = v => { scene.traverse(o => { if (o.name && o.name.startsWith('STAIR_')) o.visible = o.name === 'STAIR_' + v; }); if (window.__render) window.__render(); };
 }
 function stairsVariant(V) {
   // wg DWG: bieg 1 – 13×18,3 / 27 (x -136…-25, w górę na północ), spocznik y 970…1072, bieg 2 – 5×18,3 / 27 (x -243…-136, z powrotem na południe do holu piętra)
   const X0 = -135, X1 = -25, y0 = 646, n1 = 12, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS, YN = 1072, XW = -243, XM = -136;
   // wariant B: krawędź od strony jadalni po łuku (styczny u góry od y≈900, +30 cm na pierwszym stopniu)
-  const WIDE = V === 'B', yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + 900) / 60;
+  const WIDE = V !== 'A', WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
   const wd = y => !WIDE || y >= yA ? 0 : RW - Math.sqrt(Math.max(0, RW * RW - (yA - Math.max(y, yB0)) ** 2));
   const edge = (ya, yb, dx = 0) => { const o = []; for (let k = 0; k <= 8; k++) { const y = ya + (yb - ya) * k / 8; o.push([X1 + wd(y) + dx, y]); } return o; };
   const ext = (o, h0, h1, m) => extrude({ o, h: [] }, h0, h1, m);
@@ -1787,7 +1788,7 @@ function zoneExterior() {
   B(1034, 1068, -84, 1389, G0, -18.5, mat.terr); B(581, 1068, -118, -84, G0, -18.5, mat.terr); B(581, 1068, 1389, 1423, G0, -18.5, mat.terr); // drugi stopień do terenu ogrodu
   // meble tarasowe: stół (blat drewniany) + 8 krzeseł pod podcieniem
   B(680, 880, 650, 750, 72, 76, mat.oakD); for (const [x, y] of [[686, 656], [874, 656], [686, 744], [874, 744]]) B(x - 2, x + 2, y - 2, y + 2, -2, 72, mat.black);
-  for (let i = 0; i < 4; i++) for (const [y, s] of [[620, 1], [780, -1]]) { const x = 705 + i * 50; B(x - 21, x + 21, y - 20, y + 20, 44, 48, M({ color: '#7d7a74', roughness: .9 })); B(x - 21, x + 21, y + s * 18 - 2, y + s * 18 + 2, 48, 88, M({ color: '#7d7a74', roughness: .9 })); for (const dx of [-19, 19]) rodBetween([x + dx, y - 18, -2], [x + dx, y + 18, -2], .6, mat.black); for (const dx of [-19, 19]) for (const dy of [-18, 18]) rodBetween([x + dx, y + dy, -2], [x + dx, y + dy, 44], .6, mat.black); }
+  for (let i = 0; i < 4; i++) for (const [y, s] of [[620, 1], [780, -1]]) { const x = 705 + i * 50; B(x - 21, x + 21, y - 20, y + 20, 44, 48, M({ color: '#7d7a74', roughness: .9 })); B(x - 21, x + 21, y - s * 18 - 2, y - s * 18 + 2, 48, 88, M({ color: '#7d7a74', roughness: .9 })); for (const dx of [-19, 19]) rodBetween([x + dx, y - 18, -2], [x + dx, y + 18, -2], .6, mat.black); for (const dx of [-19, 19]) for (const dy of [-18, 18]) rodBetween([x + dx, y + dy, -2], [x + dx, y + dy, 44], .6, mat.black); }
   // wejście: bez podcienia (bez słupów i balkonu), schodki
   const ep = B(-760, -580, 400, 690, G0, -2, mat.terr); uvScale(ep, .5); B(-790, -760, 410, 680, G0, -7, mat.terr); B(-820, -790, 420, 670, G0, -18.5, mat.terr);
   for (const y of [455, 640]) { B(-584, -580, y - 6, y + 6, 190, 222, mat.black); }
@@ -2104,6 +2105,7 @@ const VIEWS = {
   zutop:  { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-60, 660, 2400] },
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zsalS:  { iso: true, fov: 70, pos: [320, 560, 165], look: [316, 0, 260], up: 40, down: 40 },
+  zterC:  { iso: true, fov: 60, pos: [1050, 700, 200], look: [760, 700, 60], up: 35, down: 35 },
   zstair: { iso: true, fov: 62, pos: [230, 520, 175], look: [-60, 760, 80], up: 35, down: 35 },
   zstairT: { top: true, fov: 30, c: [-80, 760, 700] },
   zplot:  { iso: true, fov: 55, pos: [7600, 600, 3300], look: [1800, 600, 0], up: 30, down: 30 },
