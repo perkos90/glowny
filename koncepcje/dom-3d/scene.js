@@ -1953,10 +1953,49 @@ function zoneUpper() {
     railing('x', 106, 530, 404, HU0, 100, 11); // antresola nad salonem – czarna balustrada
     railing('x', -133, -27, 667, HU0, 100, 11); railing('y', 667, 860, -134, HU0, 100, 11);
     // podpisy pomieszczeń (widoczne w widoku „Piętro z góry”)
+    zoneLaundry();
     for (const [t, x, y] of U.labels) labelDecal(t, x, y, HU0);
     // oświetlenie robocze
     for (const [, x, y] of U.labels) { const l = new THREE.PointLight('#ffe9cf', .9, 7, 2); l.position.set(-x / 100, (HU1 - 25) / 100, y / 100); CUR.add(l); }
   });
+}
+// ---------- PRALNIA (piętro): ściana po prawej od wejścia – szafka ze zlewem, pralka i suszarka pod blatem, płytki, półka z szafką i drążek ----------
+function zoneLaundry() {
+  const H0 = HU0, xw = -639.2, xe = -445.1, yN = 760.9, D = 62, yF = yN - D, h = v => H0 + v;
+  if (!T.sqTile) T.sqTile = cv(512, 512, (g, w, hh) => { g.fillStyle = '#d8d2c7'; g.fillRect(0, 0, w, hh); const n = 8, c = w / n; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { g.fillStyle = `rgb(${244 + (rnd() * 8 | 0)},${241 + (rnd() * 8 | 0)},${235 + (rnd() * 8 | 0)})`; g.fillRect(i * c + 1.5, j * c + 1.5, c - 3, c - 3); } }); T.sqTile.wrapS = T.sqTile.wrapT = THREE.RepeatWrapping;
+  const tile = M({ map: T.sqTile, roughness: .35 }), wood = M({ map: oakVmap, color: '#d2c3b2', roughness: .55 }), copper = M({ color: '#b8774a', metalness: .85, roughness: .3 });
+  const appl = M({ color: '#8f9194', metalness: .7, roughness: .35 }), glass = M({ color: '#2c3035', roughness: .05, metalness: .3 }), cloth = M({ color: '#f6f4ef', roughness: .9, side: THREE.DoubleSide });
+  // szafka pod zlewem (60 cm) z frontami z drewna
+  const xs0 = xw + 1, xs1 = xs0 + 60; B(xs0, xs1, yF + 4, yN, h(0), h(10), mat.black); B(xs0, xs1, yF + 2, yN, h(10), h(88), wood);
+  B(xs0 + .5, xs1 - .5, yF + 1.5, yF + 2, h(52), h(53), M({ color: '#7d6550', roughness: .6 }));
+  // pralka i suszarka obok siebie (60 × 60 × 85)
+  for (const [x0, dryer] of [[xs1 + 1, false], [xs1 + 62, true]]) { const x1 = x0 + 60, cx = (x0 + x1) / 2;
+    B(x0, x1, yF + 3, yN - 2, h(2), h(86), appl); B(x0 + 2, x1 - 2, yF + 2.6, yF + 3, h(72), h(84), M({ color: '#d9dadb', metalness: .4, roughness: .3 }));
+    cyl(x0 + 12, yF + 2.3, h(77), h(79), 2.6, appl, 20).rotation.x = Math.PI / 2;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.2, .022, 12, 48), M({ color: '#c8c9cb', metalness: .9, roughness: .2 })); ring.position.set(-cx / 100, h(dryer ? 44 : 42) / 100, (yF + 2.4) / 100); CUR.add(ring);
+    const gl = new THREE.Mesh(new THREE.CircleGeometry(.185, 40), glass); gl.rotation.y = Math.PI; gl.position.set(-cx / 100, h(dryer ? 44 : 42) / 100, (yF + 2.3) / 100); CUR.add(gl); }
+  B(xs1 + 123, xe - 1, yF + 2, yN, h(0), h(88), wood); // listwa maskująca przy ścianie
+  // blat kamienny z wpuszczanym zlewem i baterią (miedź)
+  const ct = B(xw, xe, yF, yN, h(88), h(92), mat.trav); uvScale(ct, 1.2);
+  B(xs0 + 10, xs1 - 10, yF + 10, yN - 12, h(74), h(92.1), M({ color: '#5e4a3e', metalness: .6, roughness: .35 }));
+  { const fx = (xs0 + xs1) / 2, fy = yN - 6; cyl(fx, fy, h(92), h(120), 1.5, copper); const c = new THREE.Mesh(new THREE.TorusGeometry(.09, .013, 10, 24, Math.PI), copper); c.rotation.y = Math.PI / 2; c.position.set(-fx / 100, h(120) / 100, (fy - 9) / 100); CUR.add(c);
+    cyl(fx, fy - 18, h(108), h(120), 1.3, copper); cyl(fx + 7, fy, h(92), h(100), 1, copper); }
+  cyl(xs1 - 6, yN - 7, h(92), h(108), 2.6, M({ color: '#3b2a22', roughness: .2 }), 16); cyl(xs1 - 6, yN - 7, h(108), h(113), .8, mat.black, 8);
+  // płytki kwadratowe do półki
+  const bs = B(xw, xe, yN - 1.2, yN, h(92), h(196), tile); uvScale(bs, 1.25);
+  // półka/szafka z drewna u góry (głęb. 35) i miedziany drążek pod nią
+  B(xw, xe, yN - 38, yN, h(196), h(200), wood); B(xw, xe, yN - 35, yN, h(200), h(262), wood);
+  for (let x = xw; x < xe - 1; x += (xe - xw) / 3) B(x + .3, x + (xe - xw) / 3 - .3, yN - 35.6, yN - 35, h(202), h(260), wood);
+  const yR = yN - 22; rodBetween([xw + 4, yR, h(186)], [xe - 4, yR, h(186)], 1.2, copper); for (const x of [xw + 10, xe - 10]) cyl(x, yR, h(186), h(196), .8, copper, 8);
+  // bluzka na wieszaku nad szafką ze zlewem
+  for (const [x, dy] of [[xs0 + 22, 0], [xs0 + 34, 3]]) { const hx = x; rodBetween([hx - 20, yR + dy, h(176)], [hx, yR + dy, h(183)], .5, mat.oakD); rodBetween([hx, yR + dy, h(183)], [hx + 20, yR + dy, h(176)], .5, mat.oakD); rodBetween([hx - 20, yR + dy, h(176)], [hx + 20, yR + dy, h(176)], .5, mat.oakD); cyl(hx, yR + dy, h(183), h(187), .3, copper, 6); }
+  { const S = new THREE.Shape(); const P = [[-6, 0], [-19, -6], [-30, -40], [-26, -44], [-19, -26], [-21, -66], [21, -66], [19, -26], [26, -44], [30, -40], [19, -6], [6, 0], [0, -6]];
+    S.moveTo(P[0][0] / 100, P[0][1] / 100); for (const [a, b] of P.slice(1)) S.lineTo(a / 100, b / 100);
+    const gsh = new THREE.ExtrudeGeometry(S, { depth: .03, bevelEnabled: true, bevelSize: .008, bevelThickness: .01, bevelSegments: 2 });
+    const sh = new THREE.Mesh(gsh, cloth); sh.rotation.y = Math.PI; sh.position.set(-(xs0 + 28) / 100, h(178) / 100, (yR + 2.5) / 100); sh.castShadow = true; CUR.add(sh);
+    for (let k = 0; k < 6; k++) sph(xs0 + 28, yR - 1.2, h(170 - k * 9), .7, mat.brass, 1); }
+  // eukaliptus w wazonie przy ścianie
+  cyl(xe - 18, yN - 16, h(92), h(118), 7, mat.cer, 20, 5); for (let i = 0; i < 16; i++) sph(xe - 18 + (rnd() - .5) * 26, yN - 16 + (rnd() - .5) * 18, h(122 + rnd() * 34), 3 + rnd() * 2, mat.leaf, .6);
 }
 function zoneUpperExt() {
   const U = HOUSE.UP, nm = (m, n = 'CEIL') => { m.name = n; return m; };
@@ -2168,6 +2207,7 @@ const VIEWS = {
   zst2t: { iso: true, fov: 70, pos: [-200, 760, 470], look: [-80, 950, 280], up: 40, down: 40 },
   zst2s: { iso: true, fov: 70, pos: [-60, 880, 330], look: [-200, 930, 230], up: 40, down: 40 },
   zst3: { iso: true, fov: 60, pos: [-170, 1010, 430], look: [-20, 840, 160], up: 40, down: 40 },
+  zpral: { iso: true, fov: 70, pos: [-540, 470, 500], look: [-540, 760, 430], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
@@ -2209,7 +2249,7 @@ if (INTER) {
   const P3 = (x, y, h) => [-x / 100, h / 100, y / 100];
   const PRE = ZONE ? {
     jadalnia: [P3(330, 330, 165), P3(270, 900, 120)], kuchnia: [P3(260, 760, 165), P3(255, 1250, 140)], wyspa: [P3(500, 880, 160), P3(120, 1120, 110)],
-    schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
+    schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], pralnia: [P3(-540, 470, 500), P3(-540, 740, 450)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
     gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
     ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], dzialka: [P3(7600, 600, 3300), P3(1800, 600, 0)], trawnik: [P3(3000, 350, 170), P3(600, 650, 300)], podjazd: [P3(-1700, -700, 260), P3(-700, 600, 100)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], parter: [P3(-60, 160, 2000), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
