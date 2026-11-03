@@ -1488,7 +1488,10 @@ function stairsVariant(V) {
   const p2 = [[yL, hL - 20]]; for (let k = 1; k <= 4; k++) { const ya = yL - (k - 1) * GS_, yb = yL - k * GS_, h = hL + k * RS;
     B(XW, XM, ya - 1.5, ya, h - RS - 3, h - 3, mat.pp); B(XW, XM, yb, ya + 2.5, h - 3, h, mat.oak); }
   const yT = yL - 4 * GS_; B(XW, XM, yT - 1.5, yT, 330 - RS, 330, mat.pp);
-  sideShape(XW, XM, [[yL, hL - 3], [yL - GS_, hL - 3], [yL - GS_, hL + RS - 3], [yL - 2 * GS_, hL + RS - 3], [yL - 2 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 3 * RS - 3], [yT, hL + 3 * RS - 3], [yT, 300], [yL, hL - 20]], mat.wall);
+  { const pr = [[yL, hL - 3]]; for (let k = 1; k <= 4; k++) pr.push([yL - (k - 1) * GS_, hL + k * RS - 3], [yL - k * GS_, hL + k * RS - 3]); pr.push([yT, 300], [yL, hL - 20]); sideShape(XW, XM, pr, mat.wall); }
+  // ściana między klatką a spiżarnią (x = −243): od spodu spocznika / biegu 2 do stropu – zakrywa regały i krawędź podłogi piętra
+  { const und = y => 300 - (y - yT) / (yL - yT) * (300 - hL + 20); sideShape(-147, -135, [[860, 0], [975, 0], [975, hL - 20], [yL, hL - 20], [860, und(860)]], mat.wall); } // ścianka spiżarni pod biegiem 2 – góra po spodzie biegu (nie przebija stopni) // domknięcie szczeliny między ścianą spiżarni a spodem biegu 2
+  sideShape(-253, XW + .5, [[yT - 2, 332], [YN, 332], [YN, hL - 20], [yL, hL - 20], [yT - 2, 300]], mat.wall);
   const top = y => RS + (y - y0) * RS / GS_ + 14;
   // pierwszy stopień marmurowy z zaokrąglonym końcem
   if (WIDE) { const ya = y0 - 6, yb = y0 + GS_, rr = (yb - ya) / 2, ym = (ya + yb) / 2, xe = X1 + wd(ym), o = [[X0, yb], [X0, ya], [xe, ya]];
@@ -1514,7 +1517,7 @@ function stairsVariant(V) {
     const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp.map(([x, y, h]) => new THREE.Vector3(-x / 100, h / 100, y / 100))), 96, .024, 12), mat.oak); tube.castShadow = true; CUR.add(tube);
   }
   // balustrada biegu 2 i krawędzi otworu na piętrze (od strony biegu 1)
-  const xr = XM + 2; for (let k = 1; k <= 4; k++) for (const d of [-6, 6]) { const yy = yL - k * GS_ + GS_ / 2 + d, h = hL + k * RS; rodBetween([xr, yy, h], [xr, yy, h + hr], .7, mat.black); }
+  const xr = XM + 2; for (let k = 1; k <= 4; k++) for (const d of [-6, 6]) { const yy = yL - k * GS_ + GS_ / 2 + d, h = hL + k * RS; rodBetween([xr, yy, h], [xr, yy, hL + hr + (yL - yy) / (yL - yT) * (330 - hL) - 1], .7, mat.black); }
   rodBetween([xr, yL, hL + hr], [xr, yT, 330 + hr], 2.4, mat.oak);
   cyl(xr, yL - 2, hL, hL + hr + 6, 3, mat.black, 16);
   // chodnik na stopniach
@@ -2160,6 +2163,11 @@ const VIEWS = {
   zband2: { iso: true, fov: 40, pos: [-100, -330, 250], look: [150, -55, 322], up: 40, down: 40 },
   zgymOut: { iso: true, fov: 50, pos: [950, 1000, 420], look: [380, 1350, 300], up: 40, down: 40 },
   zgymOut2: { iso: true, fov: 22, pos: [950, 1000, 420], look: [585, 1250, 320], up: 40, down: 40 },
+  zst2: { iso: true, fov: 70, pos: [-120, 1050, 380], look: [-200, 870, 300], up: 40, down: 40 },
+  zst2u: { iso: true, fov: 70, pos: [-10, 700, 150], look: [-160, 900, 170], up: 40, down: 40 },
+  zst2t: { iso: true, fov: 70, pos: [-200, 760, 470], look: [-80, 950, 280], up: 40, down: 40 },
+  zst2s: { iso: true, fov: 70, pos: [-60, 880, 330], look: [-200, 930, 230], up: 40, down: 40 },
+  zst3: { iso: true, fov: 60, pos: [-170, 1010, 430], look: [-20, 840, 160], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
@@ -2217,7 +2225,7 @@ if (INTER) {
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
   window.__upperOff = off => { window.__noUpper = off; scene.traverse(o => { if (o.name === 'UPPER') o.visible = !off; }); window.__ceil(!off); };
-  window.__go = go; window.__render = () => dirty = 3; window.__probe = (x, y, h, dx, dy) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, 0, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(",")]; }); }; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
+  window.__go = go; window.__render = () => dirty = 3; window.__probe = (x, y, h, dx, dy, dh = 0) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, dh, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(",")]; }); }; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   // ---------- SPACER: chodzenie po domu strzałkami (oczy ok. 1,8 m nad podłogą, wchodzenie po schodach) ----------
   const WALK = { doors: true, on: false, yaw: 0, pitch: 0, keys: {}, solids: null, eye: 1.8, floorY: 0 };
@@ -2241,11 +2249,11 @@ if (INTER) {
   const near = (p, r, coll) => { const out = []; for (const s of WALK.solids) { const b = s.bb; if (coll && WALK.doors && s.door) continue; if (p.x > b.min.x - r && p.x < b.max.x + r && p.z > b.min.z - r && p.z < b.max.z + r && p.y + 2.2 > b.min.y && p.y - 3 < b.max.y) out.push(s.o); } return out; };
   const groundAt = (x, z, fromY, objs) => { rc.set(new THREE.Vector3(x, fromY, z), DOWN); rc.far = 3; const h = rc.intersectObjects(objs, false).find(i => i.face && i.face.normal && Math.abs(i.face.normal.clone().transformDirection(i.object.matrixWorld).y) > .5); return h ? h.point.y : null; };
   const blocked = (pos, dir, objs) => { for (const hh of [.45, .9, 1.6]) { rc.set(new THREE.Vector3(pos.x, WALK.floorY + hh, pos.z), dir); rc.far = .38; const hit = rc.intersectObjects(objs, false); if (hit.length && !(hit[0].object.material && hit[0].object.material.opacity < .2 && hh > 2)) return true; } return false; };
-  const walkStart = (x, y, yaw) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL' || o.name === 'LABEL0') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, 2, y / 100), 1);
-    const gy = groundAt(-x / 100, y / 100, 3, objs); WALK.floorY = gy == null ? 0 : gy; cam.position.set(-x / 100, WALK.floorY + WALK.eye, y / 100); cam.fov = 70; cam.updateProjectionMatrix(); dirty = 3; document.body.classList.add('walking'); };
+  const walkStart = (x, y, yaw, fromY = 3) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL' || o.name === 'LABEL0') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, fromY - 1, y / 100), 1);
+    const gy = groundAt(-x / 100, y / 100, fromY, objs); WALK.floorY = gy == null ? 0 : gy; cam.position.set(-x / 100, WALK.floorY + WALK.eye, y / 100); cam.fov = 70; cam.updateProjectionMatrix(); dirty = 3; document.body.classList.add('walking'); };
   const walkStop = () => { WALK.on = false; ctl.enabled = true; cam.fov = 62; cam.updateProjectionMatrix(); const d = new THREE.Vector3(); cam.getWorldDirection(d); ctl.target.copy(cam.position).addScaledVector(d, 1.5); ctl.update(); dirty = 3; document.body.classList.remove('walking'); };
   window.__walkStop = () => { if (WALK.on) walkStop(); };
-  window.__walk = (on, at) => { if (on) { const P = { schody: [-80, 600, Math.PI], wejscie: [-470, 535, Math.PI / 2], salon: [330, 300, Math.PI], pietro: [200, 490, -Math.PI / 2] }[at || 'wejscie']; walkStart(...P); } else walkStop(); };
+  window.__walk = (on, at) => { if (on) { const P = { schody: [-80, 600, Math.PI], wejscie: [-470, 535, Math.PI / 2], salon: [330, 300, Math.PI], pietro: [-190, 780, 0, 5] }[at || 'wejscie']; walkStart(...P); } else walkStop(); };
   window.__walkKey = (k, down) => { WALK.keys[k] = down; };
   window.__walkDoors = on => { WALK.doors = on; };
   window.__walkSim = (k, n) => { const L = k.startsWith('Look'); (L ? LOOK.keys : WALK.keys)[k] = true; for (let i = 0; i < n; i++) { lookStep(.05); walkStep(.05); } (L ? LOOK.keys : WALK.keys)[k] = false; return [cam.position.x, cam.position.y, cam.position.z, WALK.floorY].map(v => +v.toFixed(2)); };
@@ -2274,4 +2282,4 @@ if (INTER) {
     if (moved || tr || Math.abs(ty - cam.position.y) > .002) dirty = 2; };
   let tPrev = performance.now();
   const loop = () => { requestAnimationFrame(loop); const t = performance.now(), dt = Math.min(.05, (t - tPrev) / 1000); tPrev = t; lookStep(dt); if (WALK.on) walkStep(dt); else ctl.update(); if (dirty > 0) { comp.render(); dirty--; } }; loop(); window.__ready && window.__ready();
-} else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__probe = (x, y, h, dx, dy) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, 0, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(',')]; }); }; window.__done = true; }
+} else { if (TREE) scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + TREE; }); comp.render(); comp.render(); window.__probe = (x, y, h, dx, dy, dh = 0) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, dh, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(',')]; }); }; window.__done = true; }
