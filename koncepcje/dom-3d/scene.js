@@ -1472,10 +1472,11 @@ function stairsVariant(V) {
   for (let i = 1; i < n1; i++) { const y = y0 + i * GS_, h = (i + 1) * RS;
     if (ROUND) { // nosek łagodnie wygięty, prawy (otwarty) koniec wysunięty o 6 cm i zaokrąglony
       B(X0, X1, y, y + 1.5, h - RS - 3, h - 3, mat.pp);
-      const XR = X1 + 6, rc = 12, yf = x => y - 2.5 - 5 * ((x - X0) / (XR - X0)) ** 2, o = [[X0, y + GS_], [X0, yf(X0)]];
+      const XR = X1 + 6, rc = 10, yf = x => y - 2.5 - 5 * ((x - X0) / (XR - X0)) ** 2, o = [[X0, y + GS_], [X0, yf(X0)]];
       for (let k = 1; k <= 10; k++) { const x = X0 + (XR - rc - X0) * k / 10; o.push([x, yf(x)]); }
       const cy = yf(XR - rc) + rc; for (let k = 1; k <= 8; k++) { const a = -Math.PI / 2 + k / 8 * Math.PI / 2; o.push([XR - rc + rc * Math.cos(a), cy + rc * Math.sin(a)]); }
-      o.push([XR, y + GS_]); ext(o, h - 3, h, mat.oak); continue; }
+      const by = y + GS_ - rc; for (let k = 0; k <= 8; k++) { const a = k / 8 * Math.PI / 2; o.push([XR - rc + rc * Math.cos(a), by + rc * Math.sin(a)]); } // tylny narożnik też zaokrąglony
+      ext(o, h - 3, h, mat.oak); continue; }
     if (!WIDE || wd(y - 2.5) < .5) { B(X0, X1 + wd(y), y, y + 1.5, h - RS - 3, h - 3, mat.pp); B(X0, X1 + 2.5, y - 2.5, y + GS_, h - 3, h, mat.oak); continue; }
     B(X0, X1 + wd(y), y, y + 1.5, h - RS - 3, h - 3, mat.pp);
     ext([[X0, y - 2.5], ...edge(y - 2.5, y + GS_, 2.5), [X0, y + GS_]], h - 3, h, mat.oak);
@@ -2118,6 +2119,7 @@ const VIEWS = {
   zsouth: { pos: [1000, -650, 260], look: [300, 200], up: 30, down: 22 },
   zsalS:  { iso: true, fov: 70, pos: [320, 560, 165], look: [316, 0, 260], up: 40, down: 40 },
   zterC:  { iso: true, fov: 60, pos: [1050, 700, 200], look: [760, 700, 60], up: 35, down: 35 },
+  zstairC: { iso: true, fov: 45, pos: [120, 600, 150], look: [-40, 760, 90], up: 30, down: 30 },
   zstair: { iso: true, fov: 62, pos: [230, 520, 175], look: [-60, 760, 80], up: 35, down: 35 },
   zstairT: { top: true, fov: 30, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-80, 760, 700] },
   zparter: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-280, 760, 2700] },
