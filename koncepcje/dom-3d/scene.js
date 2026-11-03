@@ -1328,7 +1328,7 @@ function zoneGarden() {
   const [[r00, r01], [r10, r11]] = GARDEN_R, [t0, t1] = GARDEN_T;
   GARDEN = window.__makeGarden(THREE, RoundedBoxGeometry); const g = GARDEN.root;
   g.matrixAutoUpdate = false; g.matrix.set(-r01, 0, -r00, -r01 * 15 - r00 * 37.5 - t0 / 100, 0, 1, 0, GARDEN_Y, r11, 0, r10, r11 * 15 + r10 * 37.5 + t1 / 100, 0, 0, 0, 1);
-  CUR.add(g); GARDEN.show(+(Q.get('og') || 1));
+  CUR.add(g); { const k0 = +(Q.get('og') ?? 1); if (k0) GARDEN.show(k0); else { GARDEN.show(1); g.visible = false; } }
   window.__garden = k => { if (!+k) { g.visible = false; return; } g.visible = true; GARDEN.show(+k); if (window.__render) window.__render(); };
 }
 function zoneShell() {
@@ -1452,7 +1452,7 @@ function zoneOffice() {
 // ---------- SCHODY (bieg 1 zabudowany, balustrada czarna, poręcz dębowa, marmurowy pierwszy stopień) ----------
 function zoneStairs() {
   // dwa warianty do wyboru: A – wg DWG, B – bieg 1 poszerzony łagodnym łukiem o 30 cm u dołu, poręcz kończy się na schodach
-  const SV = ['A', 'B', 'B50', 'B70'], st0 = Q.get('st') || 'A';
+  const SV = ['A', 'B', 'B50', 'B70', 'R'], st0 = Q.get('st') || 'A';
   for (const v of SV) { const g = new THREE.Group(); g.name = 'STAIR_' + v; g.visible = v === st0; const prev = CUR; CUR.add(g); CUR = g; stairsVariant(v); CUR = prev; }
   window.__stairs = v => { scene.traverse(o => { if (o.name && o.name.startsWith('STAIR_')) o.visible = o.name === 'STAIR_' + v; }); if (window.__render) window.__render(); };
 }
@@ -1460,7 +1460,7 @@ function stairsVariant(V) {
   // wg DWG: bieg 1 – 13×18,3 / 27 (x -136…-25, w górę na północ), spocznik y 970…1072, bieg 2 – 5×18,3 / 27 (x -243…-136, z powrotem na południe do holu piętra)
   const X0 = -135, X1 = -25, y0 = 646, n1 = 12, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS, YN = 1072, XW = -243, XM = -136;
   // wariant B: krawędź od strony jadalni po łuku (styczny u góry od y≈900, +30 cm na pierwszym stopniu)
-  const WIDE = V !== 'A', WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
+  const ROUND = V === 'R', WIDE = V !== 'A' && !ROUND, WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
   const wd = y => !WIDE || y >= yA ? 0 : RW - Math.sqrt(Math.max(0, RW * RW - (yA - Math.max(y, yB0)) ** 2));
   const edge = (ya, yb, dx = 0) => { const o = []; for (let k = 0; k <= 8; k++) { const y = ya + (yb - ya) * k / 8; o.push([X1 + wd(y) + dx, y]); } return o; };
   const ext = (o, h0, h1, m) => extrude({ o, h: [] }, h0, h1, m);
@@ -1470,6 +1470,12 @@ function stairsVariant(V) {
   pts.push([yL, n1 * RS - 30], [y0 + GS_, 0]);
   sideShape(X0, X1, pts, mat.wall);
   for (let i = 1; i < n1; i++) { const y = y0 + i * GS_, h = (i + 1) * RS;
+    if (ROUND) { // nosek łagodnie wygięty, prawy (otwarty) koniec wysunięty o 6 cm i zaokrąglony
+      B(X0, X1, y, y + 1.5, h - RS - 3, h - 3, mat.pp);
+      const XR = X1 + 6, rc = 12, yf = x => y - 2.5 - 5 * ((x - X0) / (XR - X0)) ** 2, o = [[X0, y + GS_], [X0, yf(X0)]];
+      for (let k = 1; k <= 10; k++) { const x = X0 + (XR - rc - X0) * k / 10; o.push([x, yf(x)]); }
+      const cy = yf(XR - rc) + rc; for (let k = 1; k <= 8; k++) { const a = -Math.PI / 2 + k / 8 * Math.PI / 2; o.push([XR - rc + rc * Math.cos(a), cy + rc * Math.sin(a)]); }
+      o.push([XR, y + GS_]); ext(o, h - 3, h, mat.oak); continue; }
     if (!WIDE || wd(y - 2.5) < .5) { B(X0, X1 + wd(y), y, y + 1.5, h - RS - 3, h - 3, mat.pp); B(X0, X1 + 2.5, y - 2.5, y + GS_, h - 3, h, mat.oak); continue; }
     B(X0, X1 + wd(y), y, y + 1.5, h - RS - 3, h - 3, mat.pp);
     ext([[X0, y - 2.5], ...edge(y - 2.5, y + GS_, 2.5), [X0, y + GS_]], h - 3, h, mat.oak);
@@ -1484,21 +1490,24 @@ function stairsVariant(V) {
   sideShape(XW, XM, [[yL, hL - 3], [yL - GS_, hL - 3], [yL - GS_, hL + RS - 3], [yL - 2 * GS_, hL + RS - 3], [yL - 2 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 2 * RS - 3], [yL - 3 * GS_, hL + 3 * RS - 3], [yT, hL + 3 * RS - 3], [yT, 300], [yL, hL - 20]], mat.wall);
   const top = y => RS + (y - y0) * RS / GS_ + 14;
   // pierwszy stopień marmurowy z zaokrąglonym końcem
-  if (WIDE) ext([[X0, y0 - 6], ...edge(y0 - 6, y0 + GS_), [X0, y0 + GS_]], 0, RS, mat.marble); else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
+  if (WIDE) { const ya = y0 - 6, yb = y0 + GS_, rr = (yb - ya) / 2, ym = (ya + yb) / 2, xe = X1 + wd(ym), o = [[X0, yb], [X0, ya], [xe, ya]];
+    for (let k = 1; k < 16; k++) { const a = -Math.PI / 2 + k / 16 * Math.PI; o.push([xe + rr * Math.cos(a), ym + rr * Math.sin(a)]); }
+    o.push([xe, yb]); ext(o, 0, RS, mat.marble); } else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
   const s = new THREE.Mesh(new THREE.CylinderGeometry((GS_ + 6) / 200, (GS_ + 6) / 200, RS / 100, 32, 1, false, 0, Math.PI), mat.marble); s.position.set(.12, RS / 200, (y0 - 6 + GS_ + 6 + y0 - 6) / 200); s.rotation.y = Math.PI; s.castShadow = s.receiveShadow = true; CUR.add(s); }
   // balustrada biegu 1: czarne tralki, słupek, poręcz dębowa
   const xb = X1 - 3, hr = 92;
   for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, h + hr + (d + 6) / GS_ * RS - 4], .7, mat.black); }
   const yS = y0 + GS_ * 1.5, hS = 2 * RS + hr, hE = top(914) - 14 + hr - RS + 2, hRail = y => hS + (y - yS) * (hE - hS) / (914 - yS);
-  if (!WIDE) {
+  if (!WIDE && !ROUND) {
     cyl(-10, y0 + 8, RS, RS + 98, 3, mat.black, 16); cyl(-10, y0 + 8, RS + 98, RS + 104, 4.2, mat.black, 16); sph(-10, y0 + 8, RS + 106, 3.6, mat.black);
     rodBetween([-10, y0 + 8, RS + 100], [xb, yS, hS], 2.4, mat.oak);
     rodBetween([xb, yS, hS], [xb, 914, hE], 2.4, mat.oak);
   } else {
     // słupek na pierwszym stopniu, w linii balustrady (bez wysunięcia poza schody); poręcz po łuku
-    const yN = y0 + 10, xN = xb + wd(yN) - 3;
-    cyl(xN, yN, RS, RS + 98, 3, mat.black, 16); cyl(xN, yN, RS + 98, RS + 104, 4.2, mat.black, 16); sph(xN, yN, RS + 106, 3.6, mat.black);
-    const rp = [[xN, yN, RS + 100], [xN, yN + 12, RS + 104]]; for (let y = yS; y <= 914.1; y += (914 - yS) / 16) rp.push([xb + wd(y), y, hRail(y)]);
+    // słupek w linii tralek, poręcz od jego głowicy jednym ciągiem z tym samym nachyleniem co na biegu
+    const yN = y0 + 10, xN = xb + wd(yN), hN = hRail(yN);
+    cyl(xN, yN, RS, hN - 4, 3, mat.black, 16); cyl(xN, yN, hN - 4, hN + 2, 4.2, mat.black, 16); sph(xN, yN, hN + 4, 3.6, mat.black);
+    const rp = []; for (let k = 0; k <= 24; k++) { const y = yN + (914 - yN) * k / 24; rp.push([xb + wd(y), y, hRail(y)]); }
     const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp.map(([x, y, h]) => new THREE.Vector3(-x / 100, h / 100, y / 100))), 96, .024, 12), mat.oak); tube.castShadow = true; CUR.add(tube);
   }
   // balustrada biegu 2 i krawędzi otworu na piętrze (od strony biegu 1)
@@ -2023,6 +2032,9 @@ function buildZone() {
   for (const h of HOUSE.heads) { const xs = h.o.map(p => p[0]), ys = h.o.map(p => p[1]); if (Math.min(...ys) > 380 && Math.max(...ys) < 430) continue; if (Math.min(...ys) > 970 && Math.max(...ys) < 1075 && Math.max(...xs) <= 1) continue; if (Math.min(...ys) >= 1300 && Math.min(...xs) > 150) continue; casing(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); }
   zoneHall(); houseWC(); zoneOffice(); zoneStairs(); zoneScullery(); zoneKitchen(); zoneDining(); zoneWardrobe();
   zoneGym(); zoneGarage(); zoneExterior(); livingDetails(); zoneCornice(); zoneUpper(); zoneFixtures(); zoneGarden();
+  // podpisy pomieszczeń parteru (widoczne tylko w „Rzucie parteru”, nad meblami)
+  for (const [t, x, y] of [['Salon', 470, 240], ['Jadalnia', 450, 690], ['Kuchnia', 255, 1230], ['Hol', -330, 530], ['Gabinet', -200, 215], ['WC', -205, 335], ['Garderoba', -470, 790],
+    ['Schody', -80, 790], ['Spiżarnia', -190, 1000], ['Siłownia', -40, 1500], ['Garaż', -1080, 1180], ['Taras', 800, 380]]) { const m = labelDecal(t, x, y, 300); m.name = 'LABEL0'; m.material.depthTest = false; m.renderOrder = 9; m.scale.set(1.35, 1.35, 1); }
 }
 
 async function buildHouse() {
@@ -2107,9 +2119,10 @@ const VIEWS = {
   zsalS:  { iso: true, fov: 70, pos: [320, 560, 165], look: [316, 0, 260], up: 40, down: 40 },
   zterC:  { iso: true, fov: 60, pos: [1050, 700, 200], look: [760, 700, 60], up: 35, down: 35 },
   zstair: { iso: true, fov: 62, pos: [230, 520, 175], look: [-60, 760, 80], up: 35, down: 35 },
-  zstairT: { top: true, fov: 30, c: [-80, 760, 700] },
+  zstairT: { top: true, fov: 30, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-80, 760, 700] },
+  zparter: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-280, 760, 2700] },
   zplot:  { iso: true, fov: 55, pos: [7600, 600, 3300], look: [1800, 600, 0], up: 30, down: 30 },
-  ztopP:  { top: true, fov: 40, c: [1820, 610, 9600] },
+  ztopP:  { top: true, fov: 40, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [1820, 610, 9600] },
   zogA:   { iso: true, fov: 65, pos: [3000, 350, 170], look: [600, 650, 300], up: 35, down: 35 },
   zgarG:  { iso: true, fov: 65, pos: [-1250, 200, 190], look: [-1100, 1030, 60], up: 35, down: 35 },
   zterG:  { iso: true, fov: 65, pos: [1500, -300, 260], look: [700, 400, 40], up: 35, down: 35 },
@@ -2153,6 +2166,7 @@ const vk = VIEW === 'niche' ? ((CONCEPT === '2' || /^k2w/.test(String(CONCEPT)))
 if (/^z(ogr|front|bok)$/.test(VIEW)) scene.traverse(o => { if (o.name === 'GARDEN') o.visible = false; });
 if (Q.get('up') === '0') scene.traverse(o => { if (o.name === 'UPPER') o.visible = false; });
 if (Q.get('lab') === '1') scene.traverse(o => { if (o.name === 'LABEL') o.visible = true; });
+if (Q.get('lab') === '0') scene.traverse(o => { if (o.name === 'LABEL0') o.visible = true; });
 if (Q.get('hide') === 'ceil') scene.traverse(o => { if (o.name === 'CEIL') o.visible = false; if (o.isMesh && o.geometry && !o.name) { } });
 const d2r = Math.PI / 180, tu = Math.tan(V.up * d2r), td = Math.tan(V.down * d2r), tm = Math.max(tu, td);
 const fh = H * 2 * tm / (tu + td);
@@ -2174,7 +2188,7 @@ if (INTER) {
     schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
     gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
     ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], dzialka: [P3(7600, 600, 3300), P3(1800, 600, 0)], trawnik: [P3(3000, 350, 170), P3(600, 650, 300)], podjazd: [P3(-1700, -700, 260), P3(-700, 600, 100)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
-    dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
+    dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], parter: [P3(-60, 160, 2000), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
     p_hol: [P3(480, 500, 490), P3(-400, 520, 460)], p_schody: [P3(-60, 590, 490), P3(-190, 980, 400)], p_sypg: [P3(470, 600, 490), P3(60, 880, 440)], p_lazg: [P3(190, 1255, 490), P3(520, 1000, 440)],
     p_gard: [P3(70, 960, 490), P3(-250, 1250, 430)], p_syp1: [P3(-200, 360, 490), P3(-600, 60, 440)], p_lazs: [P3(-110, 370, 490), P3(60, 30, 430)], p_syp2: [P3(-300, 720, 490), P3(-600, 1300, 440)], p_pral: [P3(-470, 560, 490), P3(-640, 420, 440)] } : HOUSE_MODE ? {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
@@ -2182,10 +2196,11 @@ if (INTER) {
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
   : { salon: [[-3.3, 1.6, 5.25], [-3.0, 1.5, 1.5]], wneka: [[-5.15, 1.4, 1.2], [-0.6, 1.4, 2.3]], okno: [[-0.6, 1.6, 3.6], [-4.5, 1.7, 1.2]], choinka: [[-1.2, 1.7, 3.8], [-5.0, 2.0, 1.6]], kuch: [[-3.0, 1.7, 7.0], [-3.0, 1.2, 1.5]], gora: [[-4.8, 4.8, 4.0], [-2.5, 0.6, 1.8]] };
   window.__ceil = on => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'GARDEN') o.visible = on; }); scene.background = new THREE.Color(on ? '#e9f0f2' : '#f3efe8'); dirty = 3; };
-  const go = k => { if (window.__walkStop) window.__walkStop(); const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
+  const go = k => { if (window.__walkStop) window.__walkStop(); const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom' && k !== 'parter' && !window.__noUpper; if (o.name === 'LABEL0') o.visible = k === 'parter'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
+  window.__upperOff = off => { window.__noUpper = off; scene.traverse(o => { if (o.name === 'UPPER') o.visible = !off; }); window.__ceil(!off); };
   window.__go = go; window.__render = () => dirty = 3; window.__probe = (x, y, h, dx, dy) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, 0, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(",")]; }); }; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); comp.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); dirty = 3; });
   // ---------- SPACER: chodzenie po domu strzałkami (oczy ok. 1,8 m nad podłogą, wchodzenie po schodach) ----------
@@ -2210,7 +2225,7 @@ if (INTER) {
   const near = (p, r, coll) => { const out = []; for (const s of WALK.solids) { const b = s.bb; if (coll && WALK.doors && s.door) continue; if (p.x > b.min.x - r && p.x < b.max.x + r && p.z > b.min.z - r && p.z < b.max.z + r && p.y + 2.2 > b.min.y && p.y - 3 < b.max.y) out.push(s.o); } return out; };
   const groundAt = (x, z, fromY, objs) => { rc.set(new THREE.Vector3(x, fromY, z), DOWN); rc.far = 3; const h = rc.intersectObjects(objs, false).find(i => i.face && i.face.normal && Math.abs(i.face.normal.clone().transformDirection(i.object.matrixWorld).y) > .5); return h ? h.point.y : null; };
   const blocked = (pos, dir, objs) => { for (const hh of [.45, .9, 1.6]) { rc.set(new THREE.Vector3(pos.x, WALK.floorY + hh, pos.z), dir); rc.far = .38; const hit = rc.intersectObjects(objs, false); if (hit.length && !(hit[0].object.material && hit[0].object.material.opacity < .2 && hh > 2)) return true; } return false; };
-  const walkStart = (x, y, yaw) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, 2, y / 100), 1);
+  const walkStart = (x, y, yaw) => { scene.traverse(o => { if (o.name === 'CEIL' || o.name === 'UPPER') o.visible = true; if (o.name === 'LABEL' || o.name === 'LABEL0') o.visible = false; }); scene.background = new THREE.Color('#e9f0f2'); buildSolids(); WALK.on = true; ctl.enabled = false; WALK.yaw = yaw; WALK.pitch = -.05; const objs = near(new THREE.Vector3(-x / 100, 2, y / 100), 1);
     const gy = groundAt(-x / 100, y / 100, 3, objs); WALK.floorY = gy == null ? 0 : gy; cam.position.set(-x / 100, WALK.floorY + WALK.eye, y / 100); cam.fov = 70; cam.updateProjectionMatrix(); dirty = 3; document.body.classList.add('walking'); };
   const walkStop = () => { WALK.on = false; ctl.enabled = true; cam.fov = 62; cam.updateProjectionMatrix(); const d = new THREE.Vector3(); cam.getWorldDirection(d); ctl.target.copy(cam.position).addScaledVector(d, 1.5); ctl.update(); dirty = 3; document.body.classList.remove('walking'); };
   window.__walkStop = () => { if (WALK.on) walkStop(); };
