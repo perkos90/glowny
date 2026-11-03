@@ -1497,18 +1497,20 @@ function stairsVariant(V) {
   const s = new THREE.Mesh(new THREE.CylinderGeometry((GS_ + 6) / 200, (GS_ + 6) / 200, RS / 100, 32, 1, false, 0, Math.PI), mat.marble); s.position.set(.12, RS / 200, (y0 - 6 + GS_ + 6 + y0 - 6) / 200); s.rotation.y = Math.PI; s.castShadow = s.receiveShadow = true; CUR.add(s); }
   // balustrada biegu 1: czarne tralki, słupek, poręcz dębowa
   const xb = X1 - 3, hr = 92;
-  for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, h + hr + (d + 6) / GS_ * RS - 4], .7, mat.black); }
   const yS = y0 + GS_ * 1.5, hS = 2 * RS + hr, hE = top(914) - 14 + hr - RS + 2, hRail = y => hS + (y - yS) * (hE - hS) / (914 - yS);
+  for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, hRail(yy) - 1], .7, mat.black); }
+  // koniec poręczy u góry: słupek na ostatnim stopniu, poręcz wchodzi w jego głowicę
+  const yQ = yL - 4; cyl(xb, yQ, hL - RS, hRail(yQ) - 4, 3, mat.black, 16); cyl(xb, yQ, hRail(yQ) - 4, hRail(yQ) + 2, 4.2, mat.black, 16); sph(xb, yQ, hRail(yQ) + 4, 3.6, mat.black);
   if (!WIDE && !ROUND) {
     cyl(-10, y0 + 8, RS, RS + 98, 3, mat.black, 16); cyl(-10, y0 + 8, RS + 98, RS + 104, 4.2, mat.black, 16); sph(-10, y0 + 8, RS + 106, 3.6, mat.black);
     rodBetween([-10, y0 + 8, RS + 100], [xb, yS, hS], 2.4, mat.oak);
-    rodBetween([xb, yS, hS], [xb, 914, hE], 2.4, mat.oak);
+    rodBetween([xb, yS, hS], [xb, yL - 4, hRail(yL - 4)], 2.4, mat.oak);
   } else {
     // słupek na pierwszym stopniu, w linii balustrady (bez wysunięcia poza schody); poręcz po łuku
     // słupek w linii tralek, poręcz od jego głowicy jednym ciągiem z tym samym nachyleniem co na biegu
     const yN = y0 + 10, xN = xb + wd(yN), hN = hRail(yN);
     cyl(xN, yN, RS, hN - 4, 3, mat.black, 16); cyl(xN, yN, hN - 4, hN + 2, 4.2, mat.black, 16); sph(xN, yN, hN + 4, 3.6, mat.black);
-    const rp = []; for (let k = 0; k <= 24; k++) { const y = yN + (914 - yN) * k / 24; rp.push([xb + wd(y), y, hRail(y)]); }
+    const rp = []; for (let k = 0; k <= 24; k++) { const y = yN + (yL - 4 - yN) * k / 24; rp.push([xb + wd(y), y, hRail(y)]); }
     const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp.map(([x, y, h]) => new THREE.Vector3(-x / 100, h / 100, y / 100))), 96, .024, 12), mat.oak); tube.castShadow = true; CUR.add(tube);
   }
   // balustrada biegu 2 i krawędzi otworu na piętrze (od strony biegu 1)
@@ -1759,8 +1761,12 @@ function zoneExterior() {
   // pas międzykondygnacyjny wg DWG (ok. 3,06–3,30): gładki pas + listwa górna
   for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
   // gzyms pod dachem wg DWG: fryz, listwy schodkowe, kroksztyny (ząbki), płyta okapu i rynna
-  for (const r of H.UP.corn) for (const q of r.p) nm(extrude(q, r.h0, r.h1, mat.ext));
-  for (const q of H.UP.soff) nm(extrude(q, 659, 662, mat.ext));
+  // wg przekroju DXF: fryz 18 cm (+2 cm od lica), nad nim listwa schodkowa 2/4/8 cm (+3/+5/+9 cm), na górze podbitka okapu i ciemna deska czołowa
+  { const R = d => H.UP.corn2.find(r => r.d === d);
+    for (const [h0, h1, d] of [[613, 631, 4.5], [631, 633, 5.5], [633, 637, 7.5], [637, 645, 11.5]]) nm(extrude(R(d), h0, h1, mat.ext));
+    for (const r of H.UP.corn) if (r.h0 === 602) for (const q of r.p) nm(extrude(q, r.h0, 613, mat.ext)); }
+  for (const q of H.UP.soff) nm(extrude(q, 645, 647, mat.ext));
+  for (const [x0, x1, y0, y1] of [[-720, 612, -82, -79], [-720, 612, 1406, 1409], [-720, -717, -82, 1409], [609, 612, -82, 1409]]) nm(B(x0, x1, y0, y1, 645, 659, mat.dark)); // ciemna deska czołowa okapu
   for (const [x0, x1, y0, y1] of [[-722, 614, -84, -79], [-722, 614, 1406, 1411], [-722, -717, -84, 1411], [609, 614, -84, 1411]]) nm(B(x0, x1, y0, y1, 659, 668, mat.black)); // rynna wzdłuż krawędzi dachu
   if (false) { const o = H.UP.footS.o; for (let i = 0; i + 1 < o.length; i++) { const [xa, ya] = o[i], [xb, yb] = o[i + 1], L = Math.hypot(xb - xa, yb - ya); if (L < 40) continue;
       const ax = Math.abs(yb - ya) < 3, ay = Math.abs(xb - xa) < 3; if (!ax && !ay) continue;
@@ -1956,8 +1962,8 @@ function zoneUpperExt() {
     // nad oknem klinkier aż do gzymsu; jedna opaska 10 cm dookoła okna (bez dodatkowej ramki)
     { const c0 = o, c1 = o + d * 2.5, q0 = a0 - 1, q1 = a1 + 1; // klinkier nad oknem w tej samej płaszczyźnie i z tym samym układem cegieł co ściana
       const poly = { o: along ? [[q0, c0], [q1, c0], [q1, c1], [q0, c1]] : [[c0, q0], [c1, q0], [c1, q1], [c0, q1]], h: [] };
-      const m = nm(extrude(poly, HU0 + 240, 600, mat.brick)); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) - 2.4); uv.needsUpdate = true;
-      R(a0, a1, o - d * 6, o, HU0 + 240, 600, mat.wall); }
+      const m = nm(extrude(poly, HU0 + 240, 613, mat.brick)); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) - 2.4); uv.needsUpdate = true;
+      R(a0, a1, o - d * 6, o, HU0 + 240, 613, mat.wall); }
     { const S = HU0 + (w.sill || 0) - 8; R(a0 - 10, a0, o, o + d * 4, S, HU0 + 250, mat.ext); R(a1, a1 + 10, o, o + d * 4, S, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, HU0 + 240, HU0 + 250, mat.ext); R(a0 - 10, a1 + 10, o, o + d * 4, S, S + 8, mat.ext); }
     const SL = w.sill || 0; if (SL) { R(a0, a1, o - d * 6, o + d * 2.5, HU0, HU0 + SL, mat.brick); continue; }
     if (w.terr || (w.f === 'W' && w.y0 >= U.balk.y0 && w.y1 <= U.balk.y1)) continue;
@@ -2121,6 +2127,7 @@ const VIEWS = {
   zterC:  { iso: true, fov: 60, pos: [1050, 700, 200], look: [760, 700, 60], up: 35, down: 35 },
   zstairC: { iso: true, fov: 45, pos: [120, 600, 150], look: [-40, 760, 90], up: 30, down: 30 },
   zstair: { iso: true, fov: 62, pos: [230, 520, 175], look: [-60, 760, 80], up: 35, down: 35 },
+  zstairU: { iso: true, fov: 70, pos: [-190, 1010, 480], look: [-50, 860, 230], up: 35, down: 35 },
   zstairT: { top: true, fov: 30, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-80, 760, 700] },
   zparter: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-280, 760, 2700] },
   zplot:  { iso: true, fov: 55, pos: [7600, 600, 3300], look: [1800, 600, 0], up: 30, down: 30 },
@@ -2146,6 +2153,7 @@ const VIEWS = {
   zwall:  { iso: true, fov: 60, pos: [-1300, 700, 400], look: [-689, 700, 550], up: 40, down: 40 },
   zgwin:  { iso: true, fov: 45, pos: [-1100, 895, 200], look: [-689, 895, 250], up: 40, down: 40 },
   zcornNW: { iso: true, fov: 45, pos: [-1000, 1700, 450], look: [-640, 1250, 620], up: 40, down: 40 },
+  zcornC: { iso: true, fov: 40, pos: [-900, 1600, 560], look: [-500, 1380, 610], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
