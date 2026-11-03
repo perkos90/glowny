@@ -1748,7 +1748,7 @@ function zoneDarkBlock() {
   B(240, 592, -62, -50, T1, T1 + 4, D); B(553, 592, -62, 446, T1, T1 + 4, D);
   B(237, 595, -65, -50, T1 + 4, T2, D); B(553, 595, -65, 449, T1 + 4, T2, D);
   // pas międzykondygnacyjny dociągnięty do ciemnej bryły
-  B(60, 246, -57, -50, 306, 330, mat.ext); B(581, 588, 440, 455, 306, 330, mat.ext); B(60, 246, -59, -50, 326, 330, mat.ext);
+  for (const [h0, h1, d] of [[306, 317, 4.5], [317, 323, 5.5], [323, 330, 6.5]]) { B(60, 246, -50 - d, -50, h0, h1, mat.ext); B(581, 581 + d, 440, 455, h0, h1, mat.ext); }
 }
 const G0 = -32; // spód cokołu – poniżej terenu ogrodu (−30)
 function zoneExterior() {
@@ -1759,7 +1759,9 @@ function zoneExterior() {
     extrude(s, G0, 16, mat.brick); extrude(s, 16, 330, mat.ext);
   }
   // pas międzykondygnacyjny wg DWG (ok. 3,06–3,30): gładki pas + listwa górna
-  for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
+  // wg przekroju DXF: pas 25 cm z trzech płytkich stopni (12 / 6 / 7 cm), wysunięcie 2 / 3 / 4 cm przed tynk parteru
+  if (H.band2) for (const [h0, h1, d] of [[306, 317, 4.5], [317, 323, 5.5], [323, 330, 6.5]]) { for (const b of H.band2) if (b.d === d) nm(extrude(b, h0, h1, mat.ext)); }
+  else for (const b of H.band) nm(extrude(b, 306, 330, mat.ext));
   // gzyms pod dachem wg DWG: fryz, listwy schodkowe, kroksztyny (ząbki), płyta okapu i rynna
   // wg przekroju DXF: fryz 18 cm (+2 cm od lica), nad nim listwa schodkowa 2/4/8 cm (+3/+5/+9 cm), na górze podbitka okapu i ciemna deska czołowa
   { const R = d => H.UP.corn2.find(r => r.d === d);
@@ -2154,6 +2156,8 @@ const VIEWS = {
   zgwin:  { iso: true, fov: 45, pos: [-1100, 895, 200], look: [-689, 895, 250], up: 40, down: 40 },
   zcornNW: { iso: true, fov: 45, pos: [-1000, 1700, 450], look: [-640, 1250, 620], up: 40, down: 40 },
   zcornC: { iso: true, fov: 40, pos: [-900, 1600, 560], look: [-500, 1380, 610], up: 40, down: 40 },
+  zband: { iso: true, fov: 40, pos: [-880, 820, 250], look: [-690, 1000, 322], up: 40, down: 40 },
+  zband2: { iso: true, fov: 40, pos: [-100, -330, 250], look: [150, -55, 322], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
