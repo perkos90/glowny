@@ -17,6 +17,8 @@ button{border:1px solid var(--line);background:var(--btn);color:var(--fg);border
 #walkhint{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));background:var(--panel);padding:8px 12px;border-radius:12px;font-size:12px;color:var(--mut);max-width:260px;z-index:6}
 #pad{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:7;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
 #pad button{padding:0;font-size:20px;border-radius:12px;touch-action:none} #pad button.lk{font-size:13px;color:var(--mut)} #ui .lkb{touch-action:none;min-width:38px}
+#tgl{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:8} #tgl button{background:var(--panel);font-size:12px;padding:6px 11px}
+body.noui #ui{display:none} body.nohd #hd{display:none} body.walking #walkhint{top:calc(54px + env(safe-area-inset-top,0px))}
 body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walking #ui{max-height:20vh}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
@@ -40,6 +42,7 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <li><b>Ciemna bryła salonu wg elewacji DWG:</b> od ogrodu tylko wokół przeszklenia, od boku pas ok. 3,35 m przy narożniku; listwy: ramy, pas w linii stropu, opaska i gzyms. Okna piętra w białych pasach tynku (od pasa międzykondygnacyjnego 3,06–3,30 do fryzu) z opaskami; pod dachem fryz, listwy schodkowe i kroksztyny. Nad wejściem mini balkon 43 cm z balustradą na szerokość portalu. Taras na piętrze na dwóch filarach, czoło z gzymsem.</li>
 <li><b>Elewacje wg DWG A-9:</b> parter tynk biały RAL 9010, piętro jasny klinkier, bryła salonu ciemna RAL 7022, dach czterospadowy ciemny, taras bez podcienia. <span class="w">Wnętrza piętra jeszcze niemodelowane.</span></li>
 </ul></details></div>
+<div id="tgl"><button data-hide="nohd" aria-pressed="false">Ukryj opis</button><button data-hide="noui" aria-pressed="false">Ukryj panel</button></div>
 <div id="walkhint"><b style="color:var(--fg)">Spacer</b> – strzałki ↑↓ idą, ←→ obracają, A/D krok w bok, Shift szybciej. Przeciągnij myszą albo użyj ▲▼ (PageUp/PageDown, R/F), żeby spojrzeć w górę i w dół bez ruszania się. Esc kończy. „Przez drzwi: tak” pozwala przechodzić przez zamknięte drzwi. Po schodach wchodzi się zwyczajnie, idąc do przodu.</div>
 <div id="pad"><button data-lk="LookU" class="lk" aria-label="Patrz w górę" title="Patrz w górę">▲</button><button data-k="ArrowUp" aria-label="Do przodu">↑</button><button data-lk="LookD" class="lk" aria-label="Patrz w dół" title="Patrz w dół">▼</button><button data-k="ArrowLeft" aria-label="Obrót w lewo">←</button><button data-k="ArrowDown" aria-label="Do tyłu">↓</button><button data-k="ArrowRight" aria-label="Obrót w prawo">→</button></div>
 <div id="ui">
@@ -50,6 +53,7 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <div class="grp"><span class="lab">Na zewnątrz</span><button data-v="ogrod">Od ogrodu</button><button data-v="front">Wejście</button><button data-v="bok">Od garażu</button><button data-v="dom">Z góry</button><button data-v="dzialka">Cała działka</button><button data-v="trawnik">Z trawnika</button><button data-v="podjazd">Podjazd</button></div>
 <div class="grp"><span class="lab">Schody</span><button data-st="A" class="on">Wg DWG</button><button data-st="B">Łuk +30 cm</button><button data-st="B50">Łuk +50 cm</button><button data-st="B70">Łuk +70 cm</button><button data-st="R">Zaokrąglone stopnie</button></div>
 <div class="grp"><span class="lab">Ogród</span><button data-og="1" class="on">Koncepcja I</button><button data-og="2">Koncepcja II</button><button data-og="3">Propozycja Claude</button><button data-og="0">Bez ogrodu</button></div>
+<div class="grp"><span class="lab">Garaż</span><button data-cars="1" class="on">Auta</button><button data-cars="0">Bez aut</button></div>
 <div class="grp"><span class="lab">Bok wnęki TV</span><button data-gk="0" class="on">Otwarty</button><button data-gk="1">Ścianka g-k</button></div>
 <div class="grp"><span class="lab">Choinka 4 m</span><button data-t="none" class="on">Brak</button><button data-t="pencil">Pencil Ø80</button><button data-t="slim">Smukła Ø110</button><button data-t="full">Pełna Ø210</button><button data-v="choinka">Widok</button></div>
 <div class="grp"><span class="lab">Meblościanka TV</span><button data-tv="0" class="on">Ciepła biel</button><button data-tv="1">Fornir</button></div>
@@ -58,6 +62,8 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <script>window.__ready=()=>{document.getElementById('load').remove();
 const grp=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{fn(b);document.querySelectorAll(sel).forEach(x=>x.classList.toggle('on',x===b));});
 grp('[data-v]',b=>{const v=b.dataset.v;window.__ceil(v!=='dom'&&v!=='gora'&&v!=='parter'&&!window.__noUpper);window.__go(v);});
+document.querySelectorAll('[data-hide]').forEach(b=>b.onclick=()=>{const c=b.dataset.hide,on=!document.body.classList.contains(c);document.body.classList.toggle(c,on);b.setAttribute('aria-pressed',on);b.classList.toggle('on',on);b.textContent=(on?'Pokaż ':'Ukryj ')+(c==='noui'?'panel':'opis');b.blur();});
+grp('[data-cars]',b=>window.__cars(b.dataset.cars==='1'));
 grp('[data-gk]',b=>window.__gk(b.dataset.gk==='1'));
 grp('[data-t]',b=>window.__tree(b.dataset.t));
 grp('[data-tv]',b=>window.__tvVeneer(b.dataset.tv==='1'));
