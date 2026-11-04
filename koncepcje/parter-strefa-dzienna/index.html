@@ -46,7 +46,7 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <div class="grp"><span class="lab">Parter</span><button data-v="parter">Rzut parteru</button><button data-up="1" aria-pressed="false" title="Ukrywa piętro, dach i stropy w każdym widoku">Ukryj piętro</button><button data-v="jadalnia" class="on">Jadalnia</button><button data-v="kuchnia">Kuchnia</button><button data-v="wyspa">Wyspa</button><button data-v="schody">Schody</button><button data-v="podschodami">Pod schodami</button><button data-v="spizarnia">Spiżarnia</button><button data-v="hol">Hol</button><button data-v="hol2">Hol od wejścia</button><button data-v="garderoba">Garderoba</button><button data-v="silownia">Siłownia</button><button data-v="garaz">Garaż</button><button data-v="techniczne">Techniczne</button><button data-v="kotlownia">Kotłownia</button><button data-v="gabinet">Gabinet</button><button data-v="wc">WC</button><button data-v="salon">Salon</button></div>
 <div class="grp"><span class="lab">Spacer</span><button data-w="wejscie">Od wejścia</button><button data-w="salon">Z salonu</button><button data-w="pietro">Na piętrze</button><button data-w="stop">Zakończ</button><button data-wd="1" class="on" aria-pressed="true">Przez drzwi: tak</button></div>
 <div class="grp"><span class="lab">Obrót w miejscu</span><button class="lkb" data-lk="LookL" aria-label="Obróć w lewo" title="Obróć w lewo (←)">◀</button><button class="lkb" data-lk="LookU" aria-label="Spójrz w górę" title="Spójrz w górę (↑)">▲</button><button class="lkb" data-lk="LookD" aria-label="Spójrz w dół" title="Spójrz w dół (↓)">▼</button><button class="lkb" data-lk="LookR" aria-label="Obróć w prawo" title="Obróć w prawo (→)">▶</button><button data-lip="0" aria-pressed="false" title="Przeciąganie myszą lub palcem obraca widok wokół kamery, a nie wokół punktu">Mysz: obrót w miejscu</button></div>
-<div class="grp"><span class="lab">Piętro</span><button data-v="gora">Rzut piętra</button><button data-v="pralnia">Pralnia</button><button data-v="p_hol">Hol</button><button data-v="p_schody">Schody</button><button data-v="p_sypg">Sypialnia główna</button><button data-v="p_lazg">Łazienka główna</button><button data-v="p_gard">Garderoba</button><button data-v="p_syp1">Sypialnia 1</button><button data-v="p_lazs">Łazienka</button><button data-v="p_syp2">Sypialnia 2</button><button data-v="p_pral">Pralnia</button></div>
+<div class="grp"><span class="lab">Piętro</span><button data-v="gora">Rzut piętra</button><button data-v="pralnia">Pralnia</button><button data-v="p_hol">Hol</button><button data-v="p_schody">Schody</button><button data-v="p_sypg">Sypialnia główna</button><button data-v="p_lazg">Łazienka główna</button><button data-v="p_gard">Garderoba</button><button data-v="p_syp1">Sypialnia 1</button><button data-v="p_lazs">Łazienka</button><button data-v="p_syp2">Sypialnia 2</button></div>
 <div class="grp"><span class="lab">Na zewnątrz</span><button data-v="ogrod">Od ogrodu</button><button data-v="front">Wejście</button><button data-v="bok">Od garażu</button><button data-v="dom">Z góry</button><button data-v="dzialka">Cała działka</button><button data-v="trawnik">Z trawnika</button><button data-v="podjazd">Podjazd</button></div>
 <div class="grp"><span class="lab">Schody</span><button data-st="A" class="on">Wg DWG</button><button data-st="B">Łuk +30 cm</button><button data-st="B50">Łuk +50 cm</button><button data-st="B70">Łuk +70 cm</button><button data-st="R">Zaokrąglone stopnie</button></div>
 <div class="grp"><span class="lab">Ogród</span><button data-og="1" class="on">Koncepcja I</button><button data-og="2">Koncepcja II</button><button data-og="3">Propozycja Claude</button><button data-og="0">Bez ogrodu</button></div>
@@ -2067,10 +2067,10 @@ function windowUnit(w) {
 function casing(x0, y0, x1, y1, top = 205) { const along = (x1 - x0) > (y1 - y0); const a0 = along ? x0 : y0, a1 = along ? x1 : y1, c0 = along ? y0 : x0, c1 = along ? y1 : x1;
   const R = (p, q, r, s, h0, h1) => along ? B(p, q, r, s, h0, h1, mat.pp) : B(r, s, p, q, h0, h1, mat.pp);
   for (const [r, s] of [[c0 - 1.6, c0], [c1, c1 + 1.6]]) { R(a0 - 8, a0, r, s, 0, top + 8); R(a1, a1 + 8, r, s, 0, top + 8); R(a0 - 8, a1 + 8, r, s, top, top + 8); } }
-function doorLeaf(x0, y0, x1, y1, handleSide = 1) { const along = (x1 - x0) > (y1 - y0); const a0 = along ? x0 : y0, a1 = along ? x1 : y1, cm = along ? (y0 + y1) / 2 : (x0 + x1) / 2;
+function doorLeaf(x0, y0, x1, y1, handleSide = 1, H = 204, hm = mat.bronze) { const along = (x1 - x0) > (y1 - y0); const a0 = along ? x0 : y0, a1 = along ? x1 : y1, cm = along ? (y0 + y1) / 2 : (x0 + x1) / 2;
   const R = (p, q, r, s, h0, h1, m) => along ? B(p, q, r, s, h0, h1, m) : B(r, s, p, q, h0, h1, m);
-  R(a0, a1, cm - 2, cm + 2, 0, 204, mat.pp); for (const sgn of [-1, 1]) { R(a0 + 9, a1 - 9, cm + sgn * 2, cm + sgn * 2.6, 112, 190, mat.pp); R(a0 + 12, a1 - 12, cm + sgn * 2.6, cm + sgn * 2.9, 115, 187, mat.pp); R(a0 + 9, a1 - 9, cm + sgn * 2, cm + sgn * 2.6, 14, 100, mat.pp); R(a0 + 12, a1 - 12, cm + sgn * 2.6, cm + sgn * 2.9, 17, 97, mat.pp);
-    const hx = handleSide > 0 ? a1 - 9 : a0 + 9; R(hx - 2, hx + 2, cm + sgn * 2, cm + sgn * 4, 95, 112, mat.bronze); R(handleSide > 0 ? hx - 14 : hx, handleSide > 0 ? hx : hx + 14, cm + sgn * 4, cm + sgn * 6, 104, 107, mat.bronze); } }
+  const k = H / 204; R(a0, a1, cm - 2, cm + 2, 0, H, mat.pp); for (const sgn of [-1, 1]) { R(a0 + 9, a1 - 9, cm + sgn * 2, cm + sgn * 2.6, 112 * k, 190 * k, mat.pp); R(a0 + 12, a1 - 12, cm + sgn * 2.6, cm + sgn * 2.9, 115 * k, 187 * k, mat.pp); R(a0 + 9, a1 - 9, cm + sgn * 2, cm + sgn * 2.6, 14, 100, mat.pp); R(a0 + 12, a1 - 12, cm + sgn * 2.6, cm + sgn * 2.9, 17, 97, mat.pp);
+    const hx = handleSide > 0 ? a1 - 9 : a0 + 9; R(hx - 2, hx + 2, cm + sgn * 2, cm + sgn * 4, 95, 112, hm); R(handleSide > 0 ? hx - 14 : hx, handleSide > 0 ? hx : hx + 14, cm + sgn * 4, cm + sgn * 6, 104, 107, hm); } }
 function houseFloors() {
   tiled(-555, -25, 400, 650, mat.checker, 1.2);          // hol wejściowy
   tiled(-640, -345, 650, 1100, mat.checker, 1.2);         // garderoba
@@ -2287,7 +2287,7 @@ function zoneShell() {
   for (const p of H.slabP) extrude(p, HN, 330, mat.wall).name = 'CEIL';
   for (const p of H.upP) extrude(p, 330, 600, mat.wall).name = 'CEIL'; // bryła piętra (niemodelowane) z szybem schodów
   // pustka salonu – ściany do góry
-  B(76, 102, -45, BEAM0, 330, HR, mat.wall); B(-45, 600, BEAM0, BEAM1, 280, 330, mat.wall); // antresola – nad podciągiem otwarte B(76, 580, -45, 0, 290, HR + 20, mat.wall);
+  B(87, 102, -45, BEAM0, 330, HR, mat.wall); B(-45, 600, BEAM0, BEAM1, 280, 330, mat.wall); // ściana łazienki piętra nad wnęką – lico wg DWG piętra (x 87); antresola – nad podciągiem otwarte B(76, 580, -45, 0, 290, HR + 20, mat.wall);
   B(60, 102, -45, BEAM1, HN - 1, 340, mat.wall);
   B(76, 600, -45, BEAM0, HR, HR + 25, mat.wall).name = 'CEIL'; B(COL, 580, -45, 0, 0, HR + 20, mat.wall); B(COL, 580, BEAM0, 528, 0, 330, mat.wall);
   B(-25, 0, BEAM0, BEAM1, 0, 290, mat.wall);
@@ -2877,6 +2877,101 @@ function labelDecal(txt, x, y, h) { const c = document.createElement('canvas'); 
   g.fillStyle = 'rgba(255,255,255,.88)'; g.beginPath(); g.roundRect(8, 8, 1008, 144, 40); g.fill(); g.fillStyle = '#3a2f26'; g.font = '600 82px Helvetica, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 512, 82);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const me = new THREE.Mesh(new THREE.PlaneGeometry(1.9, .3), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
   me.rotation.x = -Math.PI / 2; me.rotation.z = Math.PI; me.position.set(-x / 100, (h + 2) / 100, y / 100); me.name = 'LABEL'; me.visible = false; me.renderOrder = 5; CUR.add(me); return me; }
+// ---------- PIĘTRO – umeblowanie wg aranżacji z DWG (jak parter: dąb, ciepła biel, boucle, len, mosiądz, marmur) ----------
+function ORB(r, f) { // prostokąt mebla z frontem po stronie f ('S' – przy min y, 'N' – max y, 'W' – min x, 'E' – max x); a – wzdłuż frontu, d – w głąb od frontu
+  const [x0, x1, y0, y1] = r, alongX = f === 'S' || f === 'N', A = alongX ? x1 - x0 : y1 - y0, D = alongX ? y1 - y0 : x1 - x0;
+  const pt = (a, d) => f === 'S' ? [x0 + a, y0 + d] : f === 'N' ? [x0 + a, y1 - d] : f === 'W' ? [x0 + d, y0 + a] : [x1 - d, y0 + a];
+  const box = (a0, a1, d0, d1, h0, h1, m, o) => { const [p, q] = pt(a0, d0), [s, t] = pt(a1, d1); return B(Math.min(p, s), Math.max(p, s), Math.min(q, t), Math.max(q, t), h0, h1, m, o); };
+  return { A, D, pt, box };
+}
+function upFurniture() {
+  const HC = HU1 - HU0; // wysokość pomieszczeń piętra
+  const mebW = M({ color: '#f5efe6', roughness: .6 }), mebW2 = M({ color: '#efe8dd', roughness: .6 });
+  const hb = M({ map: T.boucle, color: '#efe7da', roughness: 1 }), duv = M({ map: T.linen, color: '#f6f2ea', roughness: 1 }), thr = M({ map: T.linen, color: '#cdb796', roughness: 1 }), cush = M({ map: T.linen, color: '#ddcdb6', roughness: 1 });
+  const mirU = M({ color: '#dfe5e6', metalness: .55, roughness: .1 }), sink = M({ color: '#fbfaf7', roughness: .12 }), tile = M({ map: T.sqTile, roughness: .35 }), stone = M({ map: T.marble, roughness: .3, color: '#efe9e0' });
+  const lampT = (x, y, h) => { sph(x, y, h + 12, 11, mat.cer, 1.1); cyl(x, y, h + 22, h + 26, 1.6, mat.brass); cyl(x, y, h + 26, h + 44, 11, mat.shade, 32, 17); };
+  const sconce = (x, y, h, dx, dy) => { cyl(x, y, h - 3, h + 3, 3.2, mat.brass, 16); rodBetween([x, y, h], [x + dx * 11, y + dy * 11, h + 2], .8, mat.brass); cyl(x + dx * 11, y + dy * 11, h - 6, h + 10, 4.2, mat.shade, 20, 6.5); };
+  const books = (x, y, h, n = 5, ax = 'x') => { let o = 0; for (let i = 0; i < n; i++) { const t = 3 + rnd() * 2.5, hh = 20 + rnd() * 8, c = M({ color: pick(['#d8cfc0', '#b9a58a', '#8e7b66', '#e9e2d6', '#5e5246']), roughness: .8 });
+    if (ax === 'x') B(x + o, x + o + t, y - 11, y + 11, h, h + hh, c); else B(x - 11, x + 11, y + o, y + o + t, h, h + hh, c); o += t + .3; } };
+  // szafa do sufitu: fronty frezowane, mosiężne uchwyty, cofnięty cokół
+  const wardrobe = (r, f, m = mebW, nd, H = HC) => { const o = ORB(r, f), n = nd || Math.max(1, Math.round(o.A / 50)), w = o.A / n;
+    o.box(0, o.A, 6, o.D, 0, 9, mat.black); o.box(0, o.A, 2, o.D, 9, H, m);
+    for (let i = 0; i < n; i++) { const a0 = i * w + .25, a1 = (i + 1) * w - .25; o.box(a0, a1, 0, 2, 9.5, H - .5, m);
+      o.box(a0 + 6, a1 - 6, -.5, 0, 16, H - 14, m); const ha = i % 2 ? a0 + 4 : a1 - 4; o.box(ha - 1, ha + 1, -2.5, 0, 95, 140, mat.brass); } };
+  const bed = (r, head) => { const o = ORB(r, head), W = o.A, L = o.D;
+    o.box(0, W, 0, 9, 0, 118, hb, { r: .03 }); for (let i = 1; i < 6; i++) o.box(W * i / 6 - .5, W * i / 6 + .5, 9, 9.4, 40, 112, mat.wall2);
+    o.box(5, W - 5, 13, L - 5, 0, 7, mat.black); o.box(0, W, 9, L, 7, 31, hb, { r: .03 }); o.box(2, W - 2, 10, L - 2, 31, 52, mat.pp, { r: .05 });
+    o.box(-1.5, W + 1.5, 46, L + 1.5, 36, 56, duv, { r: .04 }); o.box(-2.5, W + 2.5, L - 50, L - 12, 35, 57.5, thr, { r: .03 });
+    const np = W >= 150 ? 2 : 1, pw = (W - 14) / np; for (let i = 0; i < np; i++) o.box(7 + i * pw + 2, 7 + (i + 1) * pw - 2, 11, 36, 52, 70, mat.pp, { r: .07 });
+    o.box(W / 2 - 24, W / 2 + 24, 33, 45, 52, 66, cush, { r: .05 }); };
+  const night = (r, f) => { const o = ORB(r, f); o.box(0, o.A, 0, o.D, 8, 55, mat.oak, { r: .01 }); o.box(2, o.A - 2, 3, o.D - 3, 0, 8, mat.black); o.box(1, o.A - 1, -.3, 0, 31, 31.6, mat.oakD);
+    const [kx, ky] = o.pt(o.A / 2, -1); sph(kx, ky, 43, 1.3, mat.brass); const [lx, ly] = o.pt(o.A / 2, o.D / 2); lampT(lx, ly, 55); };
+  const desk = (r, f, chairAt, rot) => { const o = ORB(r, f), A = o.A, D = o.D; o.box(0, A, 0, D, 72, 76, mat.oak, { r: .008 });
+    o.box(2, 6, 4, D - 4, 0, 72, mat.oak); o.box(A - 6, A - 2, 4, D - 4, 0, 72, mat.oak); o.box(A - 48, A - 6, 4, D - 2, 58, 72, mat.oak); const [kx, ky] = o.pt(A - 27, 3.4); sph(kx, ky, 65, 1.2, mat.brass);
+    const [lx, ly] = o.pt(A - 22, D - 16); lampT(lx, ly, 76); const [bx, by] = o.pt(14, D - 14); books(bx - 8, by, 76, 4); const [px, py] = o.pt(A * .42, D * .45); B(px - 17, px + 17, py - 12, py + 12, 76, 77.4, mat.black);
+    if (chairAt) slipperChair(chairAt[0], chairAt[1], rot); };
+  const rugAt = (x0, x1, y0, y1) => { const g = B(x0, x1, y0, y1, 0, 1, mat.rug, { cast: false }); uvScale(g, .5); };
+  // umywalka: szafka dębowa podwieszana, blat marmurowy, misa podblatowa, bateria ścienna, lustro w mosiężnej ramie, kinkiety
+  const vanity = (r, f, sinks) => { const o = ORB(r, f), A = o.A, D = o.D, nf = Math.max(2, Math.round(A / 60)), fw = A / nf;
+    o.box(0, A, 2, D, 18, 82, mat.oakK); for (let i = 0; i < nf; i++) { o.box(i * fw + .3, (i + 1) * fw - .3, 0, 2, 20, 80, mat.oakK); const [kx, ky] = o.pt((i + .5) * fw, -1); sph(kx, ky, 72, 1.3, mat.brass); }
+    const t = o.box(-1, A, -1.5, D, 82, 86, mat.marble); uvScale(t, 2); o.box(0, A, D - 2, D, 86, 100, mat.marble);
+    for (const a of sinks) { o.box(a - 23, a + 23, 7, D - 9, 84, 86.2, sink, { r: .08 });
+      const [fx, fy] = o.pt(a, D - 1), [sx, sy] = o.pt(a, D - 17); cyl(fx, fy, 104, 108, 3, mat.brass, 16); rodBetween([fx, fy, 106], [sx, sy, 106], 1.1, mat.brass);
+      for (const s of [-9, 9]) { const [hx, hy] = o.pt(a + s, D - 2); sph(hx, hy, 114, 2.2, mat.brass); }
+      o.box(a - 31, a + 31, D - 2.6, D - .6, 112, 192, mat.brass, { r: .04 }); o.box(a - 28, a + 28, D - 2.9, D - 2.6, 115, 189, mirU, { r: .03 });
+    } }; // kinkiety przy lustrach – z projektu instalacji (zoneFixtures)
+  // prysznic walk-in: brodzik kamienny, płytki do 220, szyba w mosiężnym profilu, deszczownica
+  const shower = (r, glass, walls, head) => { const [x0, x1, y0, y1] = r; const tr = B(x0, x1, y0, y1, 0, 2.5, stone, { cast: false }); uvScale(tr, 1);
+    for (const w of walls) { const t = w === 'N' ? B(x0, x1, y1 - 1, y1, 2.5, 220, tile) : w === 'S' ? B(x0, x1, y0, y0 + 1, 2.5, 220, tile) : w === 'E' ? B(x1 - 1, x1, y0, y1, 2.5, 220, tile) : B(x0, x0 + 1, y0, y1, 2.5, 220, tile); uvScale(t, 1.25); }
+    for (const [ax, c, a0, a1] of glass) { if (ax === 'x') { B(a0, a1, c - .5, c + .5, 2.5, 200, mat.glass); B(a0, a1, c - 1, c + 1, 198, 201, mat.brass); B(a0, a0 + 2, c - 1, c + 1, 2.5, 201, mat.brass); B(a1 - 2, a1, c - 1, c + 1, 2.5, 201, mat.brass); }
+      else { B(c - .5, c + .5, a0, a1, 2.5, 200, mat.glass); B(c - 1, c + 1, a0, a1, 198, 201, mat.brass); B(c - 1, c + 1, a0, a0 + 2, 2.5, 201, mat.brass); B(c - 1, c + 1, a1 - 2, a1, 2.5, 201, mat.brass); } }
+    const [hx, hy, wx, wy] = head; cyl(hx, hy, 214, 216, 14, mat.brass, 32); rodBetween([wx, wy, 222], [hx, hy, 222], .9, mat.brass); cyl(hx, hy, 216, 222, .9, mat.brass);
+    const mx = wx + (hx - wx) * .02, my = wy + (hy - wy) * .02; cyl(mx, my, 108, 112, 4, mat.brass, 20); };
+  const wcWall = (x0, x1, y0, y1, f) => { // stelaż w zabudowie + miska podwieszana (front zabudowy: f)
+    const o = ORB([x0, x1, y0, y1], f); o.box(0, o.A, 0, o.D, 0, 112, mebW2); const ca = o.A / 2, [px, py] = o.pt(ca, -.5); const pl = o.box(ca - 11, ca + 11, -.6, 0, 96, 111, mat.brass);
+    o.box(ca - 19, ca + 19, -54, 0, 32, 46, mat.porcelain, { r: .09 }); o.box(ca - 18, ca + 18, -52, 0, 46, 49, mat.porcelain, { r: .04 }); };
+  const towel = (x0, x1, y0, y1, h) => { B(x0, x1, y0, y1, h, h + 2, mat.brass); if (y1 - y0 < x1 - x0) B(x0 + 3, x1 - 3, y0 - .8, y1 + .8, h - 48, h + 1, mat.linen); else B(x0 - .8, x1 + .8, y0 + 3, y1 - 3, h - 48, h + 1, mat.linen); };
+
+  // ===== SYPIALNIA 1 (płd.-zach.) =====
+  bed([-373, -166, 117, 277], 'E');
+  wardrobe([-226, -166, 2, 117], 'W', mebW, 2); wardrobe([-226, -166, 277, 392], 'W', mebW, 2); wardrobe([-636, -416, 332, 392], 'S', mebW, 4);
+  desk([-636, -443, 2, 62], 'N', [-540, 102], 0); rugAt(-440, -190, 80, 314);
+  // ===== ŁAZIENKA (płd.) – wanna w zabudowie, umywalka, prysznic, WC =====
+  { const x0 = -144, x1 = -64, y0 = 2, y1 = 182, w = 8;
+    for (const [a, b, c, d] of [[x0, x1, y0, y0 + w], [x0, x1, y1 - w, y1], [x0, x0 + w, y0, y1], [x1 - w, x1, y0, y1]]) { const m = B(a, b, c, d, 0, 57, mat.marble); uvScale(m, 1.5); }
+    B(x0 + w, x1 - w, y0 + w, y1 - w, 0, 16, sink); for (const [a, b, c, d] of [[x0 + w, x1 - w, y0 + w, y0 + w + 1], [x0 + w, x1 - w, y1 - w - 1, y1 - w], [x0 + w, x0 + w + 1, y0 + w, y1 - w], [x1 - w - 1, x1 - w, y0 + w, y1 - w]]) B(a, b, c, d, 16, 56.5, sink);
+    rodBetween([-147, 92, 70], [-130, 92, 68], 1.6, mat.brass); for (const s of [-10, 10]) sph(-146, 92 + s, 76, 2.4, mat.brass);
+    B(-140, -68, 10, 30, 57, 59, mat.linen); }
+  vanity([42, 87, 3, 217], 'W', [110]);
+  shower([7, 87, 262, 392], [['x', 262, 7, 87], ['y', 7, 262, 330]], ['N', 'E'], [47, 345, 47, 391]);
+  wcWall(-147, -129, 208, 270, 'E');
+  // ===== SYPIALNIA 2 (płn.-zach.) =====
+  bed([-517, -377, 1128, 1328], 'N'); night([-569, -529, 1283, 1318], 'S'); night([-365, -325, 1283, 1318], 'S');
+  wardrobe([-318, -258, 675, 872], 'W', mebW, 4); wardrobe([-318, -258, 872, 1070], 'W', mebW, 4);
+  desk([-636, -446, 781, 841], 'N', [-545, 882], 0); rugAt(-560, -335, 1040, 1250);
+  // ===== GARDEROBA – zabudowa dębowa w kształcie U, pufa =====
+  wardrobe([-296, 3, 1099, 1159], 'N', mat.kOak); wardrobe([-296, -236, 1159, 1266], 'E', mat.kOak, 2); wardrobe([-296, -71, 1266, 1326], 'S', mat.kOak); wardrobe([-71, 155, 1266, 1326], 'S', mat.kOak); wardrobe([105, 155, 947, 1266], 'W', mat.kOak, 6);
+  pouf(-70, 1212, 26, M({ map: T.boucle, color: '#8f9a7a', roughness: 1 })); rugAt(-210, 80, 1172, 1252);
+  // ===== ŁAZIENKA GŁÓWNA – prysznic, WC, wanna wolnostojąca, podwójna umywalka =====
+  shower([171, 251, 1133, 1276], [['x', 1133, 171, 251], ['y', 251, 1133, 1205]], ['W', 'N'], [211, 1215, 211, 1275]);
+  wcWall(322, 377, 1256, 1278, 'S');
+  { const oct = (x0, x1, y0, y1, c) => [[x0 + c, y0], [x1 - c, y0], [x1, y0 + c], [x1, y1 - c], [x1 - c, y1], [x0 + c, y1], [x0, y1 - c], [x0, y0 + c]];
+    const out = oct(428, 508, 1081, 1261, 20), inn = oct(435, 501, 1088, 1254, 17);
+    extrude({ o: out, h: [] }, 0, 14, sink); extrude({ o: out, h: [inn] }, 14, 60, sink);
+    cyl(519, 1171, 0, 92, 1.6, mat.brass, 16); rodBetween([519, 1171, 92], [503, 1171, 90], 1.4, mat.brass); for (const s of [-6, 6]) sph(519, 1171 + s, 80, 2.2, mat.brass);
+    plantFern(520, 1300, 0, 1.2); }
+  vanity([292, 530, 947, 992], 'N', [73, 175]); towel(258, 288, 945, 947, 120);
+  // ===== SYPIALNIA GŁÓWNA =====
+  bed([272, 452, 576, 786], 'S'); night([231, 264, 576, 613], 'N'); night([461, 498, 576, 611], 'N');
+  desk([3, 63, 652, 842], 'E', [118, 748], -Math.PI / 2);
+  { const o = ORB([275, 530, 885, 931], 'S'); o.box(0, o.A, 0, o.D, 12, 76, mat.oak); o.box(3, o.A - 3, 3, o.D - 3, 0, 12, mat.black); const n = 4, w = o.A / n;
+    for (let i = 0; i < n; i++) { o.box(i * w + .3, (i + 1) * w - .3, -.4, 0, 14, 74, mat.cane); const [kx, ky] = o.pt((i + .5) * w, -1.5); sph(kx, ky, 60, 1.3, mat.brass); }
+    B(342, 463, 928, 931, 104, 173, mat.black); vaseFlowers(300, 908, 76, .5); books(480, 908, 76, 4); }
+  rugAt(222, 502, 650, 862);
+  // ===== HOL / ANTRESOLA – konsola dębowa, lampa, obraz =====
+  { B(250, 410, 523, 561, 0, 78, mat.oak, { r: .01 }); B(254, 406, 527, 557, 0, 6, mat.black); lampT(280, 542, 78); vaseFlowers(380, 542, 78, .45);
+    B(270, 390, 558, 561, 120, 210, mat.oak); B(274, 386, 557.6, 558, 124, 206, M({ map: paintTex(1), roughness: .7 })); }
+}
 function zoneUpper() {
   const U = HOUSE.UP;
   upGroup(() => {
@@ -2887,7 +2982,14 @@ function zoneUpper() {
     for (const w of U.walls) extrude(w, HU0, HU1, mat.wall);
     for (const w of U.ins) extrude(w, HU0, HU1, mat.wall2);
     for (const d of U.doors) { B(d.x0, d.x1, d.y0, d.y1, HU0 + 202, HU1, mat.wall);
-      const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g; casing(d.x0, d.y0, d.x1, d.y1, 202); CUR = prev; }
+      const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g; casing(d.x0, d.y0, d.x1, d.y1, 202);
+      // białe skrzydła (płycinowe, jak na parterze); sypialnia główna – drzwi dwuskrzydłowe, klamki pośrodku
+      const along = d.x1 - d.x0 > d.y1 - d.y0, L = along ? d.x1 - d.x0 : d.y1 - d.y0;
+      if (L > 140) { const m = along ? (d.x0 + d.x1) / 2 : (d.y0 + d.y1) / 2;
+        if (along) { doorLeaf(d.x0, d.y0, m - .3, d.y1, 1, 202, mat.brass); doorLeaf(m + .3, d.y0, d.x1, d.y1, -1, 202, mat.brass); }
+        else { doorLeaf(d.x0, d.y0, d.x1, m - .3, 1, 202, mat.brass); doorLeaf(d.x0, m + .3, d.x1, d.y1, -1, 202, mat.brass); }
+      } else doorLeaf(d.x0, d.y0, d.x1, d.y1, 1, 202, mat.brass);
+      CUR = prev; }
     for (const c of U.ceil) extrude(c, HU1, 646, mat.wall).name = 'CEIL';
     // okna – wszystkie od podłogi (Hp = 0), wys. 240, RAL 7016, balustrady francuskie na zewnątrz
     { const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g;
@@ -2898,6 +3000,7 @@ function zoneUpper() {
     railing('x', -133, -27, 667, HU0, 100, 11); railing('y', 667, 860, -134, HU0, 100, 11);
     // podpisy pomieszczeń (widoczne w widoku „Piętro z góry”)
     zoneLaundry();
+    { const g = new THREE.Group(); g.position.y = HU0 / 100; CUR.add(g); const prev = CUR; CUR = g; upFurniture(); CUR = prev; }
     for (const [t, x, y] of U.labels) labelDecal(t, x, y, HU0);
     // oświetlenie robocze
     for (const [, x, y] of U.labels) { const l = new THREE.PointLight('#ffe9cf', .9, 7, 2); l.position.set(-x / 100, (HU1 - 25) / 100, y / 100); CUR.add(l); }
@@ -3155,6 +3258,7 @@ const VIEWS = {
   zsal: { iso: true, fov: 70, pos: [330, 420, 150], look: [150, 0, 250], up: 40, down: 40 },
   zsal2: { iso: true, fov: 70, pos: [380, 720, 170], look: [200, 0, 260], up: 40, down: 40 },
   zoff: { iso: true, fov: 70, pos: [-200, 90, 165], look: [-150, 262, 150], up: 40, down: 40 },
+  zlz: { iso: true, fov: 60, pos: [-60, 113, 480], look: [87, 113, 470], up: 40, down: 40 },
   zgk: { iso: true, fov: 70, pos: [330, 260, 160], look: [0, 420, 150], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
@@ -3201,8 +3305,8 @@ if (INTER) {
     gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
     ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], dzialka: [P3(7600, 600, 3300), P3(1800, 600, 0)], trawnik: [P3(3000, 350, 170), P3(600, 650, 300)], podjazd: [P3(-1700, -700, 260), P3(-700, 600, 100)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], parter: [P3(-60, 160, 2000), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
-    p_hol: [P3(480, 500, 490), P3(-400, 520, 460)], p_schody: [P3(-60, 590, 490), P3(-190, 980, 400)], p_sypg: [P3(470, 600, 490), P3(60, 880, 440)], p_lazg: [P3(190, 1255, 490), P3(520, 1000, 440)],
-    p_gard: [P3(70, 960, 490), P3(-250, 1250, 430)], p_syp1: [P3(-200, 360, 490), P3(-600, 60, 440)], p_lazs: [P3(-110, 370, 490), P3(60, 30, 430)], p_syp2: [P3(-300, 720, 490), P3(-600, 1300, 440)], p_pral: [P3(-470, 560, 490), P3(-640, 420, 440)] } : HOUSE_MODE ? {
+    p_hol: [P3(480, 500, 490), P3(-400, 520, 460)], p_schody: [P3(-60, 590, 490), P3(-190, 980, 400)], p_sypg: [P3(515, 868, 490), P3(220, 640, 400)], p_lazg: [P3(205, 1040, 485), P3(470, 1190, 400)],
+    p_gard: [P3(85, 1150, 485), P3(-230, 1235, 405)], p_syp1: [P3(-600, 290, 485), P3(-230, 170, 400)], p_lazs: [P3(-110, 370, 490), P3(60, 30, 430)], p_syp2: [P3(-400, 730, 490), P3(-450, 1250, 400)], p_pral: [P3(-470, 560, 490), P3(-640, 420, 440)] } : HOUSE_MODE ? {
     dom: [P3(900, -1100, 1700), P3(-450, 800, 0)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     kuchnia: [P3(300, 720, 165), P3(270, 1150, 120)], hol: [P3(-60, 520, 160), P3(-400, 525, 140)], garderoba: [P3(-580, 750, 165), P3(-480, 1040, 120)],
     wc: [P3(-60, 340, 160), P3(-200, 335, 120)], kotlownia: [P3(-400, 1500, 165), P3(-520, 1620, 110)], schody: [P3(-90, 470, 160), P3(-90, 800, 200)] }
