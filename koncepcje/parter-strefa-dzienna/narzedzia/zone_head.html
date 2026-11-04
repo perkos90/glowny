@@ -50,12 +50,16 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <div class="grp"><span class="lab">Na zewnątrz</span><button data-v="ogrod">Od ogrodu</button><button data-v="front">Wejście</button><button data-v="bok">Od garażu</button><button data-v="dom">Z góry</button><button data-v="dzialka">Cała działka</button><button data-v="trawnik">Z trawnika</button><button data-v="podjazd">Podjazd</button></div>
 <div class="grp"><span class="lab">Schody</span><button data-st="A" class="on">Wg DWG</button><button data-st="B">Łuk +30 cm</button><button data-st="B50">Łuk +50 cm</button><button data-st="B70">Łuk +70 cm</button><button data-st="R">Zaokrąglone stopnie</button></div>
 <div class="grp"><span class="lab">Ogród</span><button data-og="1" class="on">Koncepcja I</button><button data-og="2">Koncepcja II</button><button data-og="3">Propozycja Claude</button><button data-og="0">Bez ogrodu</button></div>
+<div class="grp"><span class="lab">Bok wnęki TV</span><button data-gk="0" class="on">Otwarty</button><button data-gk="1">Ścianka g-k</button></div>
+<div class="grp"><span class="lab">Choinka 4 m</span><button data-t="none" class="on">Brak</button><button data-t="pencil">Pencil Ø80</button><button data-t="slim">Smukła Ø110</button><button data-t="full">Pełna Ø210</button><button data-v="choinka">Widok</button></div>
 <div class="grp"><span class="lab">Meblościanka TV</span><button data-tv="0" class="on">Ciepła biel</button><button data-tv="1">Fornir</button></div>
 <div class="grp"><span class="lab">Odcień forniru</span><button data-ven="#f8e8d0">Jasny</button><button data-ven="#f3dcbb" class="on">Naturalny</button><button data-ven="#e8c79c">Miodowy</button><button data-ven="#d6b083">Głęboki</button></div>
 </div>
 <script>window.__ready=()=>{document.getElementById('load').remove();
 const grp=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{fn(b);document.querySelectorAll(sel).forEach(x=>x.classList.toggle('on',x===b));});
 grp('[data-v]',b=>{const v=b.dataset.v;window.__ceil(v!=='dom'&&v!=='gora'&&v!=='parter'&&!window.__noUpper);window.__go(v);});
+grp('[data-gk]',b=>window.__gk(b.dataset.gk==='1'));
+grp('[data-t]',b=>window.__tree(b.dataset.t));
 grp('[data-tv]',b=>window.__tvVeneer(b.dataset.tv==='1'));
 grp('[data-st]',b=>{window.__stairs&&window.__stairs(b.dataset.st);});
 document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const off=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',off);b.classList.toggle('on',off);b.textContent=off?'Pokaż piętro':'Ukryj piętro';window.__upperOff(off);b.blur();});

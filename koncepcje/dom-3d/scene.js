@@ -362,8 +362,9 @@ function conceptK2W(mode = 'L', sideWall = false) {
   { const l = new THREE.SpotLight('#ffd9a0', 4, 3, .9, .8, 2); l.position.set(-cx / 100, (ph0 + phh + 8) / 100, .2); l.target.position.set(-cx / 100, (ph0 + phh / 2) / 100, 0); CUR.add(l, l.target); }
   // --- wnęka obniżona do spodu podciągu (280 cm)
   const TOP = 280; B(0, NICHE + 1, 0, BEAM0, TOP, HN + 1, mat.wall);
-  if (sideWall) { // zabudowa boku wnęki od strony holu: ścianka g-k 12,5 cm (CW75 + 2×12,5) do spodu podciągu
-    const FD = 41.6; B(0, FD, BEAM0, BEAM1, 0, TOP, mat.wall); B(FD - 1, FD, BEAM0, BEAM1, 0, 10, mat.wall2); } // zlicowana z frontem zabudowy i z licem słupa/podciągu od strony korytarza
+  { // zabudowa boku wnęki od strony holu: ścianka g-k 12,5 cm (CW75 + 2×12,5) do spodu podciągu – opcja (przycisk / ?gk=1)
+    const g = new THREE.Group(); g.name = 'NICHE_GK'; g.visible = sideWall || Q.get('gk') === '1'; const prev = CUR; CUR.add(g); CUR = g;
+    const FD = 41.6; B(0, FD, BEAM0, BEAM1, 0, TOP, mat.wall); B(FD - 1, FD, BEAM0, BEAM1, 0, 10, mat.wall2); CUR = prev; } // zlicowana z frontem zabudowy i z licem słupa/podciągu od strony korytarza
   // --- wnęka: zabudowa TV w ciepłej bieli
   const WB = M({ color: '#f7f2ea', roughness: .6, name: 'mebleB' }), WC = M({ color: '#f3ede3', roughness: .6, name: 'mebleC' }); // meble jaśniejsza ciepła biel niż ściany
   for (const [a, b] of [[0, 92], [302, 394]]) {
@@ -1337,7 +1338,7 @@ function zoneShell() {
   for (const w of H.walls) extrude(w, 0, HN, mat.wall);
   for (const w of H.ins) extrude(w, -12, 330, mat.wall2);
   for (const h of H.heads) extrude(h, 205, HN, mat.wall);
-  B(-172, -133, 250, 277, 0, HN, mat.wall); B(-482, -458, 396, 421, 0, HN, mat.wall); // obudowa pionu przy WC (bez szczeliny)
+  B(-172, -125, 250, 277, 0, HN, mat.wall); B(-482, -458, 396, 421, 0, HN, mat.wall); // obudowa pionu przy WC (bez szczeliny)
   // strop z otworem nad salonem i klatką schodową (bieg 1 + spocznik + bieg 2 nad spiżarnią)
   const stairHole = [[-135, 640], [-25, 640], [-25, 977], [-300, 977], [-300, 916], [-135, 916]];
   for (const p of H.slabP) extrude(p, HN, 330, mat.wall).name = 'CEIL';
@@ -1919,7 +1920,7 @@ function crown(ax, a0, a1, face, dir, top, H = 10.5) {
 function zoneCornice() {
   const DE = 1214; // do frontu dębowych słupków kuchni
   B(528, 553, 0, BEAM0, HR - 25, HR, mat.wall).name = 'BEAM';   // salon – zabudowa karnisza pod stropem pustki
-  B(506, 531, BEAM1, DE, HN - 25, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza (jak podciąg)
+  B(506, 531, BEAM1, DE, 280, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza, spód w linii podciągu salonu (280)
   // salon (sufit pustki)
   crown('x', 102, 528, 0, 1, HR); crown('y', 0, BEAM0, 102, 1, HR);
   // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
@@ -2208,6 +2209,10 @@ const VIEWS = {
   zst2s: { iso: true, fov: 70, pos: [-60, 880, 330], look: [-200, 930, 230], up: 40, down: 40 },
   zst3: { iso: true, fov: 60, pos: [-170, 1010, 430], look: [-20, 840, 160], up: 40, down: 40 },
   zpral: { iso: true, fov: 70, pos: [-540, 470, 500], look: [-540, 760, 430], up: 40, down: 40 },
+  zsal: { iso: true, fov: 70, pos: [330, 420, 150], look: [150, 0, 250], up: 40, down: 40 },
+  zsal2: { iso: true, fov: 70, pos: [380, 720, 170], look: [200, 0, 260], up: 40, down: 40 },
+  zoff: { iso: true, fov: 70, pos: [-200, 90, 165], look: [-150, 262, 150], up: 40, down: 40 },
+  zgk: { iso: true, fov: 70, pos: [330, 260, 160], look: [0, 420, 150], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
   zgymL:  { pos: [-200, 1120, 165], look: [-150, 1700], up: 36, down: 36 },
   zgymtop: { top: true, fov: 42, up: 10, down: 10, pos: [0, 0, 0], look: [0, 0], c: [-150, 1400, 1100] },
@@ -2249,7 +2254,7 @@ if (INTER) {
   const P3 = (x, y, h) => [-x / 100, h / 100, y / 100];
   const PRE = ZONE ? {
     jadalnia: [P3(330, 330, 165), P3(270, 900, 120)], kuchnia: [P3(260, 760, 165), P3(255, 1250, 140)], wyspa: [P3(500, 880, 160), P3(120, 1120, 110)],
-    schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], pralnia: [P3(-540, 470, 500), P3(-540, 740, 450)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
+    schody: [P3(330, 600, 160), P3(-80, 830, 150)], spizarnia: [P3(-180, 1030, 160), P3(-260, 760, 120)], pralnia: [P3(-540, 470, 500), P3(-540, 740, 450)], choinka: [P3(300, 320, 170), P3(480, 140, 170)], hol: [P3(-60, 530, 160), P3(-529, 530, 130)], hol2: [P3(-500, 530, 160), P3(-25, 530, 130)],
     gabinet: [P3(-120, 30, 165), P3(-560, 260, 100)], garderoba: [P3(-490, 705, 165), P3(-490, 1150, 130)], wc: [P3(-40, 335, 160), P3(-240, 335, 115)], silownia: [P3(-250, 1340, 165), P3(150, 1600, 110)], garaz: [P3(-720, 1660, 170), P3(-1400, 1150, 90)], techniczne: [P3(-360, 1445, 165), P3(-640, 1300, 110)], kotlownia: [P3(-600, 1500, 165), P3(-345, 1620, 110)],
     ogrod: [P3(2100, 250, 380), P3(300, 650, 330)], dzialka: [P3(7600, 600, 3300), P3(1800, 600, 0)], trawnik: [P3(3000, 350, 170), P3(600, 650, 300)], podjazd: [P3(-1700, -700, 260), P3(-700, 600, 100)], front: [P3(-1900, 250, 330), P3(-600, 600, 330)], bok: [P3(-650, -650, 420), P3(-1050, 1200, 180)], podschodami: [P3(150, 700, 140), P3(-100, 800, 90)], salon: [P3(330, 520, 160), P3(316, 150, 150)], wneka: [P3(515, 120, 140), P3(60, 230, 140)],
     dom: [P3(-60, 120, 1900), P3(-60, 660, 0)], parter: [P3(-60, 160, 2000), P3(-60, 660, 0)], gora: [P3(-60, 160, 2100), P3(-60, 660, 330)],
@@ -2263,6 +2268,7 @@ if (INTER) {
   const go = k => { if (window.__walkStop) window.__walkStop(); const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom' && k !== 'parter' && !window.__noUpper; if (o.name === 'LABEL0') o.visible = k === 'parter'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
+  window.__gk = on => { scene.traverse(o => { if (o.name === 'NICHE_GK') o.visible = on; }); dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
   window.__upperOff = off => { window.__noUpper = off; scene.traverse(o => { if (o.name === 'UPPER') o.visible = !off; }); window.__ceil(!off); };
   window.__go = go; window.__render = () => dirty = 3; window.__probe = (x, y, h, dx, dy, dh = 0) => { const r = new THREE.Raycaster(new THREE.Vector3(-x / 100, h / 100, y / 100), new THREE.Vector3(-dx, dh, dy).normalize()); r.far = 8; return r.intersectObjects(scene.children, true).slice(0, 6).map(i => { const bb = new THREE.Box3().setFromObject(i.object); return [i.distance.toFixed(3), i.object.name, i.object.material && i.object.material.name, [-bb.max.x * 100, -bb.min.x * 100, bb.min.z * 100, bb.max.z * 100, bb.min.y * 100, bb.max.y * 100].map(v => Math.round(v)).join(",")]; }); }; if (ZONE) go('jadalnia'); else if (HOUSE_MODE) { go('dom'); window.__ceil(false); } else go('salon');
