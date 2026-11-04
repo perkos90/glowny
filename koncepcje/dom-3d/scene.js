@@ -171,7 +171,7 @@ function livingDetails() {
   // gzyms
   if (!/^k2w/.test(String(CONCEPT))) { B(102, 553, 0, 12, HR - 12, HR, mat.wall2); B(102, 115, 0, BEAM0, HR - 12, HR, mat.wall2); }
   // zasłony
-  for (const [y0, y1] of [[2, 70], [324, 392]]) { const CT = ZONE ? HR - 25 : HR - 12; const g = new THREE.PlaneGeometry((y1 - y0) / 100, CT / 100, 60, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 55) * .035);
+  for (const [y0, y1] of [[2, 70], [324, 392]]) { const CT = ZONE ? HR - 22 : HR - 12; /* w strefie: szyna sufitowa schowana w zabudowie, zasłona wchodzi pod nią */ const g = new THREE.PlaneGeometry((y1 - y0) / 100, CT / 100, 60, 1); const p = g.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 55) * .035);
     const c = new THREE.Mesh(g, M({ map: T.linen, color: '#efe6d6', roughness: 1, side: THREE.DoubleSide })); c.rotation.y = Math.PI / 2; c.position.set(-(WIN - 14) / 100, CT / 200, (y0 + y1) / 200); c.castShadow = true; c.receiveShadow = true; CUR.add(c); }
   if (!ZONE) B(WIN - 20, WIN - 16, 0, BEAM0, HR - 12, HR - 9, mat.black); // karnisz
   if (NOMOULD) { builtUps(); }
@@ -1453,7 +1453,7 @@ function zoneOffice() {
 // ---------- SCHODY (bieg 1 zabudowany, balustrada czarna, poręcz dębowa, marmurowy pierwszy stopień) ----------
 function zoneStairs() {
   // dwa warianty do wyboru: A – wg DWG, B – bieg 1 poszerzony łagodnym łukiem o 30 cm u dołu, poręcz kończy się na schodach
-  const SV = ['A', 'B', 'B50', 'B70', 'R'], st0 = Q.get('st') || 'A';
+  const SV = ['A', 'B', 'B50', 'B70', 'R', 'V'], st0 = Q.get('st') || 'A';
   for (const v of SV) { const g = new THREE.Group(); g.name = 'STAIR_' + v; g.visible = v === st0; const prev = CUR; CUR.add(g); CUR = g; stairsVariant(v); CUR = prev; }
   window.__stairs = v => { scene.traverse(o => { if (o.name && o.name.startsWith('STAIR_')) o.visible = o.name === 'STAIR_' + v; }); if (window.__render) window.__render(); };
 }
@@ -1461,7 +1461,7 @@ function stairsVariant(V) {
   // wg DWG: bieg 1 – 13×18,3 / 27 (x -136…-25, w górę na północ), spocznik y 970…1072, bieg 2 – 5×18,3 / 27 (x -243…-136, z powrotem na południe do holu piętra)
   const X0 = -135, X1 = -25, y0 = 646, n1 = 12, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS, YN = 1072, XW = -243, XM = -136;
   // wariant B: krawędź od strony jadalni po łuku (styczny u góry od y≈900, +30 cm na pierwszym stopniu)
-  const ROUND = V === 'R', WIDE = V !== 'A' && !ROUND, WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
+  const VOL = V === 'V', ROUND = V === 'R', WIDE = V !== 'A' && !ROUND && !VOL, WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
   const wd = y => !WIDE || y >= yA ? 0 : RW - Math.sqrt(Math.max(0, RW * RW - (yA - Math.max(y, yB0)) ** 2));
   const edge = (ya, yb, dx = 0) => { const o = []; for (let k = 0; k <= 8; k++) { const y = ya + (yb - ya) * k / 8; o.push([X1 + wd(y) + dx, y]); } return o; };
   const ext = (o, h0, h1, m) => extrude({ o, h: [] }, h0, h1, m);
@@ -1497,15 +1497,29 @@ function stairsVariant(V) {
   // pierwszy stopień marmurowy z zaokrąglonym końcem
   if (WIDE) { const ya = y0 - 6, yb = y0 + GS_, rr = (yb - ya) / 2, ym = (ya + yb) / 2, xe = X1 + wd(ym), o = [[X0, yb], [X0, ya], [xe, ya]];
     for (let k = 1; k < 16; k++) { const a = -Math.PI / 2 + k / 16 * Math.PI; o.push([xe + rr * Math.cos(a), ym + rr * Math.sin(a)]); }
-    o.push([xe, yb]); ext(o, 0, RS, mat.marble); } else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
+    o.push([xe, yb]); ext(o, 0, RS, mat.marble); } else if (VOL) { // stopień zabiegowy (curtail) pod wolutą: koniec zawinięty, ok. 30 cm poza bieg
+    B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble); cyl(-12, 657, 0, RS, 19, mat.marble, 64); } else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
   const s = new THREE.Mesh(new THREE.CylinderGeometry((GS_ + 6) / 200, (GS_ + 6) / 200, RS / 100, 32, 1, false, 0, Math.PI), mat.marble); s.position.set(.12, RS / 200, (y0 - 6 + GS_ + 6 + y0 - 6) / 200); s.rotation.y = Math.PI; s.castShadow = s.receiveShadow = true; CUR.add(s); }
   // balustrada biegu 1: czarne tralki, słupek, poręcz dębowa
   const xb = X1 - 3, hr = 92;
   const yS = y0 + GS_ * 1.5, hS = 2 * RS + hr, hE = top(914) - 14 + hr - RS + 2, hRail = y => hS + (y - yS) * (hE - hS) / (914 - yS);
-  for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, hRail(yy) - 1], .7, mat.black); }
+  // woluta: poręcz od biegu łagodnie przechodzi w poziom (h ≈ 100 cm nad stopniem zabiegowym) i zawija się spiralnie na zewnątrz
+  const kS = (hE - hS) / (914 - yS), hV = RS + 100, R0 = 15, R1 = 5.5, xcV = xb + R0, ycV = 657, LeV = 2 * (hV - hS - (ycV - yS) * kS) / kS, yEV = ycV + LeV, hEV = hRail(yEV);
+  const railH = y => !VOL || y >= yEV ? hRail(y) : y <= ycV ? hV : hEV - kS * (yEV - y) + kS / (2 * LeV) * (yEV - y) ** 2;
+  for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, railH(yy) - 1], .7, mat.black); }
   // koniec poręczy u góry: słupek na ostatnim stopniu, poręcz wchodzi w jego głowicę
   const yQ = yL - 4; cyl(xb, yQ, hL - RS, hRail(yQ) - 4, 3, mat.black, 16); cyl(xb, yQ, hRail(yQ) - 4, hRail(yQ) + 2, 4.2, mat.black, 16); sph(xb, yQ, hRail(yQ) + 4, 3.6, mat.black);
-  if (!WIDE && !ROUND) {
+  if (VOL) {
+    const spiral = th => { const R = R0 * (R1 / R0) ** ((th - Math.PI) / (2 * Math.PI)); return [xcV + R * Math.cos(th), ycV + R * Math.sin(th)]; };
+    const rp = []; for (let k = 0; k <= 16; k++) { const y = yL - 4 - (yL - 4 - yEV) * k / 16; rp.push([xb, y, hRail(y)]); }
+    for (let k = 1; k <= 10; k++) { const y = yEV - (yEV - ycV) * k / 10; rp.push([xb, y, railH(y)]); }
+    for (let k = 1; k <= 64; k++) { const [x, y] = spiral(Math.PI + k / 64 * 2 * Math.PI); rp.push([x, y, hV]); }
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp.map(([x, y, h]) => new THREE.Vector3(-x / 100, h / 100, y / 100))), 320, .026, 14), mat.oak); tube.castShadow = true; CUR.add(tube);
+    cyl(xcV, ycV, hV - 2.6, hV + 2.4, 6.2, mat.oak, 32); sph(xcV, ycV, hV + 2.4, 6.2, mat.oak, .3); // „oko” woluty
+    cyl(xcV, ycV, RS, hV - 2.6, 2.2, mat.black, 16); cyl(xcV, ycV, RS, RS + 8, 3.2, mat.black, 16); // słupek w oku woluty
+    const bal = [[xb, 665]]; { let acc = 0, prev = spiral(Math.PI), next = 0; for (let k = 1; k <= 400; k++) { const q = spiral(Math.PI + k / 400 * 2 * Math.PI); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= next && next <= 48) { bal.push(q); next += 9.6; } } }
+    for (const [x, y] of bal) rodBetween([x, y, RS], [x, y, hV - 2.4], .7, mat.black);
+  } else if (!WIDE && !ROUND) {
     cyl(-10, y0 + 8, RS, RS + 98, 3, mat.black, 16); cyl(-10, y0 + 8, RS + 98, RS + 104, 4.2, mat.black, 16); sph(-10, y0 + 8, RS + 106, 3.6, mat.black);
     rodBetween([-10, y0 + 8, RS + 100], [xb, yS, hS], 2.4, mat.oak);
     rodBetween([xb, yS, hS], [xb, yL - 4, hRail(yL - 4)], 2.4, mat.oak);
@@ -1653,7 +1667,7 @@ function zoneDining() {
   vaseFlowers(cx, 690, 76, 1.1); for (const y of [610, 770]) { cyl(cx, y, 76, 78, 4, mat.brass, 16); cyl(cx, y, 78, 100, 1.2, mat.white, 12); }
   candleChandelier(cx, 688, 190);
   // zasłony lniane przy oknach HS
-  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, 265);
+  const Wn = window.__WIN; for (const [a, b] of [[Wn.D0 - 45, Wn.D0 + 15], [Wn.D1 - 15, Wn.D1 + 45], [Wn.K0 - 40, Wn.K0 + 12], [Wn.K1 - 12, Wn.K1 + 2]]) curtainsAt(522, a, b, 2, 283); // szyna przysufitowa ukryta w zabudowie (spód 280)
   
   areaLight(286, 690, 286, 2.5, 3.2, 55, 'AREA_JAD');
 }
@@ -1689,7 +1703,7 @@ function zoneWardrobe() {
   // drzewko oliwne przy oknie, zasłony, grafiki
   cyl(-610, 760, 0, 45, 22, mat.cer, 24, 18); rodBetween([-610, 760, 45], [-605, 765, 150], 2, mat.bronze);
   for (let k = 0; k < 45; k++) sph(-610 + (rnd() - .5) * 60, 760 + (rnd() - .5) * 60, 140 + rnd() * 70, 6 + rnd() * 6, mat.olive, .7);
-  curtainsAt(-628, 775, 812, 2, 282, '#f4efe6'); curtainsAt(-628, 978, 1015, 2, 282, '#f4efe6'); B(-632, -628, 770, 1020, 282, 285, mat.black);
+  curtainsAt(-628, 775, 812, 2, 283, '#f4efe6'); curtainsAt(-628, 978, 1015, 2, 283, '#f4efe6'); B(-639.2, -620, 768, 1022, 280, HN, mat.wall); // szyna przysufitowa ukryta w zabudowie
   for (const [y, h0] of [[1050, 175], [1050, 120]]) { B(-640, -637, y - 18, y + 18, h0, h0 + 46, mat.black); plane(-636.5, y, h0 + 23, 30, 40, mat.leafart, -Math.PI / 2); }
   areaLight(-490, 990, 285, 2, 4, 90, 'AREA_GARD');
 }
@@ -1936,20 +1950,39 @@ window.__tvVeneer = on => { if (!mat.venTV) { mat.venTV = mat.ven.clone(); mat.v
     if (o.userData.origMat) o.material = on ? mat.venTV : o.userData.origMat; }); window.__render && window.__render(); };
 
 // zabudowa karniszy w profilu podciągu (25×25) + listwy przysufitowe wokół salonu i jadalni (bez kuchni)
-function crown(ax, a0, a1, face, dir, top, H = 10.5) {
-  for (const [p, h] of [[2, H], [4, H * .66], [6.5, H * .33]]) {
+// typy listew przysufitowych (H – wysokość, L – warstwy [wysięg od ściany, udział wysokości od sufitu])
+const CROWNS = {
+  brak: null,
+  c4: { H: 4, L: [[1.2, 1], [2.2, .5]] },                                              // cienka 4 cm
+  c7: { H: 7, L: [[1.5, 1], [3, .62], [4.5, .3]] },                                     // schodkowa 7 cm
+  c10: { H: 10.5, H2: 9, L: [[2, 1], [4, .66], [6.5, .33]] },                            // schodkowa 10,5 cm (dotychczasowa)
+  c14: { H: 14, L: [[1.5, 1], [2.5, .9], [3.5, .8], [5, .68], [6.8, .55], [8.4, .4], [9.5, .25], [10.2, .12]] }, // klasyczna z wklęsłym profilem 14 cm
+  c20: { H: 20, L: [[1.5, 1], [3, .9], [3.5, .84], [5, .78], [7, .68], [9, .56], [10.5, .44], [11.5, .36], [12, .3], [13, .22], [14, .12], [14.5, .05]] }, // gzyms 20 cm
+  led: { H: 9, L: [[1.5, 1], [8, .22]], led: true } };                                  // z podświetleniem LED (półka 2 cm, szczelina świetlna)
+let CROWN_P = CROWNS.c10, CROWN_SECOND = false;
+function crown(ax, a0, a1, face, dir, top, H0 = 10.5) {
+  const P = CROWN_P; if (!P) return; const H = CROWN_SECOND && P.H2 ? P.H2 : P.H;
+  const R = (p, q, h0, h1, m) => ax === 'x' ? B(a0, a1, face + dir * p, face + dir * q, h0, h1, m, { cast: false }) : B(face + dir * p, face + dir * q, a0, a1, h0, h1, m, { cast: false });
+  if (P.led) { // korytko LED: dno + rant, światło na sufit przez szczelinę 4 cm
+    R(0, 8, top - H, top - H + 1.2, mat.wall2); R(6.5, 8, top - H, top - 4, mat.wall2); R(0, 1.2, top - H, top, mat.wall2); R(2, 3, top - H + 1.2, top - H + 2.2, mat.glow);
+    if (!mat.ledWash) mat.ledWash = new THREE.MeshStandardMaterial({ color: '#fff4de', emissive: '#ffe9c4', emissiveIntensity: .55, roughness: .9 }); R(1.2, 14, top - .25, top, mat.ledWash); return; }
+  for (const [p, f] of P.L) { const h = f * H;
     if (ax === 'x') B(a0, a1, face, face + dir * p, top - h, top, mat.wall2, { cast: false });
     else B(face, face + dir * p, a0, a1, top - h, top, mat.wall2, { cast: false });
   }
 }
+function crownsAll(fn) { // wszystkie typy listew jako grupy CROWN_<typ>, widoczny wybrany (?crown=…, domyślnie c10)
+  const sel = CROWNS.hasOwnProperty(Q.get('crown')) ? Q.get('crown') : 'c10';
+  for (const k in CROWNS) { if (!CROWNS[k]) continue; const g = new THREE.Group(); g.name = 'CROWN_' + k; g.visible = k === sel; const prev = CUR; CUR.add(g); CUR = g; CROWN_P = CROWNS[k]; fn(); CUR = prev; }
+  CROWN_P = CROWNS.c10; }
 function zoneCornice() {
   const DE = 1214; // do frontu dębowych słupków kuchni
   B(528, 553, 0, BEAM0, HR - 25, HR, mat.wall).name = 'BEAM';   // salon – zabudowa karnisza pod stropem pustki
   B(506, 531, BEAM1, DE, 280, HN, mat.wall).name = 'BEAM';  // jadalnia – zabudowa karnisza, spód w linii podciągu salonu (280)
   // salon (sufit pustki)
-  crown('x', 102, 528, 0, 1, HR); crown('y', 0, BEAM0, 102, 1, HR);
-  // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
-  crown('x', 0, 506, BEAM1, 1, HN, 9); crown('y', BEAM1, 977, 0, 1, HN, 9); crown('y', 977, DE, 2, 1, HN, 9); crown('y', BEAM1, DE, 506, -1, HN, 9);
+  crownsAll(() => { CROWN_SECOND = false; crown('x', 102, 528, 0, 1, HR); crown('y', 0, BEAM0, 102, 1, HR);
+    // jadalnia (sufit parteru) – wzdłuż podciągów i zabudowy karnisza
+    CROWN_SECOND = true; crown('x', 0, 506, BEAM1, 1, HN); crown('y', BEAM1, 977, 0, 1, HN); crown('y', 977, DE, 2, 1, HN); crown('y', BEAM1, DE, 506, -1, HN); CROWN_SECOND = false; });
 }
 
 // ======================= PIĘTRO (wg rzutu piętra z DWG; poziom +3,24 ≈ 330, sufit ok. 590) =======================
@@ -2345,6 +2378,8 @@ const VIEWS = {
   zroofA: { iso: true, fov: 50, pos: [-1500, 600, 1150], look: [-700, 1300, 420], up: 40, down: 40 },
   zroofB: { iso: true, fov: 50, pos: [-600, 2300, 1100], look: [-800, 1350, 420], up: 40, down: 40 },
   zroofC: { iso: true, fov: 45, pos: [-380, 1950, 820], look: [-650, 1390, 480], up: 40, down: 40 },
+  zvol: { iso: true, fov: 40, pos: [110, 560, 175], look: [-30, 680, 90], up: 30, down: 30 },
+  zcrown: { iso: true, fov: 50, pos: [300, 330, 230], look: [120, 420, 285], up: 40, down: 40 },
   zlz: { iso: true, fov: 60, pos: [-60, 113, 480], look: [87, 113, 470], up: 40, down: 40 },
   zgk: { iso: true, fov: 70, pos: [330, 260, 160], look: [0, 420, 150], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
@@ -2403,6 +2438,7 @@ if (INTER) {
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
   window.__cars = on => { scene.traverse(o => { if (o.name === 'CARS') o.visible = on; }); dirty = 3; };
+  window.__crown = k => { scene.traverse(o => { if (o.name && o.name.startsWith('CROWN_')) o.visible = o.name === 'CROWN_' + k; }); dirty = 3; };
   window.__gk = on => { scene.traverse(o => { if (o.name === 'NICHE_GK') o.visible = on; }); dirty = 3; };
   window.__tree = kind => { scene.traverse(o => { if (o.name && o.name.startsWith('TREE_')) o.visible = o.name === 'TREE_' + kind; }); dirty = 3; };
   window.__upperOff = off => { window.__noUpper = off; scene.traverse(o => { if (o.name === 'UPPER') o.visible = !off; }); window.__ceil(!off); };
