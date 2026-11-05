@@ -52,10 +52,11 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 <div class="grp"><span class="lab">Obrót w miejscu</span><button class="lkb" data-lk="LookL" aria-label="Obróć w lewo" title="Obróć w lewo (←)">◀</button><button class="lkb" data-lk="LookU" aria-label="Spójrz w górę" title="Spójrz w górę (↑)">▲</button><button class="lkb" data-lk="LookD" aria-label="Spójrz w dół" title="Spójrz w dół (↓)">▼</button><button class="lkb" data-lk="LookR" aria-label="Obróć w prawo" title="Obróć w prawo (→)">▶</button><button data-lip="0" aria-pressed="false" title="Przeciąganie myszą lub palcem obraca widok wokół kamery, a nie wokół punktu">Mysz: obrót w miejscu</button></div>
 <div class="grp"><span class="lab">Piętro</span><button data-v="gora">Rzut piętra</button><button data-v="pralnia">Pralnia</button><button data-v="p_hol">Hol</button><button data-v="p_schody">Schody</button><button data-v="p_sypg">Sypialnia główna</button><button data-v="p_lazg">Łazienka główna</button><button data-v="p_gard">Garderoba</button><button data-v="p_syp1">Sypialnia 1</button><button data-v="p_lazs">Łazienka</button><button data-v="p_syp2">Sypialnia 2</button></div>
 <div class="grp"><span class="lab">Na zewnątrz</span><button data-v="ogrod">Od ogrodu</button><button data-v="front">Wejście</button><button data-v="bok">Od garażu</button><button data-v="dom">Z góry</button><button data-v="dzialka">Cała działka</button><button data-v="trawnik">Z trawnika</button><button data-v="podjazd">Podjazd</button></div>
-<div class="grp"><span class="lab">Schody</span><button data-st="A" class="on">Wg DWG</button><button data-st="B">Łuk +30 cm</button><button data-st="B50">Łuk +50 cm</button><button data-st="B70">Łuk +70 cm</button><button data-st="R">Zaokrąglone stopnie</button><button data-st="V">Zawijana poręcz</button></div>
+<div class="grp"><span class="lab">Schody</span><button data-st="A" class="on">Wg DWG</button><button data-st="B">Łuk +30 cm</button><button data-st="B50">Łuk +50 cm</button><button data-st="B70">Łuk +70 cm</button><button data-st="R">Zaokrąglone stopnie</button><button data-vol="0" aria-pressed="false">Poręcz zawijana: nie</button></div>
 <div class="grp"><span class="lab">Ogród</span><button data-og="1" class="on">Koncepcja I</button><button data-og="2">Koncepcja II</button><button data-og="3">Propozycja Claude</button><button data-og="0">Bez ogrodu</button></div>
-<div class="grp"><span class="lab">Listwa przysufitowa</span><select id="crownSel" aria-label="Listwa przysufitowa w salonie i jadalni"><option value="brak">Brak</option><option value="c4">Cienka 4 cm</option><option value="c7">Schodkowa 7 cm</option><option value="c10" selected>Schodkowa 10,5 cm</option><option value="c14">Klasyczna 14 cm</option><option value="c20">Gzyms 20 cm</option><option value="led">Z podświetleniem LED 9 cm</option></select></div>
+<div class="grp"><span class="lab">Listwa przysufitowa</span><select id="crownSel" aria-label="Listwa przysufitowa w salonie i jadalni"><option value="brak">Brak</option><option value="c4">Cienka 4 cm</option><option value="c7">Schodkowa 7 cm</option><option value="c10" selected>Schodkowa 10,5 cm</option><option value="c15">Schodkowa 15 cm</option><option value="c14">Klasyczna 14 cm</option><option value="c20">Gzyms 20 cm</option><option value="led">Z podświetleniem LED 9 cm</option></select></div>
 <div class="grp"><span class="lab">Garaż</span><button data-cars="1" class="on">Auta</button><button data-cars="0">Bez aut</button></div>
+<div class="grp"><span class="lab">Okna garażu</span><button data-gm="1" class="on">Ze słupkiem</button><button data-gm="0">Bez słupków</button></div>
 <div class="grp"><span class="lab">Bok wnęki TV</span><button data-gk="0" class="on">Otwarty</button><button data-gk="1">Ścianka g-k</button></div>
 <div class="grp"><span class="lab">Choinka 4 m</span><button data-t="none" class="on">Brak</button><button data-t="pencil">Pencil Ø80</button><button data-t="slim">Smukła Ø110</button><button data-t="full">Pełna Ø210</button><button data-v="choinka">Widok</button></div>
 <div class="grp"><span class="lab">Meblościanka TV</span><button data-tv="0" class="on">Ciepła biel</button><button data-tv="1">Fornir</button></div>
@@ -65,12 +66,15 @@ body.walking #walkhint{display:block} body.walking #pad{display:grid} body.walki
 const grp=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{fn(b);document.querySelectorAll(sel).forEach(x=>x.classList.toggle('on',x===b));});
 grp('[data-v]',b=>{const v=b.dataset.v;window.__ceil(v!=='dom'&&v!=='gora'&&v!=='parter'&&!window.__noUpper);window.__go(v);});
 document.querySelectorAll('[data-hide]').forEach(b=>b.onclick=()=>{const c=b.dataset.hide,on=!document.body.classList.contains(c);document.body.classList.toggle(c,on);b.setAttribute('aria-pressed',on);b.classList.toggle('on',on);b.textContent=(on?'Pokaż ':'Ukryj ')+(c==='noui'?'panel':'opis');b.blur();});
+grp('[data-gm]',b=>window.__gmull(b.dataset.gm==='1'));
 grp('[data-cars]',b=>window.__cars(b.dataset.cars==='1'));
 document.getElementById('crownSel').onchange=e=>window.__crown(e.target.value);
 grp('[data-gk]',b=>window.__gk(b.dataset.gk==='1'));
 grp('[data-t]',b=>window.__tree(b.dataset.t));
 grp('[data-tv]',b=>window.__tvVeneer(b.dataset.tv==='1'));
-grp('[data-st]',b=>{window.__stairs&&window.__stairs(b.dataset.st);});
+let stB='A',stV=false;const stApply=()=>{window.__stairs&&window.__stairs(stB+(stV&&stB!=='R'?'V':''));};
+grp('[data-st]',b=>{stB=b.dataset.st;stApply();});
+document.querySelectorAll('[data-vol]').forEach(b=>b.onclick=()=>{stV=!stV;b.classList.toggle('on',stV);b.setAttribute('aria-pressed',stV);b.textContent='Poręcz zawijana: '+(stV?'tak':'nie');b.title=stV?'Zawijana poręcz (woluta) – dla schodów wg DWG i z łukiem':'';stApply();b.blur();});
 document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const off=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',off);b.classList.toggle('on',off);b.textContent=off?'Pokaż piętro':'Ukryj piętro';window.__upperOff(off);b.blur();});
 grp('[data-og]',b=>window.__garden&&window.__garden(+b.dataset.og));
 grp('[data-ven]',b=>window.__venShade(b.dataset.ven));
@@ -2070,7 +2074,7 @@ function windowUnit(w) {
   if (w.name.startsWith('D1')) { R(a0, a1, cm - 3, cm + 3, 0, w.top, mat.black); R(a0 + 10, a1 - 10, cm - 3.8, cm - 3, 25, w.top - 25, mat.black); R(a0 + 13, a1 - 13, cm - 4.2, cm - 3.8, 28, w.top - 28, mat.black);
     const hx = a1 - 12; R(hx - 1, hx + 1, cm - 8, cm + 8, 100, 125, mat.brass); return; }
   const f = 5; R(a0, a1, cm - 4, cm + 4, w.sill, w.sill + f, mat.ral); R(a0, a1, cm - 4, cm + 4, w.top - f, w.top, mat.ral); R(a0, a0 + f, cm - 4, cm + 4, w.sill, w.top, mat.ral); R(a1 - f, a1, cm - 4, cm + 4, w.sill, w.top, mat.ral);
-  for (let i = 1; i < w.div; i++) { const a = a0 + (a1 - a0) * i / w.div; R(a - 3, a + 3, cm - 4, cm + 4, w.sill, w.top, mat.ral); }
+  for (let i = 1; i < w.div; i++) { const a = a0 + (a1 - a0) * i / w.div, m = R(a - 3, a + 3, cm - 4, cm + 4, w.sill, w.top, mat.ral); if (w.name.startsWith('O6')) { m.name = 'GMULL'; m.visible = Q.get('gm') !== '0'; } } // okna garażu: słupek opcjonalny
   const gl = along ? plane((a0 + a1) / 2, cm, (w.sill + w.top) / 2, a1 - a0, w.top - w.sill, mat.glass, 0) : plane(cm, (a0 + a1) / 2, (w.sill + w.top) / 2, a1 - a0, w.top - w.sill, mat.glass, Math.PI / 2); gl.castShadow = false;
 }
 function casing(x0, y0, x1, y1, top = 205) { const along = (x1 - x0) > (y1 - y0); const a0 = along ? x0 : y0, a1 = along ? x1 : y1, c0 = along ? y0 : x0, c1 = along ? y1 : x1;
@@ -2405,7 +2409,7 @@ function zoneOffice() {
 // ---------- SCHODY (bieg 1 zabudowany, balustrada czarna, poręcz dębowa, marmurowy pierwszy stopień) ----------
 function zoneStairs() {
   // dwa warianty do wyboru: A – wg DWG, B – bieg 1 poszerzony łagodnym łukiem o 30 cm u dołu, poręcz kończy się na schodach
-  const SV = ['A', 'B', 'B50', 'B70', 'R', 'V'], st0 = Q.get('st') || 'A';
+  const SV = ['A', 'B', 'B50', 'B70', 'R', 'AV', 'BV', 'B50V', 'B70V'], st0 = Q.get('st') === 'V' ? 'AV' : Q.get('st') || 'A'; // …V – z zawijaną poręczą (wolutą)
   for (const v of SV) { const g = new THREE.Group(); g.name = 'STAIR_' + v; g.visible = v === st0; const prev = CUR; CUR.add(g); CUR = g; stairsVariant(v); CUR = prev; }
   window.__stairs = v => { scene.traverse(o => { if (o.name && o.name.startsWith('STAIR_')) o.visible = o.name === 'STAIR_' + v; }); if (window.__render) window.__render(); };
 }
@@ -2413,7 +2417,7 @@ function stairsVariant(V) {
   // wg DWG: bieg 1 – 13×18,3 / 27 (x -136…-25, w górę na północ), spocznik y 970…1072, bieg 2 – 5×18,3 / 27 (x -243…-136, z powrotem na południe do holu piętra)
   const X0 = -135, X1 = -25, y0 = 646, n1 = 12, yL = y0 + n1 * GS_, hL = (n1 + 1) * RS, YN = 1072, XW = -243, XM = -136;
   // wariant B: krawędź od strony jadalni po łuku (styczny u góry od y≈900, +30 cm na pierwszym stopniu)
-  const VOL = V === 'V', ROUND = V === 'R', WIDE = V !== 'A' && !ROUND && !VOL, WW = V === 'B70' ? 70 : V === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
+  const VOL = V.length > 1 && V.endsWith('V'), VB = VOL ? V.slice(0, -1) : V, ROUND = VB === 'R', WIDE = VB !== 'A' && !ROUND, WW = VB === 'B70' ? 70 : VB === 'B50' ? 50 : 30, yA = 900, yB0 = y0 - 6, DA = yA - yB0, RW = (DA * DA + WW * WW) / (2 * WW);
   const wd = y => !WIDE || y >= yA ? 0 : RW - Math.sqrt(Math.max(0, RW * RW - (yA - Math.max(y, yB0)) ** 2));
   const edge = (ya, yb, dx = 0) => { const o = []; for (let k = 0; k <= 8; k++) { const y = ya + (yb - ya) * k / 8; o.push([X1 + wd(y) + dx, y]); } return o; };
   const ext = (o, h0, h1, m) => extrude({ o, h: [] }, h0, h1, m);
@@ -2447,29 +2451,29 @@ function stairsVariant(V) {
   sideShape(-253, XW + .5, [[yT - 2, 332], [YN, 332], [YN, hL - 20], [yL, hL - 20], [yT - 2, 300]], mat.wall);
   const top = y => RS + (y - y0) * RS / GS_ + 14;
   // pierwszy stopień marmurowy z zaokrąglonym końcem
-  if (WIDE) { const ya = y0 - 6, yb = y0 + GS_, rr = (yb - ya) / 2, ym = (ya + yb) / 2, xe = X1 + wd(ym), o = [[X0, yb], [X0, ya], [xe, ya]];
+  if (VOL) { // stopień zabiegowy (curtail) pod wolutą: koniec zawinięty, ok. 30 cm poza linię balustrady
+    const xr = X1 - 3 + wd(657) + 15; B(X0, xr, y0 - 6, y0 + GS_, 0, RS, mat.marble); cyl(xr + 1, 657, 0, RS, 19, mat.marble, 64); } else if (WIDE) { const ya = y0 - 6, yb = y0 + GS_, rr = (yb - ya) / 2, ym = (ya + yb) / 2, xe = X1 + wd(ym), o = [[X0, yb], [X0, ya], [xe, ya]];
     for (let k = 1; k < 16; k++) { const a = -Math.PI / 2 + k / 16 * Math.PI; o.push([xe + rr * Math.cos(a), ym + rr * Math.sin(a)]); }
-    o.push([xe, yb]); ext(o, 0, RS, mat.marble); } else if (VOL) { // stopień zabiegowy (curtail) pod wolutą: koniec zawinięty, ok. 30 cm poza bieg
-    B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble); cyl(-12, 657, 0, RS, 19, mat.marble, 64); } else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
+    o.push([xe, yb]); ext(o, 0, RS, mat.marble); } else { B(X0, -12, y0 - 6, y0 + GS_, 0, RS, mat.marble);
   const s = new THREE.Mesh(new THREE.CylinderGeometry((GS_ + 6) / 200, (GS_ + 6) / 200, RS / 100, 32, 1, false, 0, Math.PI), mat.marble); s.position.set(.12, RS / 200, (y0 - 6 + GS_ + 6 + y0 - 6) / 200); s.rotation.y = Math.PI; s.castShadow = s.receiveShadow = true; CUR.add(s); }
   // balustrada biegu 1: czarne tralki, słupek, poręcz dębowa
   const xb = X1 - 3, hr = 92;
   const yS = y0 + GS_ * 1.5, hS = 2 * RS + hr, hE = top(914) - 14 + hr - RS + 2, hRail = y => hS + (y - yS) * (hE - hS) / (914 - yS);
   // woluta: poręcz od biegu łagodnie przechodzi w poziom (h ≈ 100 cm nad stopniem zabiegowym) i zawija się spiralnie na zewnątrz
-  const kS = (hE - hS) / (914 - yS), hV = RS + 100, R0 = 15, R1 = 5.5, xcV = xb + R0, ycV = 657, LeV = 2 * (hV - hS - (ycV - yS) * kS) / kS, yEV = ycV + LeV, hEV = hRail(yEV);
+  const kS = (hE - hS) / (914 - yS), hV = RS + 100, R0 = 15, R1 = 5.5, ycV = 657, xsV = xb + wd(ycV), dV = (() => { const dx = wd(ycV - 1) - wd(ycV + 1), L = Math.hypot(dx, 2); return [dx / L, -2 / L]; })(), xcV = xsV - dV[1] * R0, ycC = ycV + dV[0] * R0, LeV = 2 * (hV - hS - (ycV - yS) * kS) / kS, yEV = ycV + LeV, hEV = hRail(yEV);
   const railH = y => !VOL || y >= yEV ? hRail(y) : y <= ycV ? hV : hEV - kS * (yEV - y) + kS / (2 * LeV) * (yEV - y) ** 2;
   for (let i = 1; i < n1; i++) for (const d of [-6, 6]) { const yy = y0 + i * GS_ + GS_ / 2 + d, h = (i + 1) * RS, xx = xb + wd(yy); rodBetween([xx, yy, h], [xx, yy, railH(yy) - 1], .7, mat.black); }
   // koniec poręczy u góry: słupek na ostatnim stopniu, poręcz wchodzi w jego głowicę
   const yQ = yL - 4; cyl(xb, yQ, hL - RS, hRail(yQ) - 4, 3, mat.black, 16); cyl(xb, yQ, hRail(yQ) - 4, hRail(yQ) + 2, 4.2, mat.black, 16); sph(xb, yQ, hRail(yQ) + 4, 3.6, mat.black);
   if (VOL) {
-    const spiral = th => { const R = R0 * (R1 / R0) ** ((th - Math.PI) / (2 * Math.PI)); return [xcV + R * Math.cos(th), ycV + R * Math.sin(th)]; };
-    const rp = []; for (let k = 0; k <= 16; k++) { const y = yL - 4 - (yL - 4 - yEV) * k / 16; rp.push([xb, y, hRail(y)]); }
-    for (let k = 1; k <= 10; k++) { const y = yEV - (yEV - ycV) * k / 10; rp.push([xb, y, railH(y)]); }
-    for (let k = 1; k <= 64; k++) { const [x, y] = spiral(Math.PI + k / 64 * 2 * Math.PI); rp.push([x, y, hV]); }
+    const th0 = Math.atan2(ycV - ycC, xsV - xcV), spiral = th => { const R = R0 * (R1 / R0) ** ((th - th0) / (2 * Math.PI)); return [xcV + R * Math.cos(th), ycC + R * Math.sin(th)]; };
+    const rp = []; for (let k = 0; k <= 16; k++) { const y = yL - 4 - (yL - 4 - yEV) * k / 16; rp.push([xb + wd(y), y, hRail(y)]); }
+    for (let k = 1; k <= 10; k++) { const y = yEV - (yEV - ycV) * k / 10; rp.push([xb + wd(y), y, railH(y)]); }
+    for (let k = 1; k <= 64; k++) { const [x, y] = spiral(th0 + k / 64 * 2 * Math.PI); rp.push([x, y, hV]); }
     const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rp.map(([x, y, h]) => new THREE.Vector3(-x / 100, h / 100, y / 100))), 320, .026, 14), mat.oak); tube.castShadow = true; CUR.add(tube);
-    cyl(xcV, ycV, hV - 2.6, hV + 2.4, 6.2, mat.oak, 32); sph(xcV, ycV, hV + 2.4, 6.2, mat.oak, .3); // „oko” woluty
-    cyl(xcV, ycV, RS, hV - 2.6, 2.2, mat.black, 16); cyl(xcV, ycV, RS, RS + 8, 3.2, mat.black, 16); // słupek w oku woluty
-    const bal = [[xb, 665]]; { let acc = 0, prev = spiral(Math.PI), next = 0; for (let k = 1; k <= 400; k++) { const q = spiral(Math.PI + k / 400 * 2 * Math.PI); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= next && next <= 48) { bal.push(q); next += 9.6; } } }
+    cyl(xcV, ycC, hV - 2.6, hV + 2.4, 6.2, mat.oak, 32); sph(xcV, ycC, hV + 2.4, 6.2, mat.oak, .3); // „oko” woluty
+    cyl(xcV, ycC, RS, hV - 2.6, 2.2, mat.black, 16); cyl(xcV, ycC, RS, RS + 8, 3.2, mat.black, 16); // słupek w oku woluty
+    const bal = [[xb + wd(665), 665]]; { let acc = 0, prev = spiral(th0), next = 0; for (let k = 1; k <= 400; k++) { const q = spiral(th0 + k / 400 * 2 * Math.PI); acc += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; if (acc >= next && next <= 48) { bal.push(q); next += 9.6; } } }
     for (const [x, y] of bal) rodBetween([x, y, RS], [x, y, hV - 2.4], .7, mat.black);
   } else if (!WIDE && !ROUND) {
     cyl(-10, y0 + 8, RS, RS + 98, 3, mat.black, 16); cyl(-10, y0 + 8, RS + 98, RS + 104, 4.2, mat.black, 16); sph(-10, y0 + 8, RS + 106, 3.6, mat.black);
@@ -2908,6 +2912,7 @@ const CROWNS = {
   c4: { H: 4, L: [[1.2, 1], [2.2, .5]] },                                              // cienka 4 cm
   c7: { H: 7, L: [[1.5, 1], [3, .62], [4.5, .3]] },                                     // schodkowa 7 cm
   c10: { H: 10.5, H2: 9, L: [[2, 1], [4, .66], [6.5, .33]] },                            // schodkowa 10,5 cm (dotychczasowa)
+  c15: { H: 15, L: [[2, 1], [4.5, .75], [7, .5], [9.5, .25]] },                       // schodkowa 15 cm (4 stopnie)
   c14: { H: 14, L: [[1.5, 1], [2.5, .9], [3.5, .8], [5, .68], [6.8, .55], [8.4, .4], [9.5, .25], [10.2, .12]] }, // klasyczna z wklęsłym profilem 14 cm
   c20: { H: 20, L: [[1.5, 1], [3, .9], [3.5, .84], [5, .78], [7, .68], [9, .56], [10.5, .44], [11.5, .36], [12, .3], [13, .22], [14, .12], [14.5, .05]] }, // gzyms 20 cm
   led: { H: 9, L: [[1.5, 1], [8, .22]], led: true } };                                  // z podświetleniem LED (półka 2 cm, szczelina świetlna)
@@ -2994,8 +2999,8 @@ function upFurniture() {
       else { B(c - .5, c + .5, a0, a1, 2.5, 200, mat.glass); B(c - 1, c + 1, a0, a1, 198, 201, mat.brass); B(c - 1, c + 1, a0, a0 + 2, 2.5, 201, mat.brass); B(c - 1, c + 1, a1 - 2, a1, 2.5, 201, mat.brass); } }
     const [hx, hy, wx, wy] = head; cyl(hx, hy, 214, 216, 14, mat.brass, 32); rodBetween([wx, wy, 222], [hx, hy, 222], .9, mat.brass); cyl(hx, hy, 216, 222, .9, mat.brass);
     const mx = wx + (hx - wx) * .02, my = wy + (hy - wy) * .02; cyl(mx, my, 108, 112, 4, mat.brass, 20); };
-  const wcWall = (x0, x1, y0, y1, f) => { // stelaż w zabudowie + miska podwieszana (front zabudowy: f)
-    const o = ORB([x0, x1, y0, y1], f); o.box(0, o.A, 0, o.D, 0, 112, mebW2); const ca = o.A / 2, [px, py] = o.pt(ca, -.5); const pl = o.box(ca - 11, ca + 11, -.6, 0, 96, 111, mat.brass);
+  const wcWall = (x0, x1, y0, y1, f, H = 112) => { // stelaż w zabudowie + miska podwieszana na środku zabudowy (front zabudowy: f)
+    const o = ORB([x0, x1, y0, y1], f); o.box(0, o.A, 0, o.D, 0, H, mebW2); if (H > 200) o.box(0, o.A, -.3, 0, 0, 10, mat.wall2); const ca = o.A / 2, [px, py] = o.pt(ca, -.5); const pl = o.box(ca - 11, ca + 11, -.6, 0, 96, 111, mat.brass);
     o.box(ca - 19, ca + 19, -54, 0, 32, 46, mat.porcelain, { r: .09 }); o.box(ca - 18, ca + 18, -52, 0, 46, 49, mat.porcelain, { r: .04 }); };
   const towel = (x0, x1, y0, y1, h) => { B(x0, x1, y0, y1, h, h + 2, mat.brass); if (y1 - y0 < x1 - x0) B(x0 + 3, x1 - 3, y0 - .8, y1 + .8, h - 48, h + 1, mat.linen); else B(x0 - .8, x1 + .8, y0 + 3, y1 - 3, h - 48, h + 1, mat.linen); };
 
@@ -3011,7 +3016,9 @@ function upFurniture() {
     B(-140, -68, 10, 30, 57, 59, mat.linen); }
   vanity([42, 87, 3, 217], 'W', [110]);
   shower([7, 87, 262, 392], [['x', 262, 7, 87], ['y', 7, 262, 330]], ['N', 'E'], [47, 345, 47, 391]);
-  wcWall(-147, -129, 208, 270, 'E');
+  wcWall(-147, -128, 182, 296, 'E', HC); // jedna zabudowa do sufitu od wanny do końca pionu – bez wnęk, WC na środku
+  // ===== PRALNIA – zabudowa do sufitu na wolnej ścianie płd. (gł. 50: nie zachodzi na okno od y 470 i nie koliduje z drzwiami od y 497) =====
+  wardrobe([-639.2, -445.1, 418.3, 468.3], 'N', M({ map: oakVmap, color: '#d2c3b2', roughness: .55 }), 4);
   // ===== SYPIALNIA 2 (płn.-zach.) =====
   bed([-517, -377, 1128, 1328], 'N'); night([-569, -529, 1283, 1318], 'S'); night([-365, -325, 1283, 1318], 'S');
   wardrobe([-318, -258, 675, 872], 'W', mebW, 4); wardrobe([-318, -258, 872, 1070], 'W', mebW, 4);
@@ -3027,7 +3034,10 @@ function upFurniture() {
     extrude({ o: out, h: [] }, 0, 14, sink); extrude({ o: out, h: [inn] }, 14, 60, sink);
     cyl(519, 1171, 0, 92, 1.6, mat.brass, 16); rodBetween([519, 1171, 92], [503, 1171, 90], 1.4, mat.brass); for (const s of [-6, 6]) sph(519, 1171 + s, 80, 2.2, mat.brass);
     plantFern(520, 1300, 0, 1.2); }
-  vanity([292, 530, 947, 992], 'N', [73, 175]); towel(258, 288, 945, 947, 120);
+  vanity([292, 530, 947, 992], 'N', [73, 175]);
+  { const x0 = 520, x1 = 529, y0 = 1203, y1 = 1253; for (const y of [y0, y1]) rodBetween([x1, y, 0], [x0, y, 165], 1.1, mat.brass); // drabinka na ręczniki przy wannie
+    for (const h of [40, 80, 120, 158]) { const t = h / 165, x = x1 + (x0 - x1) * t; rodBetween([x, y0, h], [x, y1, h], .8, mat.brass); }
+    const x = x1 + (x0 - x1) * (120 / 165); B(x - 2.2, x + .4, y0 + 4, y1 - 4, 72, 121, mat.linen); B(x - 1.4, x + .4, y0 + 6, y1 - 6, 121, 123, mat.linen); }
   // ===== SYPIALNIA GŁÓWNA =====
   bed([272, 452, 576, 786], 'S'); night([231, 264, 576, 613], 'N'); night([461, 498, 576, 611], 'N');
   desk([3, 63, 652, 842], 'E', [118, 748], -Math.PI / 2);
@@ -3332,6 +3342,11 @@ const VIEWS = {
   zroofC: { iso: true, fov: 45, pos: [-380, 1950, 820], look: [-650, 1390, 480], up: 40, down: 40 },
   zvol: { iso: true, fov: 40, pos: [110, 560, 175], look: [-30, 680, 90], up: 30, down: 30 },
   zcrown: { iso: true, fov: 50, pos: [300, 330, 230], look: [120, 420, 285], up: 40, down: 40 },
+  zwc: { iso: true, fov: 60, pos: [-20, 240, 490], look: [-147, 239, 420], up: 40, down: 40 },
+  zlg2: { iso: true, fov: 60, pos: [330, 1050, 495], look: [520, 1228, 420], up: 40, down: 40 },
+  zpral2: { iso: true, fov: 70, pos: [-540, 720, 490], look: [-540, 420, 430], up: 40, down: 40 },
+  zvolB: { iso: true, fov: 45, pos: [170, 560, 175], look: [10, 680, 90], up: 30, down: 30 },
+  zgwin: { iso: true, fov: 60, pos: [-1080, 1350, 170], look: [-1080, 1700, 175], up: 40, down: 40 },
   zlz: { iso: true, fov: 60, pos: [-60, 113, 480], look: [87, 113, 470], up: 40, down: 40 },
   zgk: { iso: true, fov: 70, pos: [330, 260, 160], look: [0, 420, 150], up: 40, down: 40 },
   zcornNE: { iso: true, fov: 45, pos: [450, 1800, 450], look: [220, 1340, 620], up: 40, down: 40 },
@@ -3389,6 +3404,7 @@ if (INTER) {
   const go = k => { if (window.__walkStop) window.__walkStop(); const ext = ['ogrod', 'front', 'bok'].includes(k); scene.traverse(o => { if (o.name === 'GARDEN') o.visible = !ext && k !== 'dom' && k !== 'gora'; if (o.name === 'UPPER') o.visible = k !== 'dom' && k !== 'parter' && !window.__noUpper; if (o.name === 'LABEL0') o.visible = k === 'parter'; if (o.name === 'LABEL') o.visible = k === 'gora'; }); const [p, t] = PRE[k]; cam.position.set(...p); ctl.target.set(...t); ctl.update(); dirty = 3; };
   let dirty = 3; ctl.addEventListener('change', () => dirty = 2);
   window.__setConcept = c => { for (const k in GS) GS[k].visible = k === c; dirty = 3; };
+  window.__gmull = on => { scene.traverse(o => { if (o.name === 'GMULL') o.visible = on; }); dirty = 3; };
   window.__cars = on => { scene.traverse(o => { if (o.name === 'CARS') o.visible = on; }); dirty = 3; };
   window.__crown = k => { scene.traverse(o => { if (o.name && o.name.startsWith('CROWN_')) o.visible = o.name === 'CROWN_' + k; }); dirty = 3; };
   window.__gk = on => { scene.traverse(o => { if (o.name === 'NICHE_GK') o.visible = on; }); dirty = 3; };
